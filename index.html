@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -338,11 +338,31 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        @keyframes pulse {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 12px 35px rgba(255, 0, 110, 0.6);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div style="background: linear-gradient(135deg, #ff006e 0%, #ff6ec7 100%); padding: 15px 30px; border-radius: 25px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4); animation: pulse 2s infinite; display: inline-block;">
+                <h3 style="color: white; font-size: 1.8em; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); letter-spacing: 2px; margin: 0;">
+                    🐱 CATJER LA CHATTE QUI RUGIT EN CUISINE 🐱
+                </h3>
+            </div>
             <h1>💪 Mon Coach Minceur</h1>
             <p>Votre programme personnalisé pour atteindre vos objectifs</p>
         </div>
@@ -466,6 +486,9 @@
                 <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
                     <p style="text-align: center; color: #333; font-size: 1.1em;">
                         📱 Scannez le code-barres de vos produits pour obtenir instantanément leurs informations nutritionnelles
+                    </p>
+                    <p style="text-align: center; color: #666; font-size: 0.9em; margin-top: 10px;">
+                        ⚠️ Important : Le scanner nécessite l'autorisation de la caméra. Si cela ne fonctionne pas, utilisez la saisie manuelle ci-dessous.
                     </p>
                 </div>
 
@@ -1214,105 +1237,126 @@
             placeholder.style.display = 'none';
             startBtn.style.display = 'none';
             stopBtn.style.display = 'inline-block';
-            scannerActif = true;
 
-            // Configuration améliorée de Quagga
-            Quagga.init({
-                inputStream: {
-                    name: "Live",
-                    type: "LiveStream",
-                    target: scannerContainer,
-                    constraints: {
-                        width: { min: 640, ideal: 1280, max: 1920 },
-                        height: { min: 480, ideal: 720, max: 1080 },
-                        facingMode: "environment",
-                        aspectRatio: { min: 1, max: 2 }
-                    }
+            // IMPORTANT: D'abord demander l'autorisation de la caméra
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: { ideal: 'environment' },
+                    width: { min: 640, ideal: 1280, max: 1920 },
+                    height: { min: 480, ideal: 720, max: 1080 }
                 },
-                locator: {
-                    patchSize: "medium",
-                    halfSample: true
-                },
-                numOfWorkers: 4,
-                decoder: {
-                    readers: [
-                        "ean_reader",
-                        "ean_8_reader",
-                        "code_128_reader",
-                        "code_39_reader",
-                        "code_39_vin_reader",
-                        "codabar_reader",
-                        "upc_reader",
-                        "upc_e_reader"
-                    ],
-                    debug: {
-                        drawBoundingBox: true,
-                        showFrequency: true,
-                        drawScanline: true,
-                        showPattern: true
-                    }
-                },
-                locate: true,
-                frequency: 10
-            }, function(err) {
-                if (err) {
-                    console.error("Erreur Quagga:", err);
-                    alert("Erreur lors de l'initialisation du scanner: " + err.message);
-                    arreterScanner();
-                    return;
-                }
-                console.log("Quagga initialisé avec succès");
-                Quagga.start();
-            });
+                audio: false
+            })
+            .then(function(stream) {
+                console.log("Accès caméra autorisé");
+                scannerActif = true;
 
-            // Détection des codes-barres
-            Quagga.onDetected(function(result) {
-                if (result && result.codeResult && result.codeResult.code) {
-                    const code = result.codeResult.code;
-                    console.log("Code-barres détecté:", code, "Format:", result.codeResult.format);
-                    
-                    // Vérifier que c'est un code valide (au moins 8 chiffres)
-                    if (/^\d{8,13}$/.test(code)) {
-                        // Vibrer si disponible
-                        if (navigator.vibrate) {
-                            navigator.vibrate(200);
+                // Arrêter le stream immédiatement, Quagga va le gérer
+                stream.getTracks().forEach(track => track.stop());
+
+                // Maintenant initialiser Quagga
+                Quagga.init({
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        target: scannerContainer,
+                        constraints: {
+                            width: { min: 640, ideal: 1280 },
+                            height: { min: 480, ideal: 720 },
+                            facingMode: "environment"
+                        },
+                        area: { // Zone de scan optimisée
+                            top: "20%",
+                            right: "10%",
+                            left: "10%",
+                            bottom: "20%"
                         }
-
-                        // Son de confirmation (optionnel)
-                        try {
-                            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVq3n77BdGAg+ltryxnYpBSuBzvLZiTYIGWi77OWcTRAMUKXh8bllHgU3kdbyynksBSN4x/DdkTsLFGC073CnWBELRZ/g8r9vIAU3iNDz1YU0Bx1vwO/jm0gOD1Ot5++vXBgIP5fZ88Z1KQUrgc7y2Ik2CBlou+zlnE0QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx1vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KQUsgc7y2Ig2CRlou+zlnE0QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAUrg87y2Ig2CRlou+zlm00QDFCl4fG5ZR4FN5HW8sp5LAUjesfx3I84Bx5vwO/jm0gND1Ws5++vXBgIP5fZ88Z0KAU=');
-                            audio.play();
-                        } catch (e) {}
-
+                    },
+                    locator: {
+                        patchSize: "medium",
+                        halfSample: true
+                    },
+                    numOfWorkers: navigator.hardwareConcurrency || 2,
+                    decoder: {
+                        readers: [
+                            "ean_reader",
+                            "ean_8_reader",
+                            "upc_reader",
+                            "upc_e_reader",
+                            "code_128_reader"
+                        ]
+                    },
+                    locate: true,
+                    frequency: 10
+                }, function(err) {
+                    if (err) {
+                        console.error("Erreur Quagga:", err);
+                        alert("Erreur lors de l'initialisation du scanner. Veuillez utiliser la saisie manuelle.");
                         arreterScanner();
-                        rechercherProduitAPI(code);
+                        return;
                     }
+                    
+                    console.log("Quagga initialisé avec succès");
+                    Quagga.start();
+                    
+                    // Ajouter un guide visuel
+                    const canvas = Quagga.canvas.dom.overlay;
+                    if (canvas) {
+                        canvas.style.border = '3px solid #4caf50';
+                        canvas.style.borderRadius = '10px';
+                    }
+                });
+
+                // Détection des codes-barres
+                Quagga.onDetected(function(result) {
+                    if (result && result.codeResult && result.codeResult.code) {
+                        const code = result.codeResult.code;
+                        console.log("Code détecté:", code, "Type:", result.codeResult.format);
+                        
+                        // Vérifier que c'est un code valide
+                        if (/^\d{8,13}$/.test(code)) {
+                            console.log("Code valide, recherche du produit...");
+                            
+                            // Vibration
+                            if (navigator.vibrate) {
+                                navigator.vibrate([200, 100, 200]);
+                            }
+
+                            // Arrêter le scanner
+                            arreterScanner();
+                            
+                            // Rechercher le produit
+                            setTimeout(() => {
+                                rechercherProduitAPI(code);
+                            }, 100);
+                        } else {
+                            console.log("Code invalide:", code);
+                        }
+                    }
+                });
+
+            })
+            .catch(function(err) {
+                console.error("Erreur accès caméra:", err);
+                arreterScanner();
+                
+                let message = "Impossible d'accéder à la caméra.\n\n";
+                
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    message += "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.\n\n";
+                    message += "Sur Android:\n";
+                    message += "1. Paramètres > Applications > Votre navigateur\n";
+                    message += "2. Autorisations > Appareil photo > Autoriser";
+                } else if (err.name === 'NotFoundError') {
+                    message += "Aucune caméra détectée sur votre appareil.";
+                } else if (err.name === 'NotReadableError') {
+                    message += "La caméra est utilisée par une autre application.";
+                } else {
+                    message += "Erreur: " + err.message;
                 }
-            });
-
-            // Gestion des erreurs
-            Quagga.onProcessed(function(result) {
-                const drawingCtx = Quagga.canvas.ctx.overlay;
-                const drawingCanvas = Quagga.canvas.dom.overlay;
-
-                if (result) {
-                    if (result.boxes) {
-                        drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
-                        result.boxes.filter(function (box) {
-                            return box !== result.box;
-                        }).forEach(function (box) {
-                            Quagga.ImageDebug.drawPath(box, {x: 0, y: 1}, drawingCtx, {color: "green", lineWidth: 2});
-                        });
-                    }
-
-                    if (result.box) {
-                        Quagga.ImageDebug.drawPath(result.box, {x: 0, y: 1}, drawingCtx, {color: "#00F", lineWidth: 2});
-                    }
-
-                    if (result.codeResult && result.codeResult.code) {
-                        Quagga.ImageDebug.drawPath(result.line, {x: 'x', y: 'y'}, drawingCtx, {color: 'red', lineWidth: 3});
-                    }
-                }
+                
+                message += "\n\nUtilisez la saisie manuelle ci-dessous.";
+                alert(message);
             });
         }
 
@@ -1322,7 +1366,12 @@
             const stopBtn = document.getElementById('stopScanBtn');
 
             if (scannerActif) {
-                Quagga.stop();
+                try {
+                    Quagga.stop();
+                    console.log("Scanner arrêté");
+                } catch (e) {
+                    console.error("Erreur arrêt scanner:", e);
+                }
                 scannerActif = false;
             }
 
