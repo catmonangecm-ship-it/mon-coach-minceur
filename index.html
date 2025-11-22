@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -365,6 +365,10 @@
             </div>
             <h1>💪 Mon Coach Minceur</h1>
             <p>Votre programme personnalisé pour atteindre vos objectifs</p>
+            
+            <a href="https://t.me/+votre_lien_telegram" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0088cc 0%, #00b4ff 100%); color: white; padding: 15px 35px; border-radius: 30px; text-decoration: none; font-size: 1.1em; font-weight: bold; margin-top: 20px; box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4); transition: all 0.3s; animation: pulse 2s infinite;">
+                📱 Rejoins notre communauté Telegram
+            </a>
         </div>
 
         <div class="card">
@@ -484,13 +488,38 @@
                 <h2>Scanner un produit alimentaire</h2>
                 
                 <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <p style="text-align: center; color: #333; font-size: 1.1em;">
-                        📱 Scannez le code-barres de vos produits pour obtenir instantanément leurs informations nutritionnelles
+                    <p style="text-align: center; color: #333; font-size: 1.1em; margin-bottom: 15px;">
+                        📱 Trouvez les informations nutritionnelles de vos produits
                     </p>
-                    <p style="text-align: center; color: #666; font-size: 0.9em; margin-top: 10px;">
-                        ⚠️ Important : Le scanner nécessite l'autorisation de la caméra. Si cela ne fonctionne pas, utilisez la saisie manuelle ci-dessous.
+                    <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">💡 Deux méthodes disponibles :</p>
+                        <ul style="color: #555; font-size: 0.9em; line-height: 1.8; margin-left: 20px;">
+                            <li><strong>Saisie manuelle</strong> (recommandée) - Rapide et fiable ✅</li>
+                            <li><strong>Scanner caméra</strong> - Nécessite l'autorisation caméra</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 30px; padding: 25px; background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); border-radius: 10px; border: 3px solid #667eea;">
+                    <h3 style="margin-bottom: 15px; color: #667eea; text-align: center;">⌨️ Méthode 1 : Saisie manuelle (recommandée)</h3>
+                    <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                        ✨ <strong>Plus rapide et fiable</strong> - Fonctionne à tous les coups !
+                    </p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="manualBarcode" placeholder="Saisissez les 13 chiffres du code-barres" style="flex: 1; padding: 15px; border: 3px solid #667eea; border-radius: 12px; font-size: 18px; min-width: 250px; font-weight: 500;">
+                        <button class="btn" onclick="rechercherCodeBarre()" style="width: auto; margin: 0; padding: 15px 35px; font-size: 18px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">🔍 Rechercher</button>
+                    </div>
+                    <p style="margin-top: 12px; color: #666; font-size: 0.9em; text-align: center;">
+                        💡 Le code-barres se trouve au dos du produit (13 chiffres)<br>
+                        Exemple : 3017620422003
                     </p>
                 </div>
+
+                <div style="margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #999;">
+                    <h3 style="margin-bottom: 15px; color: #666; text-align: center;">📷 Méthode 2 : Scanner avec la caméra</h3>
+                    <p style="text-align: center; color: #999; margin-bottom: 15px; font-size: 0.9em;">
+                        Nécessite l'autorisation de la caméra
+                    </p>
 
                 <div style="text-align: center; margin-bottom: 20px;">
                     <div id="scannerContainer" style="max-width: 500px; margin: 0 auto; position: relative;">
@@ -506,14 +535,6 @@
                     <button class="btn" id="startScanBtn" onclick="demarrerScanner()">📷 Démarrer le scanner</button>
                     <button class="btn" id="stopScanBtn" onclick="arreterScanner()" style="display: none; background: #f44336;">⏹️ Arrêter le scanner</button>
                 </div>
-
-                <div style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                    <h3 style="margin-bottom: 15px; color: #667eea;">⌨️ Ou saisissez le code-barres manuellement</h3>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="manualBarcode" placeholder="Ex: 3017620422003" style="flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
-                        <button class="btn" onclick="rechercherCodeBarre()" style="width: auto; margin: 0; padding: 12px 30px;">🔍 Rechercher</button>
-                    </div>
-                    <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Le code-barres se trouve généralement sous le produit (13 chiffres)</p>
                 </div>
 
                 <div id="loadingScanner" style="display: none; text-align: center; padding: 40px;">
@@ -563,9 +584,28 @@
                     <button class="btn" onclick="sauvegarderProduit()" style="margin-top: 20px;">💾 Sauvegarder ce produit</button>
                 </div>
 
-                <div id="erreurScanner" style="display: none; background: #ffebee; color: #c62828; padding: 20px; border-radius: 10px; margin-top: 20px; text-align: center;">
+                <div id="erreurScanner" style="display: none; background: #ffebee; color: #c62828; padding: 20px; border-radius: 10px; margin-top: 20px;">
                     <h4 style="margin-bottom: 10px;">❌ Produit non trouvé</h4>
                     <p>Ce code-barres n'a pas été trouvé dans notre base de données. Essayez avec un autre produit ou vérifiez le code saisi.</p>
+                </div>
+
+                <div id="erreurPermission" style="display: none; background: #fff3cd; border: 2px solid #ffc107; color: #856404; padding: 25px; border-radius: 10px; margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px; font-size: 1.2em;">🚫 Accès caméra refusé</h4>
+                    <p style="margin-bottom: 15px; line-height: 1.6;">Le navigateur a bloqué l'accès à la caméra. Voici comment le résoudre :</p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">📱 Sur Android (Chrome/Firefox) :</h5>
+                        <ol style="line-height: 2; margin-left: 20px;">
+                            <li>Appuyez sur les <strong>3 points</strong> en haut à droite du navigateur</li>
+                            <li>Allez dans <strong>Paramètres du site</strong> ou <strong>Informations sur le site</strong></li>
+                            <li>Trouvez <strong>Autorisations</strong></li>
+                            <li>Activez <strong>Appareil photo</strong></li>
+                            <li><strong>Rechargez la page</strong> et réessayez</li>
+                        </ol>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">💡 Solution alternative :</p>
+                        <p>Utilisez la saisie manuelle du code-barres ci-dessous - c'est plus rapide et tout aussi efficace !</p>
+                    </div>
                 </div>
 
                 <div id="historiqueProduits" style="margin-top: 40px;">
@@ -1233,6 +1273,7 @@
             // Cacher le résultat précédent
             document.getElementById('resultatScanner').style.display = 'none';
             document.getElementById('erreurScanner').style.display = 'none';
+            document.getElementById('erreurPermission').style.display = 'none';
 
             placeholder.style.display = 'none';
             startBtn.style.display = 'none';
@@ -1340,23 +1381,9 @@
                 console.error("Erreur accès caméra:", err);
                 arreterScanner();
                 
-                let message = "Impossible d'accéder à la caméra.\n\n";
-                
-                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    message += "Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur.\n\n";
-                    message += "Sur Android:\n";
-                    message += "1. Paramètres > Applications > Votre navigateur\n";
-                    message += "2. Autorisations > Appareil photo > Autoriser";
-                } else if (err.name === 'NotFoundError') {
-                    message += "Aucune caméra détectée sur votre appareil.";
-                } else if (err.name === 'NotReadableError') {
-                    message += "La caméra est utilisée par une autre application.";
-                } else {
-                    message += "Erreur: " + err.message;
-                }
-                
-                message += "\n\nUtilisez la saisie manuelle ci-dessous.";
-                alert(message);
+                // Afficher le message d'erreur détaillé
+                document.getElementById('erreurPermission').style.display = 'block';
+                document.getElementById('erreurPermission').scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
         }
 
