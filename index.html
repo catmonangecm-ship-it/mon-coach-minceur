@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -305,6 +306,2028 @@
 
         .menu-card h4 {
             color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .menu-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .menu-card li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .menu-card li:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        /* Styles spécifiques au scanner */
+        #scannerContainer {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        #interactive {
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        #interactive video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        #interactive canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .drawingBuffer {
+            display: none;
+        }
+
+        /* Guide visuel pour le scan */
+        .scan-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 100px;
+            border: 3px solid #4caf50;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 10;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
+
+        .scan-guide::after {
+            content: "Placez le code-barres ici";
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .weight-entry {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 12px 35px rgba(255, 0, 110, 0.6);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+            }
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .debug-info.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="background: linear-gradient(135deg, #ff006e 0%, #ff6ec7 100%); padding: 15px 30px; border-radius: 25px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4); animation: pulse 2s infinite; display: inline-block;">
+                <h3 style="color: white; font-size: 1.8em; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); letter-spacing: 2px; margin: 0;">
+                    🐱 CATJER LA CHATTE QUI RUGIT EN CUISINE 🐱
+                </h3>
+            </div>
+            <h1>💪 Mon Coach Minceur</h1>
+            <p>Votre programme personnalisé pour atteindre vos objectifs</p>
+            
+            <a href="https://t.me/+votre_lien_telegram" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0088cc 0%, #00b4ff 100%); color: white; padding: 15px 35px; border-radius: 30px; text-decoration: none; font-size: 1.1em; font-weight: bold; margin-top: 20px; box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4); transition: all 0.3s; animation: pulse 2s infinite;">
+                📱 Rejoins notre communauté Telegram
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('profil')">📊 Mon Profil</button>
+                <button class="tab" onclick="showTab('suivi')">📈 Suivi du Poids</button>
+                <button class="tab" onclick="showTab('calculateur')">🧮 Calculateur Calories</button>
+                <button class="tab" onclick="showTab('scanner')">📷 Scanner Produit</button>
+                <button class="tab" onclick="showTab('conseils')">🥗 Conseils Nutrition</button>
+                <button class="tab" onclick="showTab('motivation')">💪 Motivation</button>
+                <button class="tab" onclick="showTab('menus')">🍽️ Menus Types</button>
+                <button class="tab" onclick="showTab('calories')">📖 Base Calories</button>
+            </div>
+
+            <!-- Onglet Profil -->
+            <div id="profil" class="tab-content active">
+                <h2>Créez votre profil personnalisé</h2>
+                
+                <div class="form-group">
+                    <label>Nom / Prénom</label>
+                    <input type="text" id="nom" placeholder="Entrez votre nom">
+                </div>
+
+                <div class="form-group">
+                    <label>Sexe</label>
+                    <select id="sexe">
+                        <option value="femme">Femme</option>
+                        <option value="homme">Homme</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Âge (années)</label>
+                    <input type="number" id="age" placeholder="25" min="10" max="100">
+                </div>
+
+                <div class="form-group">
+                    <label>Taille (cm)</label>
+                    <input type="number" id="taille" placeholder="170" min="100" max="250">
+                </div>
+
+                <div class="form-group">
+                    <label>Poids actuel (kg)</label>
+                    <input type="number" id="poids" placeholder="70" step="0.1" min="30" max="300">
+                </div>
+
+                <div class="form-group">
+                    <label>Poids objectif (kg)</label>
+                    <input type="number" id="objectif" placeholder="65" step="0.1" min="30" max="300">
+                </div>
+
+                <div class="form-group">
+                    <label>Niveau d'activité</label>
+                    <select id="activite">
+                        <option value="1.2">Sédentaire (peu ou pas d'exercice)</option>
+                        <option value="1.375">Légèrement actif (exercice 1-3 jours/semaine)</option>
+                        <option value="1.55">Modérément actif (exercice 3-5 jours/semaine)</option>
+                        <option value="1.725">Très actif (exercice 6-7 jours/semaine)</option>
+                        <option value="1.9">Extrêmement actif (exercice intense quotidien)</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="calculerProfil()">Calculer mon programme</button>
+
+                <div id="resultatProfil" class="result-box">
+                    <h3>Votre bilan personnalisé</h3>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="value" id="imcValue">-</div>
+                            <div class="label">IMC</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="poidsIdealValue">-</div>
+                            <div class="label">Poids idéal (kg)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="aPerdrValue">-</div>
+                            <div class="label">À perdre (kg)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="value" id="caloriesValue">-</div>
+                            <div class="label">Calories/jour</div>
+                        </div>
+                    </div>
+                    <div id="imcCategorie" style="margin-top: 15px; font-size: 1.1em;"></div>
+                    <div id="dureeProgramme" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+
+            <!-- Onglet Suivi -->
+            <div id="suivi" class="tab-content">
+                <h2>Suivez votre progression</h2>
+                
+                <div class="weight-entry">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Date</label>
+                        <input type="date" id="datePesee">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Poids (kg)</label>
+                        <input type="number" id="poidsPesee" step="0.1" placeholder="70.5">
+                    </div>
+                    <button class="btn" onclick="ajouterPesee()" style="margin-top: 0;">Ajouter</button>
+                </div>
+
+                <div id="progressionActuelle"></div>
+
+                <canvas id="graphiquePoids" width="400" height="200"></canvas>
+
+                <div class="weight-history">
+                    <h3 style="margin-bottom: 15px;">Historique des pesées</h3>
+                    <div id="listePesees"></div>
+                </div>
+            </div>
+
+            <!-- Onglet Calculateur de Calories -->
+            <div id="calculateur" class="tab-content">
+                <h2>Calculateur de Calories</h2>
+                
+                <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="text-align: center; color: #333; font-size: 1.1em; margin-bottom: 10px;">
+                        🔢 Calculez automatiquement les calories de vos aliments
+                    </p>
+                    <p style="text-align: center; color: #555; font-size: 0.95em;">
+                        Tapez le nom d'un aliment, entrez la quantité en grammes, et obtenez instantanément les informations nutritionnelles !
+                    </p>
+                </div>
+
+                <!-- Recherche et ajout d'aliment -->
+                <div style="background: white; border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🔍 Rechercher un aliment</h3>
+                    
+                    <div class="form-group">
+                        <label>Nom de l'aliment</label>
+                        <input type="text" id="searchAliment" placeholder="Ex: poulet, pomme, riz..." oninput="rechercherAliment()">
+                        <div id="suggestionsAliments" style="background: white; border: 1px solid #e0e0e0; border-radius: 5px; margin-top: 5px; max-height: 200px; overflow-y: auto; display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Quantité (grammes)</label>
+                        <input type="number" id="quantiteAliment" placeholder="100" min="1" step="1">
+                    </div>
+
+                    <button class="btn" onclick="ajouterAlimentCalcul()">➕ Ajouter à mon repas</button>
+                </div>
+
+                <!-- Résumé du repas actuel -->
+                <div id="repasActuel" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px;">🍽️ Votre repas actuel</h3>
+                    
+                    <div id="listeAlimentsRepas" style="margin-bottom: 15px;"></div>
+
+                    <div class="stats" style="margin-top: 15px;">
+                        <div class="stat-card" style="background: rgba(255, 255, 255, 0.2);">
+                            <div class="value" id="totalCalories">0</div>
+                            <div class="label">Calories totales (kcal)</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255, 255, 255, 0.2);">
+                            <div class="value" id="totalProteines">0</div>
+                            <div class="label">Protéines (g)</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255, 255, 255, 0.2);">
+                            <div class="value" id="totalGlucides">0</div>
+                            <div class="label">Glucides (g)</div>
+                        </div>
+                        <div class="stat-card" style="background: rgba(255, 255, 255, 0.2);">
+                            <div class="value" id="totalLipides">0</div>
+                            <div class="label">Lipides (g)</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn" onclick="sauvegarderRepas()" style="flex: 1; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">💾 Sauvegarder ce repas</button>
+                        <button class="btn" onclick="reinitialiserRepas()" style="flex: 1; background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);">🗑️ Vider</button>
+                    </div>
+                </div>
+
+                <!-- Historique des repas sauvegardés -->
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📅 Historique de mes repas</h3>
+                    
+                    <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
+                        <p style="color: #333; font-size: 1.1em; font-weight: bold; margin-bottom: 5px;">
+                            Calories du jour : <span id="caloriesJour">0</span> kcal
+                        </p>
+                        <p id="objectifCaloriesMsg" style="color: #666; font-size: 0.9em; display: none;">
+                            Objectif : <span id="objectifCaloriesValue">0</span> kcal
+                        </p>
+                        <div class="progress-bar" id="progressCaloriesJour" style="margin-top: 10px; display: none;">
+                            <div class="progress-fill" id="progressCaloriesFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div id="historiqueRepas"></div>
+                </div>
+            </div>
+
+            <!-- Onglet Scanner -->
+            <div id="scanner" class="tab-content">
+                <h2>Scanner un produit alimentaire</h2>
+                
+                <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="text-align: center; color: #333; font-size: 1.1em; margin-bottom: 15px;">
+                        📱 Trouvez les informations nutritionnelles de vos produits
+                    </p>
+                    <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">💡 Deux méthodes disponibles :</p>
+                        <ul style="color: #555; font-size: 0.9em; line-height: 1.8; margin-left: 20px;">
+                            <li><strong>Saisie manuelle</strong> - Rapide et fiable ✅</li>
+                            <li><strong>Scanner caméra</strong> - Scannez directement le code-barres</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Méthode 1: Saisie manuelle -->
+                <div style="margin-bottom: 30px; padding: 25px; background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); border-radius: 10px; border: 3px solid #667eea;">
+                    <h3 style="margin-bottom: 15px; color: #667eea; text-align: center;">⌨️ Méthode 1 : Saisie manuelle</h3>
+                    <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                        ✨ <strong>Recommandée</strong> - Plus rapide et fiable !
+                    </p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="manualBarcode" placeholder="Saisissez les 13 chiffres du code-barres" style="flex: 1; padding: 15px; border: 3px solid #667eea; border-radius: 12px; font-size: 18px; min-width: 250px; font-weight: 500;">
+                        <button class="btn" onclick="rechercherCodeBarre()" style="width: auto; margin: 0; padding: 15px 35px; font-size: 18px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">🔍 Rechercher</button>
+                    </div>
+                    <p style="margin-top: 12px; color: #666; font-size: 0.9em; text-align: center;">
+                        💡 Le code-barres se trouve au dos du produit (13 chiffres)<br>
+                        Exemple : 3017620422003
+                    </p>
+                </div>
+
+                <!-- Méthode 2: Scanner caméra -->
+                <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #fff9e6 0%, #ffe6f0 100%); border-radius: 10px; border: 2px solid #ffc107;">
+                    <h3 style="margin-bottom: 15px; color: #f57c00; text-align: center;">📷 Méthode 2 : Scanner avec la caméra</h3>
+                    <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                        Scannez directement le code-barres du produit
+                    </p>
+
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <button class="btn" id="startScanBtn" onclick="demarrerScanner()" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                            📷 Activer le scanner
+                        </button>
+                        <button class="btn" id="stopScanBtn" onclick="arreterScanner()" style="display: none; background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
+                            ⏹️ Arrêter le scanner
+                        </button>
+                    </div>
+
+                    <div id="scannerContainer" style="max-width: 640px; margin: 0 auto; position: relative; background: #000; border-radius: 10px; overflow: hidden;">
+                        <div id="scanPlaceholder" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 20px; text-align: center;">
+                            <div style="font-size: 4em; margin-bottom: 15px;">📷</div>
+                            <p style="color: white; font-size: 1.1em; line-height: 1.6;">
+                                Cliquez sur "Activer le scanner" pour utiliser votre caméra<br>
+                                <span style="font-size: 0.9em; opacity: 0.9;">Assurez-vous d'autoriser l'accès à la caméra</span>
+                            </p>
+                        </div>
+                        <div id="interactive" style="display: none; position: relative;">
+                            <div class="scan-guide"></div>
+                        </div>
+                    </div>
+
+                    <!-- Informations de débogage (masquées par défaut) -->
+                    <div id="debugInfo" class="debug-info"></div>
+                    <button onclick="toggleDebug()" style="margin-top: 10px; padding: 8px 15px; background: #e0e0e0; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">
+                        🔧 Afficher/Masquer infos de débogage
+                    </button>
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingScanner" style="display: none; text-align: center; padding: 40px;">
+                    <div style="font-size: 3em; animation: spin 1s linear infinite;">⌛</div>
+                    <p style="color: #667eea; font-size: 1.2em; margin-top: 10px;">Recherche en cours...</p>
+                </div>
+
+                <!-- Résultat du scan -->
+                <div id="resultatScanner" style="display: none;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📦 Informations du produit</h3>
+                    
+                    <div style="background: white; border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 20px; align-items: start; flex-wrap: wrap;">
+                            <img id="productImage" src="" alt="Produit" style="width: 150px; height: 150px; object-fit: contain; border-radius: 8px; background: #f8f9fa;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <h4 id="productName" style="color: #333; margin-bottom: 10px; font-size: 1.3em;"></h4>
+                                <p id="productBrand" style="color: #667eea; font-weight: 600; margin-bottom: 5px;"></p>
+                                <p id="productQuantity" style="color: #666; margin-bottom: 10px;"></p>
+                                <p id="productBarcode" style="color: #999; font-size: 0.9em;"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="value" id="productCalories">-</div>
+                            <div class="label">Calories (kcal/100g)</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="value" id="productProteines">-</div>
+                            <div class="label">Protéines (g/100g)</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <div class="value" id="productGlucides">-</div>
+                            <div class="label">Glucides (g/100g)</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <div class="value" id="productLipides">-</div>
+                            <div class="label">Lipides (g/100g)</div>
+                        </div>
+                    </div>
+
+                    <div id="nutriscoreContainer" style="margin-top: 20px; text-align: center; display: none;">
+                        <h4 style="margin-bottom: 10px;">Score nutritionnel</h4>
+                        <img id="nutriscoreImage" src="" alt="Nutri-Score" style="max-width: 200px;">
+                    </div>
+
+                    <button class="btn" onclick="sauvegarderProduit()" style="margin-top: 20px;">💾 Sauvegarder ce produit</button>
+                </div>
+
+                <!-- Erreurs -->
+                <div id="erreurScanner" style="display: none; background: #ffebee; color: #c62828; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h4 style="margin-bottom: 10px;">❌ Produit non trouvé</h4>
+                    <p>Ce code-barres n'a pas été trouvé dans notre base de données. Essayez avec un autre produit ou vérifiez le code saisi.</p>
+                </div>
+
+                <div id="erreurPermission" style="display: none; background: #fff3cd; border: 2px solid #ffc107; color: #856404; padding: 25px; border-radius: 10px; margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px; font-size: 1.2em;">🚫 Accès caméra refusé</h4>
+                    <p style="margin-bottom: 15px; line-height: 1.6;">Le navigateur a bloqué l'accès à la caméra. Voici comment le résoudre :</p>
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">📱 Sur mobile :</h5>
+                        <ol style="line-height: 2; margin-left: 20px;">
+                            <li>Allez dans les <strong>paramètres</strong> de votre navigateur</li>
+                            <li>Cherchez <strong>Autorisations</strong> ou <strong>Permissions</strong></li>
+                            <li>Trouvez <strong>Appareil photo / Caméra</strong></li>
+                            <li>Activez l'autorisation pour ce site</li>
+                            <li>Rechargez la page et réessayez</li>
+                        </ol>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">💡 Solution alternative :</p>
+                        <p>Utilisez la saisie manuelle du code-barres ci-dessus - c'est tout aussi efficace !</p>
+                    </div>
+                </div>
+
+                <!-- Historique des produits -->
+                <div id="historiqueProduits" style="margin-top: 40px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📚 Mes produits scannés</h3>
+                    <div id="listeProduits"></div>
+                </div>
+            </div>
+
+            <!-- Onglet Conseils -->
+            <div id="conseils" class="tab-content">
+                <h2>Conseils Nutrition & Bien-être</h2>
+                
+                <div class="conseil-card">
+                    <h4>🥗 Règle n°1 : L'équilibre alimentaire</h4>
+                    <p>Privilégiez une alimentation variée et équilibrée. Chaque repas devrait contenir des protéines, des glucides complexes, des légumes et de bonnes graisses. Ne sautez jamais de repas !</p>
+                </div>
+
+                <div class="conseil-card">
+                    <h4>💧 Règle n°2 : L'hydratation</h4>
+                    <p>Buvez au moins 1,5 à 2 litres d'eau par jour. L'eau aide à éliminer les toxines, favorise la digestion et peut réduire la sensation de faim. Commencez votre journée avec un grand verre d'eau.</p>
+                </div>
+
+                <div class="conseil-card">
+                    <h4>⏰ Règle n°3 : Les horaires réguliers</h4>
+                    <p>Mangez à heures fixes pour réguler votre métabolisme. Idéalement : petit-déjeuner avant 9h, déjeuner entre 12h et 13h, dîner avant 20h. Évitez de grignoter entre les repas.</p>
+                </div>
+
+                <div class="conseil-card">
+                    <h4>🥦 Règle n°4 : Légumes à volonté</h4>
+                    <p>Les légumes sont vos meilleurs alliés ! Riches en fibres, vitamines et minéraux, ils vous rassasient sans apporter beaucoup de calories. Visez 5 portions de fruits et légumes par jour.</p>
+                </div>
+
+                <div class="conseil-card">
+                    <h4>🏃‍♀️ Règle n°5 : L'activité physique</h4>
+                    <p>Bougez au moins 30 minutes par jour ! Marche, vélo, natation, danse... Choisissez une activité qui vous plaît. L'exercice booste votre métabolisme et améliore votre bien-être.</p>
+                </div>
+
+                <div class="conseil-card">
+                    <h4>😴 Règle n°6 : Le sommeil</h4>
+                    <p>Dormez 7 à 8 heures par nuit. Le manque de sommeil perturbe les hormones de la faim et augmente les envies de sucre. Un bon sommeil est essentiel pour perdre du poids durablement.</p>
+                </div>
+
+                <div class="conseil-card">
+                    <h4>🍫 Règle n°7 : Les plaisirs autorisés</h4>
+                    <p>Autorisez-vous un petit plaisir de temps en temps pour éviter les frustrations. L'important est la régularité, pas la perfection. Un carré de chocolat noir 70% peut être votre allié !</p>
+                </div>
+
+                <div class="conseil-card">
+                    <h4>📱 Règle n°8 : La pleine conscience</h4>
+                    <p>Mangez lentement, en pleine conscience, sans écran. Prenez le temps de savourer chaque bouchée. Cela favorise la satiété et améliore votre rapport à la nourriture.</p>
+                </div>
+            </div>
+
+            <!-- Onglet Motivation -->
+            <div id="motivation" class="tab-content">
+                <h2>Votre dose de motivation quotidienne</h2>
+                
+                <div class="motivation-box">
+                    <div class="quote" id="citationJour"></div>
+                    <div class="author" id="auteurCitation"></div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🎯 Vos objectifs de la semaine</h3>
+                    
+                    <div class="conseil-card">
+                        <h4>Lundi : Démarrage en douceur</h4>
+                        <p>Commencez la semaine du bon pied ! Buvez un grand verre d'eau au réveil et prenez un petit-déjeuner complet. Fixez-vous 3 objectifs pour la semaine.</p>
+                    </div>
+
+                    <div class="conseil-card">
+                        <h4>Mardi : Jour des protéines</h4>
+                        <p>Assurez-vous d'avoir des protéines à chaque repas aujourd'hui. Elles vous aideront à vous sentir rassasié plus longtemps et à maintenir votre masse musculaire.</p>
+                    </div>
+
+                    <div class="conseil-card">
+                        <h4>Mercredi : Challenge activité</h4>
+                        <p>Aujourd'hui, faites 10 000 pas ! Prenez les escaliers, descendez un arrêt avant en transport, faites une promenade après le déjeuner. Bougez !</p>
+                    </div>
+
+                    <div class="conseil-card">
+                        <h4>Jeudi : Jour végétarien</h4>
+                        <p>Testez un repas 100% végétarien aujourd'hui. Découvrez de nouvelles recettes à base de légumineuses, tofu ou légumes. Votre corps et la planète vous remercieront !</p>
+                    </div>
+
+                    <div class="conseil-card">
+                        <h4>Vendredi : Préparation weekend</h4>
+                        <p>Préparez vos repas du weekend pour éviter les tentations. Faites vos courses avec une liste et ne partez jamais le ventre vide au supermarché.</p>
+                    </div>
+
+                    <div class="conseil-card">
+                        <h4>Weekend : Équilibre et plaisir</h4>
+                        <p>Le weekend, c'est le moment de vous faire plaisir intelligemment. Sortez, bougez, profitez mais gardez vos bonnes habitudes. L'équilibre est la clé !</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Onglet Base Calories -->
+            <div id="calories" class="tab-content">
+                <h2>Base de données nutritionnelle complète</h2>
+                
+                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 15px; margin: 20px 0;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.8em;">🍎 Découvrez les calories de tous les aliments</h3>
+                    <p style="color: #555; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6;">
+                        Accédez à une base de données complète de plus de 150 aliments avec leurs informations nutritionnelles détaillées : calories, protéines, glucides et lipides pour 100g.
+                    </p>
+                    <a href="https://base-calorie.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s;">
+                        🔍 Ouvrir la base de données
+                    </a>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">✨ Fonctionnalités de la base de données</h3>
+                    
+                    <div class="menu-grid">
+                        <div class="menu-card">
+                            <h4>🔎 Recherche rapide</h4>
+                            <ul>
+                                <li>Trouvez n'importe quel aliment instantanément</li>
+                                <li>Résultats en temps réel</li>
+                            </ul>
+                        </div>
+
+                        <div class="menu-card">
+                            <h4>🏷️ Filtres par catégorie</h4>
+                            <ul>
+                                <li>Fruits, légumes, viandes, poissons</li>
+                                <li>Céréales, produits laitiers, noix</li>
+                                <li>Plus de 12 catégories disponibles</li>
+                            </ul>
+                        </div>
+
+                        <div class="menu-card">
+                            <h4>📊 Informations complètes</h4>
+                            <ul>
+                                <li>Calories par 100g</li>
+                                <li>Protéines, glucides, lipides</li>
+                                <li>Indicateurs visuels clairs</li>
+                            </ul>
+                        </div>
+
+                        <div class="menu-card">
+                            <h4>📈 Tri intelligent</h4>
+                            <ul>
+                                <li>Triez par calories</li>
+                                <li>Triez par protéines</li>
+                                <li>Comparez facilement les aliments</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">💡 Astuce nutrition</h4>
+                    <p style="color: #856404; line-height: 1.6;">
+                        Utilisez la base de données pour composer vos repas équilibrés. Un repas idéal contient environ 500-600 calories avec un bon équilibre entre protéines (30%), glucides (40%) et lipides (30%). Les aliments à moins de 100 calories pour 100g sont parfaits pour les grosses portions !
+                    </p>
+                </div>
+
+                <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 10px;">
+                    <h4 style="color: #333; margin-bottom: 10px;">🎯 Exemples de portions</h4>
+                    <ul style="color: #555; line-height: 1.8;">
+                        <li><strong>100g de poulet</strong> = environ la taille de la paume de votre main</li>
+                        <li><strong>100g de pâtes cuites</strong> = environ 1 tasse</li>
+                        <li><strong>100g de légumes</strong> = environ 1 grosse poignée</li>
+                        <li><strong>30g de fromage</strong> = environ la taille de 2 dominos</li>
+                        <li><strong>Une portion de fruit</strong> = 1 fruit moyen (150-200g)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Onglet Menus -->
+            <div id="menus" class="tab-content">
+                <h2>Exemples de menus équilibrés</h2>
+                
+                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    <h3 style="color: white; margin-bottom: 15px; font-size: 1.8em;">📅 Planificateur de Repas + Suivi Calories</h3>
+                    <p style="color: white; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6; opacity: 0.95;">
+                        🔥 Application complète pour planifier vos repas de la semaine et suivre vos calories quotidiennes automatiquement ! Avec 20 recettes françaises et macros détaillées.
+                    </p>
+                    <a href="https://planificateur-de-repas-calories.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4); transition: all 0.3s;">
+                        📊 Planifier mes repas et calories
+                    </a>
+                </div>
+                
+                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 15px; margin-bottom: 30px;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.8em;">🍽️ Découvrez nos recettes complètes</h3>
+                    <p style="color: #555; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6;">
+                        Accédez à plus de 30 recettes équilibrées avec viandes, charcuteries et légumes. Chaque recette contient les instructions détaillées, temps de préparation et informations nutritionnelles.
+                    </p>
+                    <a href="https://recette-mon-cadeau.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s; margin-right: 15px;">
+                        👨‍🍳 Voir toutes les recettes
+                    </a>
+                </div>
+
+                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 15px; margin-bottom: 30px;">
+                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.8em;">📖 Créez votre carnet personnel</h3>
+                    <p style="color: #555; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6;">
+                        Créez et sauvegardez vos propres recettes avec photos, ingrédients, instructions et informations nutritionnelles. Exportez et partagez vos créations !
+                    </p>
+                    <a href="https://mon-carnet-recette.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s;">
+                        📝 Mon carnet de recettes
+                    </a>
+                </div>
+
+                <h3 style="color: #667eea; margin-bottom: 15px;">📋 Exemples de menus quotidiens</h3>
+                
+                <div class="menu-grid">
+                    <div class="menu-card">
+                        <h4>Petit-déjeuner 1</h4>
+                        <ul>
+                            <li>Porridge d'avoine au lait</li>
+                            <li>Fruits rouges frais</li>
+                            <li>1 cuillère de miel</li>
+                            <li>Thé vert ou café sans sucre</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-card">
+                        <h4>Petit-déjeuner 2</h4>
+                        <ul>
+                            <li>2 tranches de pain complet</li>
+                            <li>1 avocat écrasé</li>
+                            <li>1 œuf poché</li>
+                            <li>Jus d'orange frais</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-card">
+                        <h4>Déjeuner 1</h4>
+                        <ul>
+                            <li>Salade verte mixte</li>
+                            <li>Poulet grillé (150g)</li>
+                            <li>Quinoa aux légumes</li>
+                            <li>1 yaourt nature</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-card">
+                        <h4>Déjeuner 2</h4>
+                        <ul>
+                            <li>Saumon au four (120g)</li>
+                            <li>Brocolis vapeur</li>
+                            <li>Riz basmati complet</li>
+                            <li>Compote sans sucre ajouté</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-card">
+                        <h4>Dîner 1</h4>
+                        <ul>
+                            <li>Soupe de légumes maison</li>
+                            <li>Omelette aux champignons</li>
+                            <li>Salade verte</li>
+                            <li>Fruit de saison</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-card">
+                        <h4>Dîner 2</h4>
+                        <ul>
+                            <li>Poisson blanc vapeur</li>
+                            <li>Haricots verts</li>
+                            <li>Patate douce rôtie</li>
+                            <li>Fromage blanc 0%</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-card">
+                        <h4>Collation 1</h4>
+                        <ul>
+                            <li>1 pomme</li>
+                            <li>Poignée d'amandes (15-20)</li>
+                            <li>Thé vert</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-card">
+                        <h4>Collation 2</h4>
+                        <ul>
+                            <li>Yaourt grec nature</li>
+                            <li>Fruits rouges</li>
+                            <li>1 cuillère de graines de chia</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
+                    <h4 style="color: #856404; margin-bottom: 10px;">💡 Astuce du chef</h4>
+                    <p style="color: #856404;">Préparez vos repas à l'avance le dimanche pour toute la semaine. Utilisez des contenants hermétiques et variez les menus pour ne pas vous lasser. La préparation est la clé du succès !</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Citations motivantes
+        const citations = [
+            { texte: "Le succès, c'est la somme de petits efforts répétés jour après jour.", auteur: "Robert Collier" },
+            { texte: "Votre corps peut tout faire, c'est votre esprit qu'il faut convaincre.", auteur: "Anonyme" },
+            { texte: "La motivation vous fait démarrer, l'habitude vous fait continuer.", auteur: "Jim Ryun" },
+            { texte: "Prenez soin de votre corps, c'est le seul endroit où vous êtes obligé de vivre.", auteur: "Jim Rohn" },
+            { texte: "Le secret pour avancer est de commencer.", auteur: "Mark Twain" },
+            { texte: "Ne vous comparez qu'à la personne que vous étiez hier.", auteur: "Jordan Peterson" },
+            { texte: "Vous n'avez pas à être extrême, juste constant.", auteur: "Anonyme" },
+            { texte: "Chaque expert a été un jour un débutant.", auteur: "Robin Sharma" }
+        ];
+
+        // Données utilisateur
+        let userData = JSON.parse(localStorage.getItem('userData')) || {};
+        let pesees = JSON.parse(localStorage.getItem('pesees')) || [];
+        let produitsSauvegardes = JSON.parse(localStorage.getItem('produits')) || [];
+        let repasActuel = [];
+        let repasSauvegardes = JSON.parse(localStorage.getItem('repas')) || [];
+        let scannerActif = false;
+        let dernierProduit = null;
+        let dernierCodeDetecte = null;
+        let timeoutDetection = null;
+
+        // Base de données d'aliments (calories pour 100g)
+        const baseAliments = [
+            // Viandes et poissons
+            { nom: "Poulet", categorie: "Viande", calories: 165, proteines: 31, glucides: 0, lipides: 3.6 },
+            { nom: "Bœuf", categorie: "Viande", calories: 250, proteines: 26, glucides: 0, lipides: 17 },
+            { nom: "Porc", categorie: "Viande", calories: 242, proteines: 27, glucides: 0, lipides: 14 },
+            { nom: "Dinde", categorie: "Viande", calories: 135, proteines: 29, glucides: 0, lipides: 1.5 },
+            { nom: "Jambon blanc", categorie: "Charcuterie", calories: 145, proteines: 21, glucides: 1, lipides: 6 },
+            { nom: "Saumon", categorie: "Poisson", calories: 208, proteines: 20, glucides: 0, lipides: 13 },
+            { nom: "Thon", categorie: "Poisson", calories: 130, proteines: 29, glucides: 0, lipides: 1 },
+            { nom: "Cabillaud", categorie: "Poisson", calories: 82, proteines: 18, glucides: 0, lipides: 0.7 },
+            { nom: "Sardine", categorie: "Poisson", calories: 208, proteines: 25, glucides: 0, lipides: 11 },
+            { nom: "Crevette", categorie: "Fruits de mer", calories: 99, proteines: 24, glucides: 0, lipides: 0.3 },
+            
+            // Œufs et produits laitiers
+            { nom: "Œuf", categorie: "Œuf", calories: 155, proteines: 13, glucides: 1.1, lipides: 11 },
+            { nom: "Lait entier", categorie: "Laitier", calories: 61, proteines: 3.2, glucides: 4.8, lipides: 3.3 },
+            { nom: "Lait demi-écrémé", categorie: "Laitier", calories: 46, proteines: 3.3, glucides: 4.8, lipides: 1.5 },
+            { nom: "Yaourt nature", categorie: "Laitier", calories: 59, proteines: 3.5, glucides: 4, lipides: 3.3 },
+            { nom: "Fromage blanc 0%", categorie: "Laitier", calories: 44, proteines: 7.5, glucides: 4, lipides: 0.2 },
+            { nom: "Fromage blanc 20%", categorie: "Laitier", calories: 75, proteines: 7, glucides: 3, lipides: 3 },
+            { nom: "Emmental", categorie: "Fromage", calories: 382, proteines: 28, glucides: 1.6, lipides: 29 },
+            { nom: "Mozzarella", categorie: "Fromage", calories: 280, proteines: 28, glucides: 2.2, lipides: 17 },
+            { nom: "Camembert", categorie: "Fromage", calories: 299, proteines: 20, glucides: 0.5, lipides: 24 },
+            
+            // Féculents et céréales
+            { nom: "Riz blanc cuit", categorie: "Féculent", calories: 130, proteines: 2.7, glucides: 28, lipides: 0.3 },
+            { nom: "Riz complet cuit", categorie: "Féculent", calories: 112, proteines: 2.6, glucides: 24, lipides: 0.9 },
+            { nom: "Pâtes cuites", categorie: "Féculent", calories: 131, proteines: 5, glucides: 25, lipides: 1.1 },
+            { nom: "Pâtes complètes cuites", categorie: "Féculent", calories: 124, proteines: 5.3, glucides: 23.5, lipides: 1.4 },
+            { nom: "Quinoa cuit", categorie: "Féculent", calories: 120, proteines: 4.4, glucides: 21, lipides: 1.9 },
+            { nom: "Pain blanc", categorie: "Pain", calories: 265, proteines: 9, glucides: 49, lipides: 3.2 },
+            { nom: "Pain complet", categorie: "Pain", calories: 247, proteines: 13, glucides: 41, lipides: 3.5 },
+            { nom: "Pain de mie", categorie: "Pain", calories: 266, proteines: 8.9, glucides: 49, lipides: 3.3 },
+            { nom: "Pomme de terre cuite", categorie: "Féculent", calories: 77, proteines: 2, glucides: 17, lipides: 0.1 },
+            { nom: "Patate douce cuite", categorie: "Féculent", calories: 90, proteines: 2, glucides: 21, lipides: 0.2 },
+            { nom: "Flocons d'avoine", categorie: "Céréale", calories: 389, proteines: 17, glucides: 66, lipides: 7 },
+            { nom: "Muesli", categorie: "Céréale", calories: 364, proteines: 9.7, glucides: 66, lipides: 5.7 },
+            { nom: "Corn flakes", categorie: "Céréale", calories: 357, proteines: 7.5, glucides: 84, lipides: 0.9 },
+            
+            // Légumineuses
+            { nom: "Lentilles cuites", categorie: "Légumineuse", calories: 116, proteines: 9, glucides: 20, lipides: 0.4 },
+            { nom: "Pois chiches cuits", categorie: "Légumineuse", calories: 164, proteines: 8.9, glucides: 27, lipides: 2.6 },
+            { nom: "Haricots rouges cuits", categorie: "Légumineuse", calories: 127, proteines: 8.7, glucides: 23, lipides: 0.5 },
+            { nom: "Haricots blancs cuits", categorie: "Légumineuse", calories: 139, proteines: 9.7, glucides: 25, lipides: 0.5 },
+            
+            // Légumes
+            { nom: "Tomate", categorie: "Légume", calories: 18, proteines: 0.9, glucides: 3.9, lipides: 0.2 },
+            { nom: "Carotte", categorie: "Légume", calories: 41, proteines: 0.9, glucides: 10, lipides: 0.2 },
+            { nom: "Brocoli", categorie: "Légume", calories: 34, proteines: 2.8, glucides: 7, lipides: 0.4 },
+            { nom: "Courgette", categorie: "Légume", calories: 17, proteines: 1.2, glucides: 3.1, lipides: 0.3 },
+            { nom: "Concombre", categorie: "Légume", calories: 15, proteines: 0.7, glucides: 3.6, lipides: 0.1 },
+            { nom: "Salade verte", categorie: "Légume", calories: 15, proteines: 1.4, glucides: 2.9, lipides: 0.2 },
+            { nom: "Épinards", categorie: "Légume", calories: 23, proteines: 2.9, glucides: 3.6, lipides: 0.4 },
+            { nom: "Haricots verts", categorie: "Légume", calories: 31, proteines: 1.8, glucides: 7, lipides: 0.2 },
+            { nom: "Poivron", categorie: "Légume", calories: 31, proteines: 1, glucides: 6, lipides: 0.3 },
+            { nom: "Champignon", categorie: "Légume", calories: 22, proteines: 3.1, glucides: 3.3, lipides: 0.3 },
+            { nom: "Oignon", categorie: "Légume", calories: 40, proteines: 1.1, glucides: 9.3, lipides: 0.1 },
+            { nom: "Aubergine", categorie: "Légume", calories: 25, proteines: 1, glucides: 6, lipides: 0.2 },
+            { nom: "Chou-fleur", categorie: "Légume", calories: 25, proteines: 1.9, glucides: 5, lipides: 0.3 },
+            
+            // Fruits
+            { nom: "Pomme", categorie: "Fruit", calories: 52, proteines: 0.3, glucides: 14, lipides: 0.2 },
+            { nom: "Banane", categorie: "Fruit", calories: 89, proteines: 1.1, glucides: 23, lipides: 0.3 },
+            { nom: "Orange", categorie: "Fruit", calories: 47, proteines: 0.9, glucides: 12, lipides: 0.1 },
+            { nom: "Fraise", categorie: "Fruit", calories: 32, proteines: 0.7, glucides: 7.7, lipides: 0.3 },
+            { nom: "Kiwi", categorie: "Fruit", calories: 61, proteines: 1.1, glucides: 15, lipides: 0.5 },
+            { nom: "Raisin", categorie: "Fruit", calories: 69, proteines: 0.7, glucides: 18, lipides: 0.2 },
+            { nom: "Poire", categorie: "Fruit", calories: 57, proteines: 0.4, glucides: 15, lipides: 0.1 },
+            { nom: "Pêche", categorie: "Fruit", calories: 39, proteines: 0.9, glucides: 10, lipides: 0.3 },
+            { nom: "Abricot", categorie: "Fruit", calories: 48, proteines: 1.4, glucides: 11, lipides: 0.4 },
+            { nom: "Ananas", categorie: "Fruit", calories: 50, proteines: 0.5, glucides: 13, lipides: 0.1 },
+            { nom: "Melon", categorie: "Fruit", calories: 34, proteines: 0.8, glucides: 8, lipides: 0.2 },
+            { nom: "Pastèque", categorie: "Fruit", calories: 30, proteines: 0.6, glucides: 7.6, lipides: 0.2 },
+            { nom: "Avocat", categorie: "Fruit", calories: 160, proteines: 2, glucides: 8.5, lipides: 15 },
+            
+            // Noix et graines
+            { nom: "Amande", categorie: "Noix", calories: 579, proteines: 21, glucides: 22, lipides: 50 },
+            { nom: "Noix", categorie: "Noix", calories: 654, proteines: 15, glucides: 14, lipides: 65 },
+            { nom: "Noisette", categorie: "Noix", calories: 628, proteines: 15, glucides: 17, lipides: 61 },
+            { nom: "Pistache", categorie: "Noix", calories: 560, proteines: 20, glucides: 28, lipides: 45 },
+            { nom: "Cacahuète", categorie: "Noix", calories: 567, proteines: 26, glucides: 16, lipides: 49 },
+            { nom: "Graines de chia", categorie: "Graine", calories: 486, proteines: 17, glucides: 42, lipides: 31 },
+            { nom: "Graines de lin", categorie: "Graine", calories: 534, proteines: 18, glucides: 29, lipides: 42 },
+            
+            // Matières grasses
+            { nom: "Huile d'olive", categorie: "Matière grasse", calories: 884, proteines: 0, glucides: 0, lipides: 100 },
+            { nom: "Beurre", categorie: "Matière grasse", calories: 717, proteines: 0.9, glucides: 0.1, lipides: 81 },
+            { nom: "Margarine", categorie: "Matière grasse", calories: 717, proteines: 0.2, glucides: 0.8, lipides: 80 },
+            { nom: "Crème fraîche", categorie: "Matière grasse", calories: 300, proteines: 2.2, glucides: 3.3, lipides: 30 },
+            
+            // Produits sucrés
+            { nom: "Chocolat noir", categorie: "Sucré", calories: 546, proteines: 6.1, glucides: 61, lipides: 32 },
+            { nom: "Chocolat au lait", categorie: "Sucré", calories: 535, proteines: 7.6, glucides: 59, lipides: 30 },
+            { nom: "Miel", categorie: "Sucré", calories: 304, proteines: 0.3, glucides: 82, lipides: 0 },
+            { nom: "Confiture", categorie: "Sucré", calories: 278, proteines: 0.4, glucides: 70, lipides: 0.1 },
+            { nom: "Sucre", categorie: "Sucré", calories: 387, proteines: 0, glucides: 100, lipides: 0 },
+            
+            // Boissons
+            { nom: "Jus d'orange", categorie: "Boisson", calories: 45, proteines: 0.7, glucides: 10, lipides: 0.2 },
+            { nom: "Coca-Cola", categorie: "Boisson", calories: 42, proteines: 0, glucides: 10.6, lipides: 0 },
+            { nom: "Café (sans sucre)", categorie: "Boisson", calories: 2, proteines: 0.1, glucides: 0, lipides: 0 },
+            { nom: "Thé (sans sucre)", categorie: "Boisson", calories: 1, proteines: 0, glucides: 0.3, lipides: 0 }
+        ];
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            chargerProfil();
+            afficherCitationAleatoire();
+            afficherPesees();
+            afficherHistoriqueProduits();
+            afficherHistoriqueRepas();
+            document.getElementById('datePesee').valueAsDate = new Date();
+            
+            // Event listener pour la touche Entrée
+            document.getElementById('manualBarcode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    rechercherCodeBarre();
+                }
+            });
+
+            // Fermer les suggestions si clic en dehors
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#searchAliment') && !e.target.closest('#suggestionsAliments')) {
+                    document.getElementById('suggestionsAliments').style.display = 'none';
+                }
+            });
+
+            addDebugLog('Application initialisée');
+        });
+
+        function showTab(tabName) {
+            // Arrêter le scanner si on quitte l'onglet scanner
+            if (scannerActif && tabName !== 'scanner') {
+                addDebugLog('Changement d\'onglet - arrêt du scanner');
+                arreterScanner();
+            }
+
+            // Cacher tous les contenus
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Afficher le contenu sélectionné
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Redessiner le graphique si onglet suivi
+            if (tabName === 'suivi') {
+                dessinerGraphique();
+            }
+        }
+
+        // ========== FONCTIONS DE PROFIL ET SUIVI ==========
+
+        function calculerProfil() {
+            const nom = document.getElementById('nom').value;
+            const sexe = document.getElementById('sexe').value;
+            const age = parseFloat(document.getElementById('age').value);
+            const taille = parseFloat(document.getElementById('taille').value);
+            const poids = parseFloat(document.getElementById('poids').value);
+            const objectif = parseFloat(document.getElementById('objectif').value);
+            const activite = parseFloat(document.getElementById('activite').value);
+
+            if (!nom || !age || !taille || !poids || !objectif) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            // Calcul IMC
+            const imc = (poids / ((taille / 100) ** 2)).toFixed(1);
+            
+            // Calcul poids idéal (formule de Lorentz)
+            let poidsIdeal;
+            if (sexe === 'homme') {
+                poidsIdeal = (taille - 100 - ((taille - 150) / 4)).toFixed(1);
+            } else {
+                poidsIdeal = (taille - 100 - ((taille - 150) / 2.5)).toFixed(1);
+            }
+
+            // Poids à perdre
+            const aPerdre = Math.max(0, poids - objectif).toFixed(1);
+
+            // Calcul calories (formule de Harris-Benedict)
+            let bmr;
+            if (sexe === 'homme') {
+                bmr = 88.362 + (13.397 * poids) + (4.799 * taille) - (5.677 * age);
+            } else {
+                bmr = 447.593 + (9.247 * poids) + (3.098 * taille) - (4.330 * age);
+            }
+            const calories = Math.round((bmr * activite) - 500);
+
+            // Catégorie IMC
+            let categorieIMC;
+            if (imc < 18.5) {
+                categorieIMC = "Insuffisance pondérale";
+            } else if (imc < 25) {
+                categorieIMC = "Poids normal - Félicitations ! 🎉";
+            } else if (imc < 30) {
+                categorieIMC = "Surpoids - Vous êtes sur la bonne voie ! 💪";
+            } else {
+                categorieIMC = "Obésité - Courage, chaque pas compte ! 🌟";
+            }
+
+            // Durée estimée
+            const semaines = Math.ceil(aPerdre / 0.5);
+            const mois = (semaines / 4.33).toFixed(1);
+
+            // Affichage
+            document.getElementById('imcValue').textContent = imc;
+            document.getElementById('poidsIdealValue').textContent = poidsIdeal;
+            document.getElementById('aPerdrValue').textContent = aPerdre;
+            document.getElementById('caloriesValue').textContent = calories;
+            document.getElementById('imcCategorie').innerHTML = `<strong>Catégorie :</strong> ${categorieIMC}`;
+            document.getElementById('dureeProgramme').innerHTML = `<strong>Durée estimée :</strong> ${semaines} semaines (environ ${mois} mois) pour atteindre votre objectif de manière saine.`;
+
+            document.getElementById('resultatProfil').classList.add('show');
+
+            // Sauvegarder
+            userData = { nom, sexe, age, taille, poids, objectif, activite, imc, poidsIdeal, calories };
+            localStorage.setItem('userData', JSON.stringify(userData));
+        }
+
+        function chargerProfil() {
+            if (Object.keys(userData).length > 0) {
+                document.getElementById('nom').value = userData.nom || '';
+                document.getElementById('sexe').value = userData.sexe || 'femme';
+                document.getElementById('age').value = userData.age || '';
+                document.getElementById('taille').value = userData.taille || '';
+                document.getElementById('poids').value = userData.poids || '';
+                document.getElementById('objectif').value = userData.objectif || '';
+                document.getElementById('activite').value = userData.activite || '1.2';
+            }
+        }
+
+        function ajouterPesee() {
+            const date = document.getElementById('datePesee').value;
+            const poids = parseFloat(document.getElementById('poidsPesee').value);
+
+            if (!date || !poids) {
+                alert('Veuillez remplir la date et le poids');
+                return;
+            }
+
+            const index = pesees.findIndex(p => p.date === date);
+            if (index !== -1) {
+                if (confirm('Une pesée existe déjà pour cette date. Voulez-vous la remplacer ?')) {
+                    pesees[index] = { date, poids };
+                } else {
+                    return;
+                }
+            } else {
+                pesees.push({ date, poids });
+            }
+
+            pesees.sort((a, b) => new Date(a.date) - new Date(b.date));
+            localStorage.setItem('pesees', JSON.stringify(pesees));
+            afficherPesees();
+            dessinerGraphique();
+
+            document.getElementById('poidsPesee').value = '';
+            document.getElementById('datePesee').valueAsDate = new Date();
+        }
+
+        function afficherPesees() {
+            const liste = document.getElementById('listePesees');
+            liste.innerHTML = '';
+
+            if (pesees.length === 0) {
+                liste.innerHTML = '<p style="text-align: center; color: #999;">Aucune pesée enregistrée</p>';
+                return;
+            }
+
+            afficherProgression();
+
+            [...pesees].reverse().forEach((pesee, index) => {
+                const realIndex = pesees.length - 1 - index;
+                const div = document.createElement('div');
+                div.className = 'weight-item';
+                
+                const dateFormatee = new Date(pesee.date + 'T00:00:00').toLocaleDateString('fr-FR', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                div.innerHTML = `
+                    <span class="date">${dateFormatee}</span>
+                    <span class="weight">${pesee.poids} kg</span>
+                    <button class="delete" onclick="supprimerPesee(${realIndex})">Supprimer</button>
+                `;
+                liste.appendChild(div);
+            });
+        }
+
+        function afficherProgression() {
+            const progressionDiv = document.getElementById('progressionActuelle');
+            
+            if (pesees.length === 0 || !userData.objectif) {
+                progressionDiv.innerHTML = '';
+                return;
+            }
+
+            const poidsActuel = pesees[pesees.length - 1].poids;
+            const poidsDepart = pesees[0].poids;
+            const objectif = userData.objectif;
+
+            const totalAPerdre = poidsDepart - objectif;
+            const dejaPerdu = poidsDepart - poidsActuel;
+            const resteAPerdre = poidsActuel - objectif;
+
+            const pourcentage = Math.min(100, Math.max(0, (dejaPerdu / totalAPerdre) * 100));
+
+            progressionDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h3 style="color: white; margin-bottom: 10px;">📊 Votre progression</h3>
+                    <div style="display: flex; justify-content: space-between; color: white; margin-bottom: 10px;">
+                        <span>Départ: ${poidsDepart} kg</span>
+                        <span>Actuel: ${poidsActuel} kg</span>
+                        <span>Objectif: ${objectif} kg</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${pourcentage}%">${pourcentage.toFixed(1)}%</div>
+                    </div>
+                    <div style="color: white; margin-top: 10px; text-align: center;">
+                        <strong>Perdu: ${dejaPerdu.toFixed(1)} kg</strong> sur ${totalAPerdre.toFixed(1)} kg
+                        ${resteAPerdre > 0 ? ` - Encore ${resteAPerdre.toFixed(1)} kg à perdre !` : ' - Objectif atteint ! 🎉'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function supprimerPesee(index) {
+            if (confirm('Voulez-vous vraiment supprimer cette pesée ?')) {
+                pesees.splice(index, 1);
+                localStorage.setItem('pesees', JSON.stringify(pesees));
+                afficherPesees();
+                dessinerGraphique();
+            }
+        }
+
+        function dessinerGraphique() {
+            const canvas = document.getElementById('graphiquePoids');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 300;
+
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (pesees.length === 0) {
+                ctx.fillStyle = '#999';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Aucune donnée à afficher', width / 2, height / 2);
+                return;
+            }
+
+            const padding = 50;
+            const graphWidth = width - 2 * padding;
+            const graphHeight = height - 2 * padding;
+
+            const poids = pesees.map(p => p.poids);
+            const minPoids = Math.min(...poids, userData.objectif || Infinity) - 2;
+            const maxPoids = Math.max(...poids) + 2;
+            const rangePoids = maxPoids - minPoids;
+
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            if (userData.objectif) {
+                const yObjectif = height - padding - ((userData.objectif - minPoids) / rangePoids) * graphHeight;
+                ctx.strokeStyle = '#ff4757';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(padding, yObjectif);
+                ctx.lineTo(width - padding, yObjectif);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = '#ff4757';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(`Objectif: ${userData.objectif} kg`, width - padding + 5, yObjectif + 5);
+            }
+
+            ctx.strokeStyle = '#667eea';
+            ctx.fillStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            pesees.forEach((pesee, index) => {
+                const x = padding + (index / (pesees.length - 1 || 1)) * graphWidth;
+                const y = height - padding - ((pesee.poids - minPoids) / rangePoids) * graphHeight;
+
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                ctx.fillRect(x - 4, y - 4, 8, 8);
+
+                ctx.fillStyle = '#333';
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${pesee.poids}`, x, y - 10);
+
+                if (pesees.length <= 10 || index % Math.ceil(pesees.length / 10) === 0 || index === pesees.length - 1) {
+                    const dateFormatee = new Date(pesee.date + 'T00:00:00').toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit'
+                    });
+                    ctx.save();
+                    ctx.translate(x, height - padding + 15);
+                    ctx.rotate(-Math.PI / 4);
+                    ctx.fillText(dateFormatee, 0, 0);
+                    ctx.restore();
+                }
+
+                ctx.fillStyle = '#667eea';
+            });
+
+            ctx.stroke();
+
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const poids = minPoids + (rangePoids * i / 5);
+                const y = height - padding - (i * graphHeight / 5);
+                ctx.fillText(poids.toFixed(1) + ' kg', padding - 10, y + 4);
+            }
+        }
+
+        function afficherCitationAleatoire() {
+            const citation = citations[Math.floor(Math.random() * citations.length)];
+            document.getElementById('citationJour').textContent = `"${citation.texte}"`;
+            document.getElementById('auteurCitation').textContent = `- ${citation.auteur}`;
+        }
+
+        // ========== FONCTIONS CALCULATEUR DE CALORIES ==========
+
+        function rechercherAliment() {
+            const recherche = document.getElementById('searchAliment').value.toLowerCase();
+            const suggestions = document.getElementById('suggestionsAliments');
+
+            if (recherche.length < 2) {
+                suggestions.style.display = 'none';
+                return;
+            }
+
+            const resultats = baseAliments.filter(aliment => 
+                aliment.nom.toLowerCase().includes(recherche)
+            ).slice(0, 10);
+
+            if (resultats.length === 0) {
+                suggestions.style.display = 'none';
+                return;
+            }
+
+            suggestions.innerHTML = resultats.map(aliment => `
+                <div onclick="selectionnerAliment('${aliment.nom}')" style="padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
+                    <div style="font-weight: bold; color: #333; margin-bottom: 3px;">${aliment.nom}</div>
+                    <div style="font-size: 0.85em; color: #666;">
+                        ${aliment.calories} kcal • ${aliment.proteines}g prot • ${aliment.glucides}g gluc • ${aliment.lipides}g lip
+                        <span style="color: #667eea; margin-left: 8px;">(100g)</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Ajouter l'effet hover
+            suggestions.querySelectorAll('div[onclick]').forEach(div => {
+                div.addEventListener('mouseenter', function() {
+                    this.style.background = '#f8f9fa';
+                });
+                div.addEventListener('mouseleave', function() {
+                    this.style.background = 'white';
+                });
+            });
+
+            suggestions.style.display = 'block';
+        }
+
+        function selectionnerAliment(nom) {
+            document.getElementById('searchAliment').value = nom;
+            document.getElementById('suggestionsAliments').style.display = 'none';
+            document.getElementById('quantiteAliment').focus();
+        }
+
+        function ajouterAlimentCalcul() {
+            const nomAliment = document.getElementById('searchAliment').value;
+            const quantite = parseFloat(document.getElementById('quantiteAliment').value);
+
+            if (!nomAliment) {
+                alert('Veuillez saisir un aliment');
+                return;
+            }
+
+            if (!quantite || quantite <= 0) {
+                alert('Veuillez saisir une quantité valide en grammes');
+                return;
+            }
+
+            // Chercher l'aliment dans la base
+            const aliment = baseAliments.find(a => a.nom.toLowerCase() === nomAliment.toLowerCase());
+
+            if (!aliment) {
+                alert('Aliment non trouvé dans la base de données. Veuillez utiliser les suggestions.');
+                return;
+            }
+
+            // Calculer les valeurs pour la quantité saisie
+            const facteur = quantite / 100;
+            const alimentCalcule = {
+                nom: aliment.nom,
+                quantite: quantite,
+                calories: Math.round(aliment.calories * facteur * 10) / 10,
+                proteines: Math.round(aliment.proteines * facteur * 10) / 10,
+                glucides: Math.round(aliment.glucides * facteur * 10) / 10,
+                lipides: Math.round(aliment.lipides * facteur * 10) / 10
+            };
+
+            repasActuel.push(alimentCalcule);
+            afficherRepasActuel();
+
+            // Réinitialiser le formulaire
+            document.getElementById('searchAliment').value = '';
+            document.getElementById('quantiteAliment').value = '';
+            document.getElementById('searchAliment').focus();
+        }
+
+        function afficherRepasActuel() {
+            if (repasActuel.length === 0) {
+                document.getElementById('repasActuel').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('repasActuel').style.display = 'block';
+
+            const liste = document.getElementById('listeAlimentsRepas');
+            liste.innerHTML = repasActuel.map((aliment, index) => `
+                <div style="background: rgba(255, 255, 255, 0.15); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">
+                            ${aliment.nom} (${aliment.quantite}g)
+                        </div>
+                        <div style="font-size: 0.9em; opacity: 0.9;">
+                            ${aliment.calories} kcal • 
+                            ${aliment.proteines}g prot • 
+                            ${aliment.glucides}g gluc • 
+                            ${aliment.lipides}g lip
+                        </div>
+                    </div>
+                    <button onclick="retirerAliment(${index})" style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 18px;">
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+
+            // Calculer les totaux
+            const totaux = repasActuel.reduce((acc, aliment) => ({
+                calories: acc.calories + aliment.calories,
+                proteines: acc.proteines + aliment.proteines,
+                glucides: acc.glucides + aliment.glucides,
+                lipides: acc.lipides + aliment.lipides
+            }), { calories: 0, proteines: 0, glucides: 0, lipides: 0 });
+
+            document.getElementById('totalCalories').textContent = Math.round(totaux.calories);
+            document.getElementById('totalProteines').textContent = Math.round(totaux.proteines * 10) / 10;
+            document.getElementById('totalGlucides').textContent = Math.round(totaux.glucides * 10) / 10;
+            document.getElementById('totalLipides').textContent = Math.round(totaux.lipides * 10) / 10;
+        }
+
+        function retirerAliment(index) {
+            repasActuel.splice(index, 1);
+            afficherRepasActuel();
+        }
+
+        function reinitialiserRepas() {
+            if (repasActuel.length === 0) return;
+            
+            if (confirm('Voulez-vous vraiment vider ce repas ?')) {
+                repasActuel = [];
+                afficherRepasActuel();
+            }
+        }
+
+        function sauvegarderRepas() {
+            if (repasActuel.length === 0) {
+                alert('Ajoutez des aliments avant de sauvegarder');
+                return;
+            }
+
+            const nomRepas = prompt('Donnez un nom à ce repas (ex: Petit-déjeuner, Déjeuner, Collation...)', '');
+            
+            if (!nomRepas) return;
+
+            const totaux = repasActuel.reduce((acc, aliment) => ({
+                calories: acc.calories + aliment.calories,
+                proteines: acc.proteines + aliment.proteines,
+                glucides: acc.glucides + aliment.glucides,
+                lipides: acc.lipides + aliment.lipides
+            }), { calories: 0, proteines: 0, glucides: 0, lipides: 0 });
+
+            const repas = {
+                id: Date.now(),
+                nom: nomRepas,
+                date: new Date().toISOString(),
+                aliments: [...repasActuel],
+                totaux: {
+                    calories: Math.round(totaux.calories),
+                    proteines: Math.round(totaux.proteines * 10) / 10,
+                    glucides: Math.round(totaux.glucides * 10) / 10,
+                    lipides: Math.round(totaux.lipides * 10) / 10
+                }
+            };
+
+            repasSauvegardes.unshift(repas);
+            localStorage.setItem('repas', JSON.stringify(repasSauvegardes));
+
+            afficherHistoriqueRepas();
+            repasActuel = [];
+            afficherRepasActuel();
+
+            alert('✅ Repas sauvegardé avec succès !');
+        }
+
+        function afficherHistoriqueRepas() {
+            const historique = document.getElementById('historiqueRepas');
+
+            if (repasSauvegardes.length === 0) {
+                historique.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Aucun repas sauvegardé</p>';
+                calculerCaloriesJour();
+                return;
+            }
+
+            historique.innerHTML = repasSauvegardes.map((repas, index) => {
+                const date = new Date(repas.date);
+                const dateFormatee = date.toLocaleDateString('fr-FR', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                const heureFormatee = date.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                return `
+                    <div class="weight-item" style="flex-direction: column; align-items: stretch; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; color: #667eea; font-size: 1.2em; margin-bottom: 5px;">
+                                    ${repas.nom}
+                                </div>
+                                <div style="color: #999; font-size: 0.9em;">
+                                    ${dateFormatee} à ${heureFormatee}
+                                </div>
+                            </div>
+                            <button class="delete" onclick="supprimerRepas(${index})">Supprimer</button>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${repas.totaux.calories}</div>
+                                    <div style="font-size: 0.85em; opacity: 0.9;">kcal</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${repas.totaux.proteines}g</div>
+                                    <div style="font-size: 0.85em; opacity: 0.9;">protéines</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${repas.totaux.glucides}g</div>
+                                    <div style="font-size: 0.85em; opacity: 0.9;">glucides</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${repas.totaux.lipides}g</div>
+                                    <div style="font-size: 0.85em; opacity: 0.9;">lipides</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8f9fa; padding: 12px; border-radius: 8px;">
+                            <div style="font-weight: bold; color: #333; margin-bottom: 8px;">Détail des aliments :</div>
+                            ${repas.aliments.map(aliment => `
+                                <div style="padding: 6px 0; border-bottom: 1px solid #e0e0e0; font-size: 0.95em; color: #555;">
+                                    • ${aliment.nom} (${aliment.quantite}g) - ${Math.round(aliment.calories)} kcal
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            calculerCaloriesJour();
+        }
+
+        function supprimerRepas(index) {
+            if (confirm('Voulez-vous vraiment supprimer ce repas ?')) {
+                repasSauvegardes.splice(index, 1);
+                localStorage.setItem('repas', JSON.stringify(repasSauvegardes));
+                afficherHistoriqueRepas();
+            }
+        }
+
+        function calculerCaloriesJour() {
+            const aujourdhui = new Date().toDateString();
+            
+            const repasAujourdhui = repasSauvegardes.filter(repas => {
+                const dateRepas = new Date(repas.date).toDateString();
+                return dateRepas === aujourdhui;
+            });
+
+            const caloriesJour = repasAujourdhui.reduce((total, repas) => total + repas.totaux.calories, 0);
+            
+            document.getElementById('caloriesJour').textContent = Math.round(caloriesJour);
+
+            // Afficher l'objectif si défini
+            if (userData.calories) {
+                const objectif = userData.calories;
+                const pourcentage = Math.min(100, (caloriesJour / objectif) * 100);
+                
+                document.getElementById('objectifCaloriesMsg').style.display = 'block';
+                document.getElementById('objectifCaloriesValue').textContent = objectif;
+                document.getElementById('progressCaloriesJour').style.display = 'block';
+                
+                const progressFill = document.getElementById('progressCaloriesFill');
+                progressFill.style.width = pourcentage + '%';
+                
+                let couleur;
+                if (pourcentage < 80) {
+                    couleur = 'linear-gradient(90deg, #4caf50 0%, #45a049 100%)';
+                } else if (pourcentage < 100) {
+                    couleur = 'linear-gradient(90deg, #ffc107 0%, #ff9800 100%)';
+                } else {
+                    couleur = 'linear-gradient(90deg, #ff4757 0%, #e84118 100%)';
+                }
+                
+                progressFill.style.background = couleur;
+                progressFill.textContent = Math.round(pourcentage) + '%';
+            } else {
+                document.getElementById('objectifCaloriesMsg').style.display = 'none';
+                document.getElementById('progressCaloriesJour').style.display = 'none';
+            }
+        }
+
+        // ========== FIN FONCTIONS CALCULATEUR DE CALORIES ==========
+
+        // ========== FONCTIONS SCANNER - VERSION AMÉLIORÉE ==========
+
+        function addDebugLog(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            debugDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+            console.log(`[Scanner Debug] ${message}`);
+        }
+
+        function toggleDebug() {
+            const debugDiv = document.getElementById('debugInfo');
+            debugDiv.classList.toggle('show');
+        }
+
+        function demarrerScanner() {
+            addDebugLog('🎬 Démarrage du scanner demandé');
+            
+            const placeholder = document.getElementById('scanPlaceholder');
+            const interactive = document.getElementById('interactive');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+
+            // Cacher les résultats précédents
+            document.getElementById('resultatScanner').style.display = 'none';
+            document.getElementById('erreurScanner').style.display = 'none';
+            document.getElementById('erreurPermission').style.display = 'none';
+
+            // Réinitialiser les variables
+            dernierCodeDetecte = null;
+            if (timeoutDetection) {
+                clearTimeout(timeoutDetection);
+            }
+
+            placeholder.style.display = 'none';
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+
+            addDebugLog('📱 Demande d\'accès à la caméra...');
+
+            // Configuration Quagga améliorée
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#interactive'),
+                    constraints: {
+                        width: { min: 640, ideal: 1280, max: 1920 },
+                        height: { min: 480, ideal: 720, max: 1080 },
+                        facingMode: "environment", // Caméra arrière
+                        aspectRatio: { min: 1, max: 2 }
+                    },
+                    area: { // Zone de scan optimisée
+                        top: "25%",
+                        right: "10%",
+                        left: "10%",
+                        bottom: "25%"
+                    },
+                    singleChannel: false // Améliore la détection
+                },
+                locator: {
+                    patchSize: "medium",
+                    halfSample: true
+                },
+                numOfWorkers: navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 4) : 2,
+                frequency: 10, // Fréquence de scan
+                decoder: {
+                    readers: [
+                        "ean_reader",      // EAN-13, EAN-8
+                        "ean_8_reader",
+                        "code_128_reader",
+                        "code_39_reader",
+                        "upc_reader",      // UPC-A, UPC-E
+                        "upc_e_reader"
+                    ],
+                    debug: {
+                        drawBoundingBox: true,
+                        showFrequency: false,
+                        drawScanline: true,
+                        showPattern: false
+                    },
+                    multiple: false
+                },
+                locate: true
+            }, function(err) {
+                if (err) {
+                    console.error("Erreur Quagga:", err);
+                    addDebugLog('❌ Erreur Quagga: ' + err.message);
+                    
+                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                        addDebugLog('🚫 Permission caméra refusée');
+                        document.getElementById('erreurPermission').style.display = 'block';
+                        document.getElementById('erreurPermission').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        alert("Erreur lors de l'initialisation du scanner: " + err.message + "\nVeuillez utiliser la saisie manuelle.");
+                    }
+                    
+                    arreterScanner();
+                    return;
+                }
+                
+                addDebugLog('✅ Quagga initialisé avec succès');
+                addDebugLog('🎥 Démarrage de la capture vidéo...');
+                
+                scannerActif = true;
+                interactive.style.display = 'block';
+                
+                Quagga.start();
+                addDebugLog('🔍 Scanner actif - En attente de code-barres');
+                
+                // Amélioration visuelle du canvas
+                setTimeout(() => {
+                    const canvas = Quagga.canvas.dom.overlay;
+                    if (canvas) {
+                        canvas.style.position = 'absolute';
+                        canvas.style.top = '0';
+                        canvas.style.left = '0';
+                        canvas.style.width = '100%';
+                        canvas.style.height = '100%';
+                        addDebugLog('🎨 Canvas configuré');
+                    }
+                }, 100);
+            });
+
+            // Gestion de la détection
+            Quagga.onProcessed(function(result) {
+                if (!result) return;
+                
+                const drawingCtx = Quagga.canvas.ctx.overlay;
+                const drawingCanvas = Quagga.canvas.dom.overlay;
+
+                if (result.boxes) {
+                    drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                    
+                    // Dessiner les zones de détection potentielles
+                    result.boxes.filter(box => box !== result.box).forEach(box => {
+                        Quagga.ImageDebug.drawPath(box, {x: 0, y: 1}, drawingCtx, {color: "yellow", lineWidth: 2});
+                    });
+                }
+
+                if (result.box) {
+                    Quagga.ImageDebug.drawPath(result.box, {x: 0, y: 1}, drawingCtx, {color: "blue", lineWidth: 2});
+                }
+
+                if (result.codeResult && result.codeResult.code) {
+                    Quagga.ImageDebug.drawPath(result.line, {x: 'x', y: 'y'}, drawingCtx, {color: 'green', lineWidth: 3});
+                }
+            });
+
+            Quagga.onDetected(function(result) {
+                if (!result || !result.codeResult || !result.codeResult.code) return;
+                
+                const code = result.codeResult.code;
+                const format = result.codeResult.format;
+                
+                addDebugLog(`📊 Code détecté: ${code} (${format})`);
+                
+                // Vérifier que c'est un code valide (8 ou 13 chiffres)
+                if (!/^\d{8,13}$/.test(code)) {
+                    addDebugLog(`⚠️ Code invalide (format incorrect): ${code}`);
+                    return;
+                }
+
+                // Éviter les détections multiples du même code
+                if (code === dernierCodeDetecte) {
+                    return;
+                }
+
+                dernierCodeDetecte = code;
+                addDebugLog(`✅ Code validé: ${code}`);
+
+                // Vibration
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200]);
+                    addDebugLog('📳 Vibration déclenchée');
+                }
+
+                // Son de confirmation (optionnel)
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.value = 0.3;
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    addDebugLog('🔔 Son de confirmation joué');
+                } catch (e) {
+                    // Ignorer les erreurs audio
+                }
+
+                // Arrêter le scanner
+                addDebugLog('⏸️ Arrêt du scanner pour traitement');
+                arreterScanner();
+                
+                // Rechercher le produit après un court délai
+                timeoutDetection = setTimeout(() => {
+                    addDebugLog(`🔍 Recherche du produit ${code} dans l'API...`);
+                    rechercherProduitAPI(code);
+                }, 200);
+            });
+        }
+
+        function arreterScanner() {
+            addDebugLog('🛑 Arrêt du scanner');
+            
+            const placeholder = document.getElementById('scanPlaceholder');
+            const interactive = document.getElementById('interactive');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+
+            if (scannerActif) {
+                try {
+                    Quagga.stop();
+                    addDebugLog('✅ Quagga arrêté');
+                } catch (e) {
+                    addDebugLog('⚠️ Erreur lors de l\'arrêt: ' + e.message);
+                    console.error("Erreur arrêt scanner:", e);
+                }
+                scannerActif = false;
+            }
+
+            interactive.style.display = 'none';
+            placeholder.style.display = 'block';
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+
+            // Réinitialiser les variables
+            dernierCodeDetecte = null;
+            if (timeoutDetection) {
+                clearTimeout(timeoutDetection);
+                timeoutDetection = null;
+            }
+        }
+
+        function rechercherCodeBarre() {
+            const code = document.getElementById('manualBarcode').value.trim();
+            
+            addDebugLog(`⌨️ Saisie manuelle: ${code}`);
+            
+            if (!code) {
+                alert('Veuillez saisir un code-barres');
+                return;
+            }
+
+            if (!/^\d{8,13}$/.test(code)) {
+                alert('Le code-barres doit contenir entre 8 et 13 chiffres');
+                addDebugLog(`❌ Code invalide: ${code}`);
+                return;
+            }
+
+            addDebugLog(`✅ Code validé: ${code}`);
+            rechercherProduitAPI(code);
+        }
+
+        async function rechercherProduitAPI(barcode) {
+            addDebugLog(`🌐 Appel API OpenFoodFacts pour: ${barcode}`);
+            
+            document.getElementById('loadingScanner').style.display = 'block';
+            document.getElementById('resultatScanner').style.display = 'none';
+            document.getElementById('erreurScanner').style.display = 'none';
+
+            try {
+                const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}.json`;
+                addDebugLog(`📡 URL: ${url}`);
+                
+                const response = await fetch(url);
+                addDebugLog(`📥 Réponse reçue: ${response.status} ${response.statusText}`);
+                
+                const data = await response.json();
+
+                document.getElementById('loadingScanner').style.display = 'none';
+
+                if (data.status === 1 && data.product) {
+                    addDebugLog(`✅ Produit trouvé: ${data.product.product_name || 'Sans nom'}`);
+                    afficherProduit(data.product, barcode);
+                } else {
+                    addDebugLog(`❌ Produit non trouvé dans la base de données`);
+                    document.getElementById('erreurScanner').style.display = 'block';
+                    document.getElementById('erreurScanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } catch (error) {
+                addDebugLog(`💥 Erreur API: ${error.message}`);
+                console.error('Erreur API:', error);
+                document.getElementById('loadingScanner').style.display = 'none';
+                document.getElementById('erreurScanner').style.display = 'block';
+                document.getElementById('erreurScanner').innerHTML = `
+                    <h4 style="margin-bottom: 10px;">❌ Erreur de connexion</h4>
+                    <p>Impossible de se connecter à la base de données. Vérifiez votre connexion internet et réessayez.</p>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #999;">Détails: ${error.message}</p>
+                `;
+            }
+        }
+
+        function afficherProduit(product, barcode) {
+            addDebugLog(`📦 Affichage des informations du produit`);
+            
+            dernierProduit = {
+                barcode: barcode,
+                nom: product.product_name || 'Nom non disponible',
+                marque: product.brands || 'Marque inconnue',
+                quantite: product.quantity || '',
+                image: product.image_url || product.image_front_url || '',
+                calories: product.nutriments?.['energy-kcal_100g'] || product.nutriments?.['energy-kcal'] || 0,
+                proteines: product.nutriments?.proteins_100g || product.nutriments?.proteins || 0,
+                glucides: product.nutriments?.carbohydrates_100g || product.nutriments?.carbohydrates || 0,
+                lipides: product.nutriments?.fat_100g || product.nutriments?.fat || 0,
+                nutriscore: product.nutriscore_grade || null,
+                date: new Date().toISOString()
+            };
+
+            document.getElementById('productName').textContent = dernierProduit.nom;
+            document.getElementById('productBrand').textContent = dernierProduit.marque;
+            document.getElementById('productQuantity').textContent = dernierProduit.quantite;
+            document.getElementById('productBarcode').textContent = `Code-barres: ${barcode}`;
+
+            // Image
+            const imgElement = document.getElementById('productImage');
+            if (dernierProduit.image) {
+                imgElement.src = dernierProduit.image;
+                imgElement.style.display = 'block';
+                addDebugLog(`🖼️ Image chargée`);
+            } else {
+                imgElement.style.display = 'none';
+                addDebugLog(`⚠️ Pas d'image disponible`);
+            }
+
+            // Valeurs nutritionnelles
+            document.getElementById('productCalories').textContent = Math.round(dernierProduit.calories);
+            document.getElementById('productProteines').textContent = dernierProduit.proteines.toFixed(1);
+            document.getElementById('productGlucides').textContent = dernierProduit.glucides.toFixed(1);
+            document.getElementById('productLipides').textContent = dernierProduit.lipides.toFixed(1);
+
+            addDebugLog(`📊 Nutrition - Cal: ${dernierProduit.calories}, Prot: ${dernierProduit.proteines}g, Gluc: ${dernierProduit.glucides}g, Lip: ${dernierProduit.lipides}g`);
+
+            // Nutri-Score
+            const nutriscoreContainer = document.getElementById('nutriscoreContainer');
+            if (dernierProduit.nutriscore) {
+                nutriscoreContainer.style.display = 'block';
+                const nutriscoreImg = document.getElementById('nutriscoreImage');
+                nutriscoreImg.src = `https://static.openfoodfacts.org/images/misc/nutriscore-${dernierProduit.nutriscore}.svg`;
+                addDebugLog(`🏆 Nutri-Score: ${dernierProduit.nutriscore.toUpperCase()}`);
+            } else {
+                nutriscoreContainer.style.display = 'none';
+            }
+
+            document.getElementById('resultatScanner').style.display = 'block';
+            document.getElementById('resultatScanner').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            addDebugLog(`✅ Produit affiché avec succès`);
+        }
+
+        function sauvegarderProduit() {
+            if (!dernierProduit) return;
+
+            addDebugLog(`💾 Sauvegarde du produit: ${dernierProduit.nom}`);
+
+            const index = produitsSauvegardes.findIndex(p => p.barcode === dernierProduit.barcode);
+            
+            if (index !== -1) {
+                if (confirm('Ce produit est déjà dans vos favoris. Voulez-vous mettre à jour la date ?')) {
+                    produitsSauvegardes[index] = dernierProduit;
+                    addDebugLog(`🔄 Produit mis à jour`);
+                } else {
+                    return;
+                }
+            } else {
+                produitsSauvegardes.unshift(dernierProduit);
+                addDebugLog(`➕ Produit ajouté aux favoris`);
+            }
+
+            localStorage.setItem('produits', JSON.stringify(produitsSauvegardes));
+            afficherHistoriqueProduits();
+            
+            alert('✅ Produit sauvegardé avec succès !');
+            addDebugLog(`✅ Produit sauvegardé (total: ${produitsSauvegardes.length})`);
+        }
+
+        function afficherHistoriqueProduits() {
+            const liste = document.getElementById('listeProduits');
+            
+            if (produitsSauvegardes.length === 0) {
+                liste.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Aucun produit sauvegardé</p>';
+                return;
+            }
+
+            liste.innerHTML = produitsSauvegardes.map((produit, index) => `
+                <div class="weight-item" style="flex-direction: column; align-items: stretch;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 1.1em;">${produit.nom}</div>
+                            <div style="color: #667eea; font-size: 0.9em;">${produit.marque}</div>
+                            <div style="color: #999; font-size: 0.85em; margin-top: 3px;">
+                                ${new Date(produit.date).toLocaleDateString('fr-FR')}
+                            </div>
+                        </div>
+                        <button class="delete" onclick="supprimerProduit(${index})">Supprimer</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                        <div style="text-align: center;">
+                            <div style="font-weight: bold; color: #667eea;">${Math.round(produit.calories)}</div>
+                            <div style="font-size: 0.8em; color: #666;">kcal</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: bold; color: #f5576c;">${produit.proteines.toFixed(1)}g</div>
+                            <div style="font-size: 0.8em; color: #666;">protéines</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: bold; color: #00f2fe;">${produit.glucides.toFixed(1)}g</div>
+                            <div style="font-size: 0.8em; color: #666;">glucides</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: bold; color: #38f9d7;">${produit.lipides.toFixed(1)}g</div>
+                            <div style="font-size: 0.8em; color: #666;">lipides</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function supprimerProduit(index) {
+            if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
+                const produit = produitsSauvegardes[index];
+                addDebugLog(`🗑️ Suppression du produit: ${produit.nom}`);
+                produitsSauvegardes.splice(index, 1);
+                localStorage.setItem('produits', JSON.stringify(produitsSauvegardes));
+                afficherHistoriqueProduits();
+            }
+        }
+
+        // ========== FIN FONCTIONS SCANNER ==========
+
+        // Redessiner le graphique lors du redimensionnement
+        window.addEventListener('resize', () => {
+            if (document.getElementById('suivi').classList.contains('active')) {
+                dessinerGraphique();
+            }
+        });
+
+        // Nettoyer Quagga si l'utilisateur quitte la page
+        window.addEventListener('beforeunload', () => {
+            if (scannerActif) {
+                try {
+                    Quagga.stop();
+                } catch (e) {
+                    // Ignorer
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+           n            color: #667eea;
             margin-bottom: 10px;
         }
 
