@@ -1,5 +1,4 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -417,6 +416,116 @@
             }
         }
 
+        /* Animations pour les célébrations */
+        @keyframes firework {
+            0% { 
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(var(--x), var(--y)) scale(1);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(var(--x), var(--y)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .firework {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: firework 1.5s ease-out forwards;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .celebration-modal {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            animation: bounce 0.5s ease-out;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        /* Modal de correction */
+        .correction-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            padding: 20px;
+        }
+
+        .correction-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
         .debug-info {
             background: #f8f9fa;
             padding: 15px;
@@ -457,6 +566,9 @@
                 <button class="tab" onclick="showTab('suivi')">📈 Suivi du Poids</button>
                 <button class="tab" onclick="showTab('calculateur')">🧮 Calculateur Calories</button>
                 <button class="tab" onclick="showTab('scanner')">📷 Scanner Produit</button>
+                <button class="tab" onclick="showTab('frigo')">🍳 Frigo & Recettes</button>
+                <button class="tab" onclick="showTab('baseperso')">📝 Ma Base Perso</button>
+                <button class="tab" onclick="showTab('coachai')">🤖 Coach IA</button>
                 <button class="tab" onclick="showTab('conseils')">🥗 Conseils Nutrition</button>
                 <button class="tab" onclick="showTab('motivation')">💪 Motivation</button>
                 <button class="tab" onclick="showTab('menus')">🍽️ Menus Types</button>
@@ -646,6 +758,195 @@
                 </div>
             </div>
 
+            <!-- Onglet Frigo & Recettes -->
+            <div id="frigo" class="tab-content">
+                <h2>🍳 Mon Frigo Intelligent & Générateur de Recettes</h2>
+                
+                <div style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; text-align: center;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 10px;">🔥 Fonctionnalité Révolutionnaire !</h3>
+                    <p style="font-size: 1.1em; opacity: 0.95;">Scannez les produits de votre frigo et obtenez des recettes personnalisées avec calcul automatique des calories !</p>
+                </div>
+
+                <!-- Section Scanner Frigo -->
+                <div style="background: white; border: 3px solid #ff6b6b; border-radius: 15px; padding: 25px; margin-bottom: 25px;">
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">📷 Scanner les produits de mon frigo</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Scannez ou saisissez les codes-barres des produits que vous avez chez vous</p>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <input type="text" id="codebarreFrigo" placeholder="Code-barres (13 chiffres)" style="flex: 1; min-width: 200px;" maxlength="13">
+                        <button class="btn" onclick="ajouterProduitFrigo()" style="width: auto; margin: 0; padding: 12px 25px;">
+                            ➕ Ajouter au frigo
+                        </button>
+                    </div>
+
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button class="btn" id="startScanFrigoBtn" onclick="demarrerScannerFrigo()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
+                            📷 Scanner avec la caméra
+                        </button>
+                        <button class="btn" id="stopScanFrigoBtn" onclick="arreterScannerFrigo()" style="display: none; background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
+                            ⏹️ Arrêter le scanner
+                        </button>
+                    </div>
+
+                    <div id="scannerFrigoContainer" style="max-width: 640px; margin: 20px auto; position: relative; background: #000; border-radius: 10px; overflow: hidden; display: none;">
+                        <div id="interactiveFrigo"></div>
+                    </div>
+
+                    <div id="loadingFrigo" style="display: none; text-align: center; padding: 30px;">
+                        <div style="font-size: 2.5em; animation: spin 1s linear infinite;">⌛</div>
+                        <p style="color: #ff6b6b; font-size: 1.1em; margin-top: 10px;">Recherche du produit...</p>
+                    </div>
+                </div>
+
+                <!-- Mon Frigo Virtuel -->
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); border-radius: 15px; padding: 25px; margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #667eea; margin: 0;">🧊 Mon Frigo Virtuel (<span id="compteurFrigo">0</span> produits)</h3>
+                        <button class="btn" onclick="viderFrigo()" style="width: auto; margin: 0; padding: 10px 20px; background: linear-gradient(135deg, #ff4757 0%, #e84118 100%);">
+                            🗑️ Vider le frigo
+                        </button>
+                    </div>
+                    
+                    <div id="listeProduitsFrigo"></div>
+                </div>
+
+                <!-- Générateur de Recettes -->
+                <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 15px; padding: 25px; margin-bottom: 25px;">
+                    <h3 style="color: #ff6b6b; margin-bottom: 15px;">✨ Générateur Magique de Recettes</h3>
+                    <p style="color: #555; margin-bottom: 20px; font-size: 1.05em;">
+                        Notre IA va analyser les produits de votre frigo et créer des recettes personnalisées avec le calcul exact des calories !
+                    </p>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                        <select id="typeRecette" style="flex: 1; min-width: 200px; padding: 12px; border: 2px solid #ff6b6b; border-radius: 8px; font-size: 16px;">
+                            <option value="">Type de recette (tous)</option>
+                            <option value="petit-dejeuner">🌅 Petit-déjeuner</option>
+                            <option value="dejeuner">☀️ Déjeuner</option>
+                            <option value="diner">🌙 Dîner</option>
+                            <option value="collation">🍎 Collation</option>
+                            <option value="dessert">🍰 Dessert</option>
+                        </select>
+
+                        <select id="difficulteRecette" style="flex: 1; min-width: 200px; padding: 12px; border: 2px solid #ff6b6b; border-radius: 8px; font-size: 16px;">
+                            <option value="">Difficulté (toutes)</option>
+                            <option value="facile">😊 Facile (< 20 min)</option>
+                            <option value="moyen">👨‍🍳 Moyen (20-40 min)</option>
+                            <option value="difficile">⭐ Difficile (> 40 min)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" onclick="genererRecettes()" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); font-size: 1.1em;">
+                        🎲 Générer des recettes magiques !
+                    </button>
+                </div>
+
+                <!-- Recettes Générées -->
+                <div id="recettesGenerees" style="display: none;"></div>
+
+                <!-- Historique des Recettes Utilisées -->
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📚 Mes recettes favorites</h3>
+                    <div id="recettesFavorites"></div>
+                </div>
+            </div>
+
+            <!-- Onglet Ma Base Perso -->
+            <div id="baseperso" class="tab-content">
+                <h2>Ma Base de Données Personnelle</h2>
+                
+                <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="text-align: center; color: #333; font-size: 1.1em; margin-bottom: 10px;">
+                        📝 Créez votre propre base de produits avec codes-barres
+                    </p>
+                    <p style="text-align: center; color: #555; font-size: 0.95em;">
+                        Ajoutez des produits qui ne sont pas dans OpenFoodFacts et retrouvez-les instantanément lors du scan !
+                    </p>
+                </div>
+
+                <!-- Formulaire d'ajout de produit personnalisé -->
+                <div style="background: white; border: 3px solid #667eea; border-radius: 10px; padding: 25px; margin-bottom: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 20px;">➕ Ajouter un nouveau produit</h3>
+                    
+                    <div class="form-group">
+                        <label>📷 Photo du produit</label>
+                        <input type="file" id="photoProduitPerso" accept="image/*" capture="environment" style="padding: 10px;">
+                        <div id="previewPhotoPerso" style="margin-top: 10px; display: none;">
+                            <img id="imgPreviewPerso" src="" style="max-width: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <button onclick="retirerPhotoPerso()" style="display: block; margin-top: 8px; padding: 5px 10px; background: #ff4757; color: white; border: none; border-radius: 5px; cursor: pointer;">🗑️ Retirer la photo</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📦 Nom du produit *</label>
+                        <input type="text" id="nomProduitPerso" placeholder="Ex: Mon yaourt maison, Pizza du restaurant..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🏷️ Marque (optionnel)</label>
+                        <input type="text" id="marqueProduitPerso" placeholder="Ex: Marque maison">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📊 Code-barres (13 chiffres) *</label>
+                        <input type="text" id="codebarreProduitPerso" placeholder="3017620422003" maxlength="13" pattern="[0-9]{13}">
+                        <p style="font-size: 0.85em; color: #666; margin-top: 5px;">
+                            💡 Si le produit n'a pas de code-barres, vous pouvez en générer un fictif (ex: 9999999999901)
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>⚖️ Quantité (optionnel)</label>
+                        <input type="text" id="quantiteProduitPerso" placeholder="Ex: 500g, 1L">
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">📊 Valeurs nutritionnelles pour 100g *</h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>🔥 Calories (kcal)</label>
+                                <input type="number" id="caloriesProduitPerso" placeholder="250" min="0" step="1" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>💪 Protéines (g)</label>
+                                <input type="number" id="proteinesProduitPerso" placeholder="10" min="0" step="0.1" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>🍞 Glucides (g)</label>
+                                <input type="number" id="glucidesProduitPerso" placeholder="30" min="0" step="0.1" required>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>🧈 Lipides (g)</label>
+                                <input type="number" id="lipidesProduitPerso" placeholder="5" min="0" step="0.1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📝 Notes (optionnel)</label>
+                        <textarea id="notesProduitPerso" placeholder="Ex: Recette maison, acheté au marché..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; min-height: 80px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></textarea>
+                    </div>
+
+                    <button class="btn" onclick="ajouterProduitPerso()">💾 Enregistrer ce produit</button>
+                </div>
+
+                <!-- Liste des produits personnalisés -->
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📚 Mes produits personnalisés (<span id="compteurProduitsPerso">0</span>)</h3>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                        <p style="color: #856404; font-size: 0.95em; margin: 0;">
+                            💡 <strong>Astuce :</strong> Quand vous scannerez un code-barres, l'application cherchera d'abord dans votre base personnelle avant d'interroger OpenFoodFacts !
+                        </p>
+                    </div>
+
+                    <div id="listeProduitsPerso"></div>
+                </div>
+            </div>
+
             <!-- Onglet Scanner -->
             <div id="scanner" class="tab-content">
                 <h2>Scanner un produit alimentaire</h2>
@@ -794,6 +1095,38 @@
                     <h3 style="color: #667eea; margin-bottom: 15px;">📚 Mes produits scannés</h3>
                     <div id="listeProduits"></div>
                 </div>
+            </div>
+
+            <!-- Onglet Coach IA -->
+            <div id="coachai" class="tab-content">
+                <h2>🤖 Votre Coach Personnel Intelligent</h2>
+                
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; text-align: center;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 10px;">👋 Bonjour <span id="nomCoachIA">Champion</span> !</h3>
+                    <p style="font-size: 1.1em; opacity: 0.95;">Votre coach personnel analyse vos données pour vous accompagner vers votre objectif</p>
+                </div>
+
+                <!-- Tableau de bord personnalisé -->
+                <div id="tableauBordIA" style="margin-bottom: 25px;"></div>
+
+                <!-- Suggestions de collations intelligentes -->
+                <div id="suggestionsCollations" style="margin-bottom: 25px;"></div>
+
+                <!-- Conseils personnalisés du jour -->
+                <div id="conseilsPersonnalises" style="margin-bottom: 25px;"></div>
+
+                <!-- Motivation adaptée -->
+                <div id="motivationAdaptee" style="margin-bottom: 25px;"></div>
+
+                <!-- Analyse de la semaine -->
+                <div id="analyseSemaine" style="margin-bottom: 25px;"></div>
+
+                <!-- Actions recommandées -->
+                <div id="actionsRecommandees" style="margin-bottom: 25px;"></div>
+
+                <button class="btn" onclick="actualiserCoachIA()" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                    🔄 Actualiser mes recommandations
+                </button>
             </div>
 
             <!-- Onglet Conseils -->
@@ -1083,6 +1416,63 @@
         </div>
     </div>
 
+    <!-- Overlay de célébration -->
+    <div id="celebrationOverlay" class="celebration-overlay">
+        <div class="celebration-modal">
+            <div id="celebrationContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal de correction -->
+    <div id="correctionModal" class="correction-modal">
+        <div class="correction-content">
+            <h2 style="color: #ff6b6b; margin-bottom: 20px;">🔧 Signaler une erreur</h2>
+            <p style="color: #666; margin-bottom: 20px;">Vous avez remarqué une erreur ? Aidez-nous à l'améliorer !</p>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Type d'erreur</label>
+                <select id="typeErreur" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                    <option value="">Sélectionnez le type</option>
+                    <option value="calcul">❌ Erreur de calcul (calories, macros)</option>
+                    <option value="produit">📦 Informations produit incorrectes</option>
+                    <option value="recette">🍳 Erreur dans une recette</option>
+                    <option value="scan">📷 Problème de scan</option>
+                    <option value="progression">📈 Erreur de progression</option>
+                    <option value="autre">💬 Autre</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Où se trouve l'erreur ?</label>
+                <input type="text" id="lieuErreur" placeholder="Ex: Onglet Calculateur, Recette Poulet..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Description de l'erreur</label>
+                <textarea id="descriptionErreur" placeholder="Décrivez l'erreur en détail..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; min-height: 120px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Correction suggérée (optionnel)</label>
+                <textarea id="correctionSuggeree" placeholder="Comment devrait-ce être corrigé ?" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; min-height: 80px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="fermerModalCorrection()" style="flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: 600;">
+                    Annuler
+                </button>
+                <button onclick="envoyerCorrection()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: 600;">
+                    ✅ Envoyer
+                </button>
+            </div>
+
+            <div id="historiqueCorrectionsSummary" style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+                <h4 style="color: #667eea; margin-bottom: 10px;">📋 Mes signalements (<span id="compteurCorrections">0</span>)</h4>
+                <p style="color: #999; font-size: 0.9em;">Vos signalements sont stockés localement</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Citations motivantes
         const citations = [
@@ -1100,12 +1490,21 @@
         let userData = JSON.parse(localStorage.getItem('userData')) || {};
         let pesees = JSON.parse(localStorage.getItem('pesees')) || [];
         let produitsSauvegardes = JSON.parse(localStorage.getItem('produits')) || [];
+        let produitsPerso = JSON.parse(localStorage.getItem('produitsPerso')) || [];
+        let produitsFrigo = JSON.parse(localStorage.getItem('produitsFrigo')) || [];
+        let recettesFavorites = JSON.parse(localStorage.getItem('recettesFavorites')) || [];
+        let corrections = JSON.parse(localStorage.getItem('corrections')) || [];
         let repasActuel = [];
         let repasSauvegardes = JSON.parse(localStorage.getItem('repas')) || [];
         let scannerActif = false;
+        let scannerFrigoActif = false;
         let dernierProduit = null;
         let dernierCodeDetecte = null;
+        let dernierCodeDetecteFrigo = null;
         let timeoutDetection = null;
+        let timeoutDetectionFrigo = null;
+        let photoPersoBase64 = null;
+        let objectifAtteintAffiche = localStorage.getItem('objectifAtteintAffiche') === 'true';
 
         // Base de données d'aliments (calories pour 100g)
         const baseAliments = [
@@ -1219,6 +1618,10 @@
             afficherPesees();
             afficherHistoriqueProduits();
             afficherHistoriqueRepas();
+            afficherProduitsPerso();
+            afficherProduitsFrigo();
+            afficherRecettesFavorites();
+            actualiserCoachIA();
             document.getElementById('datePesee').valueAsDate = new Date();
             
             // Event listener pour la touche Entrée
@@ -1228,6 +1631,16 @@
                 }
             });
 
+            // Event listener pour la touche Entrée sur le frigo
+            const inputFrigo = document.getElementById('codebarreFrigo');
+            if (inputFrigo) {
+                inputFrigo.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        ajouterProduitFrigo();
+                    }
+                });
+            }
+
             // Fermer les suggestions si clic en dehors
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('#searchAliment') && !e.target.closest('#suggestionsAliments')) {
@@ -1236,6 +1649,40 @@
             });
 
             addDebugLog('Application initialisée');
+
+            // Vérifier si objectif déjà atteint au chargement
+            verifierObjectifAtteint();
+
+            // Créer le bouton flottant de signalement
+            const btnSignalement = document.createElement('button');
+            btnSignalement.innerHTML = '🔧';
+            btnSignalement.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+                color: white;
+                border: none;
+                font-size: 24px;
+                cursor: pointer;
+                box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+                z-index: 9998;
+                transition: all 0.3s;
+            `;
+            btnSignalement.onmouseover = function() {
+                this.style.transform = 'scale(1.1)';
+                this.style.boxShadow = '0 8px 30px rgba(255, 107, 107, 0.6)';
+            };
+            btnSignalement.onmouseout = function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = '0 5px 20px rgba(255, 107, 107, 0.4)';
+            };
+            btnSignalement.onclick = ouvrirModalCorrection;
+            btnSignalement.title = 'Signaler une erreur';
+            document.body.appendChild(btnSignalement);
         });
 
         function showTab(tabName) {
@@ -1243,6 +1690,11 @@
             if (scannerActif && tabName !== 'scanner') {
                 addDebugLog('Changement d\'onglet - arrêt du scanner');
                 arreterScanner();
+            }
+
+            // Arrêter le scanner frigo si on quitte l'onglet frigo
+            if (scannerFrigoActif && tabName !== 'frigo') {
+                arreterScannerFrigo();
             }
 
             // Cacher tous les contenus
@@ -1255,12 +1707,28 @@
 
             // Afficher le contenu sélectionné
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            
+            // Trouver et activer l'onglet correspondant
+            document.querySelectorAll('.tab').forEach(tab => {
+                if (tab.getAttribute('onclick').includes(tabName)) {
+                    tab.classList.add('active');
+                }
+            });
 
-            // Redessiner le graphique si onglet suivi
+            // Actions spécifiques selon l'onglet
             if (tabName === 'suivi') {
                 dessinerGraphique();
+            } else if (tabName === 'coachai') {
+                actualiserCoachIA();
+            } else if (tabName === 'calculateur') {
+                calculerCaloriesJour();
+            } else if (tabName === 'frigo') {
+                afficherProduitsFrigo();
+                afficherRecettesFavorites();
             }
+
+            // Scroll en haut de la page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ========== FONCTIONS DE PROFIL ET SUIVI ==========
@@ -1372,6 +1840,19 @@
 
             document.getElementById('poidsPesee').value = '';
             document.getElementById('datePesee').valueAsDate = new Date();
+
+            // Vérifier si objectif atteint
+            verifierObjectifAtteint();
+
+            // Proposer de voir les conseils personnalisés
+            setTimeout(() => {
+                if (pesees.length >= 2) {
+                    if (confirm('✅ Pesée enregistrée !\n\n💡 Voulez-vous voir votre progression et vos conseils personnalisés ?')) {
+                        showTab('coachai');
+                        document.querySelector('.tab[onclick*="coachai"]').classList.add('active');
+                    }
+                }
+            }, 300);
         }
 
         function afficherPesees() {
@@ -1745,6 +2226,14 @@
             afficherRepasActuel();
 
             alert('✅ Repas sauvegardé avec succès !');
+            
+            // Afficher une notification de suggestion
+            setTimeout(() => {
+                if (confirm('💡 Voulez-vous voir les suggestions de collations adaptées à vos calories ?')) {
+                    showTab('coachai');
+                    document.querySelector('.tab[onclick*="coachai"]').classList.add('active');
+                }
+            }, 500);
         }
 
         function afficherHistoriqueRepas() {
@@ -1869,6 +2358,1629 @@
         }
 
         // ========== FIN FONCTIONS CALCULATEUR DE CALORIES ==========
+
+        // ========== FONCTIONS BASE DE DONNÉES PERSONNELLE ==========
+
+        // Gestion de la photo
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputPhoto = document.getElementById('photoProduitPerso');
+            if (inputPhoto) {
+                inputPhoto.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        if (file.size > 5 * 1024 * 1024) { // 5MB max
+                            alert('La photo est trop volumineuse. Maximum 5MB.');
+                            return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            photoPersoBase64 = event.target.result;
+                            document.getElementById('imgPreviewPerso').src = photoPersoBase64;
+                            document.getElementById('previewPhotoPerso').style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+
+        function retirerPhotoPerso() {
+            photoPersoBase64 = null;
+            document.getElementById('photoProduitPerso').value = '';
+            document.getElementById('previewPhotoPerso').style.display = 'none';
+        }
+
+        function ajouterProduitPerso() {
+            const nom = document.getElementById('nomProduitPerso').value.trim();
+            const marque = document.getElementById('marqueProduitPerso').value.trim();
+            const codebarre = document.getElementById('codebarreProduitPerso').value.trim();
+            const quantite = document.getElementById('quantiteProduitPerso').value.trim();
+            const calories = parseFloat(document.getElementById('caloriesProduitPerso').value);
+            const proteines = parseFloat(document.getElementById('proteinesProduitPerso').value);
+            const glucides = parseFloat(document.getElementById('glucidesProduitPerso').value);
+            const lipides = parseFloat(document.getElementById('lipidesProduitPerso').value);
+            const notes = document.getElementById('notesProduitPerso').value.trim();
+
+            // Validations
+            if (!nom) {
+                alert('⚠️ Le nom du produit est obligatoire');
+                return;
+            }
+
+            if (!codebarre) {
+                alert('⚠️ Le code-barres est obligatoire');
+                return;
+            }
+
+            if (!/^\d{13}$/.test(codebarre)) {
+                alert('⚠️ Le code-barres doit contenir exactement 13 chiffres');
+                return;
+            }
+
+            if (isNaN(calories) || isNaN(proteines) || isNaN(glucides) || isNaN(lipides)) {
+                alert('⚠️ Toutes les valeurs nutritionnelles doivent être remplies');
+                return;
+            }
+
+            if (calories < 0 || proteines < 0 || glucides < 0 || lipides < 0) {
+                alert('⚠️ Les valeurs nutritionnelles ne peuvent pas être négatives');
+                return;
+            }
+
+            // Vérifier si le code-barres existe déjà
+            const indexExistant = produitsPerso.findIndex(p => p.barcode === codebarre);
+            if (indexExistant !== -1) {
+                if (!confirm('⚠️ Un produit avec ce code-barres existe déjà. Voulez-vous le remplacer ?')) {
+                    return;
+                }
+                produitsPerso.splice(indexExistant, 1);
+            }
+
+            // Créer le produit
+            const produit = {
+                id: Date.now(),
+                barcode: codebarre,
+                nom: nom,
+                marque: marque || 'Produit personnel',
+                quantite: quantite,
+                image: photoPersoBase64,
+                calories: calories,
+                proteines: proteines,
+                glucides: glucides,
+                lipides: lipides,
+                notes: notes,
+                dateAjout: new Date().toISOString(),
+                source: 'personnel'
+            };
+
+            // Ajouter le produit
+            produitsPerso.unshift(produit);
+            localStorage.setItem('produitsPerso', JSON.stringify(produitsPerso));
+
+            // Afficher la liste
+            afficherProduitsPerso();
+
+            // Réinitialiser le formulaire
+            document.getElementById('nomProduitPerso').value = '';
+            document.getElementById('marqueProduitPerso').value = '';
+            document.getElementById('codebarreProduitPerso').value = '';
+            document.getElementById('quantiteProduitPerso').value = '';
+            document.getElementById('caloriesProduitPerso').value = '';
+            document.getElementById('proteinesProduitPerso').value = '';
+            document.getElementById('glucidesProduitPerso').value = '';
+            document.getElementById('lipidesProduitPerso').value = '';
+            document.getElementById('notesProduitPerso').value = '';
+            retirerPhotoPerso();
+
+            alert('✅ Produit ajouté avec succès à votre base personnelle !');
+            
+            // Scroll vers le haut
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function afficherProduitsPerso() {
+            const liste = document.getElementById('listeProduitsPerso');
+            const compteur = document.getElementById('compteurProduitsPerso');
+
+            compteur.textContent = produitsPerso.length;
+
+            if (produitsPerso.length === 0) {
+                liste.innerHTML = `
+                    <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">📝</div>
+                        <p style="color: #999; font-size: 1.1em;">Aucun produit personnalisé</p>
+                        <p style="color: #666; font-size: 0.95em; margin-top: 10px;">Ajoutez vos produits ci-dessus pour les retrouver facilement lors du scan !</p>
+                    </div>
+                `;
+                return;
+            }
+
+            liste.innerHTML = produitsPerso.map((produit, index) => {
+                const dateAjout = new Date(produit.dateAjout).toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                return `
+                    <div class="weight-item" style="flex-direction: column; align-items: stretch; margin-bottom: 15px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                        <div style="display: flex; gap: 15px; align-items: start; margin-bottom: 12px;">
+                            ${produit.image ? `
+                                <img src="${produit.image}" alt="${produit.nom}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #667eea;">
+                            ` : `
+                                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5em;">
+                                    📦
+                                </div>
+                            `}
+                            
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-weight: bold; color: #333; font-size: 1.15em; margin-bottom: 3px;">
+                                            ${produit.nom}
+                                        </div>
+                                        <div style="color: #667eea; font-size: 0.9em; margin-bottom: 3px;">
+                                            ${produit.marque}
+                                        </div>
+                                        ${produit.quantite ? `
+                                            <div style="color: #666; font-size: 0.85em;">
+                                                📏 ${produit.quantite}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <button class="delete" onclick="supprimerProduitPerso(${index})" style="flex-shrink: 0;">Supprimer</button>
+                                </div>
+                                
+                                <div style="background: white; padding: 8px 10px; border-radius: 6px; margin-bottom: 5px;">
+                                    <div style="font-size: 0.85em; color: #666; margin-bottom: 3px;">
+                                        📊 Code-barres: <strong style="color: #333;">${produit.barcode}</strong>
+                                    </div>
+                                    <div style="font-size: 0.8em; color: #999;">
+                                        📅 Ajouté le ${dateAjout}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                            <div style="text-align: center;">
+                                <div style="font-weight: bold; color: #667eea; font-size: 1.2em;">${Math.round(produit.calories)}</div>
+                                <div style="font-size: 0.75em; color: #666;">kcal/100g</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: bold; color: #f5576c; font-size: 1.2em;">${produit.proteines.toFixed(1)}g</div>
+                                <div style="font-size: 0.75em; color: #666;">protéines</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: bold; color: #00f2fe; font-size: 1.2em;">${produit.glucides.toFixed(1)}g</div>
+                                <div style="font-size: 0.75em; color: #666;">glucides</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-weight: bold; color: #38f9d7; font-size: 1.2em;">${produit.lipides.toFixed(1)}g</div>
+                                <div style="font-size: 0.75em; color: #666;">lipides</div>
+                            </div>
+                        </div>
+
+                        ${produit.notes ? `
+                            <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 3px solid #ffc107;">
+                                <div style="font-size: 0.85em; color: #856404; line-height: 1.4;">
+                                    💭 ${produit.notes}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function supprimerProduitPerso(index) {
+            const produit = produitsPerso[index];
+            
+            if (confirm(`Voulez-vous vraiment supprimer "${produit.nom}" de votre base personnelle ?`)) {
+                produitsPerso.splice(index, 1);
+                localStorage.setItem('produitsPerso', JSON.stringify(produitsPerso));
+                afficherProduitsPerso();
+            }
+        }
+
+        function rechercherDansBasePerso(barcode) {
+            return produitsPerso.find(p => p.barcode === barcode);
+        }
+
+        // ========== FIN FONCTIONS BASE DE DONNÉES PERSONNELLE ==========
+
+        // ========== FONCTIONS COACH IA ==========
+
+        function actualiserCoachIA() {
+            afficherTableauBordIA();
+            suggererCollations();
+            genererConseilsPersonnalises();
+            genererMotivationAdaptee();
+            analyserSemaine();
+            genererActionsRecommandees();
+            verifierObjectifAtteint();
+        }
+
+        function afficherTableauBordIA() {
+            const tableau = document.getElementById('tableauBordIA');
+            const nom = userData.nom || 'Champion';
+            document.getElementById('nomCoachIA').textContent = nom;
+
+            // Calculer les données
+            const aujourdhui = new Date().toDateString();
+            const repasAujourdhui = repasSauvegardes.filter(r => new Date(r.date).toDateString() === aujourdhui);
+            const caloriesJour = repasAujourdhui.reduce((total, r) => total + r.totaux.calories, 0);
+            const objectifCal = userData.calories || 2000;
+            const pourcentageObjectif = (caloriesJour / objectifCal * 100).toFixed(0);
+            
+            const poidsActuel = pesees.length > 0 ? pesees[pesees.length - 1].poids : userData.poids;
+            const objectifPoids = userData.objectif;
+            const progression = objectifPoids ? ((userData.poids - poidsActuel) / (userData.poids - objectifPoids) * 100).toFixed(0) : 0;
+
+            let couleurCal = '#4caf50';
+            if (pourcentageObjectif > 110) couleurCal = '#ff4757';
+            else if (pourcentageObjectif > 100) couleurCal = '#ff9800';
+
+            tableau.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📊 Votre tableau de bord du jour</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="background: linear-gradient(135deg, ${couleurCal} 0%, ${couleurCal}dd 100%); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 5px;">Calories aujourd'hui</div>
+                            <div style="font-size: 2em; font-weight: bold;">${Math.round(caloriesJour)}</div>
+                            <div style="font-size: 0.85em; opacity: 0.9;">sur ${objectifCal} kcal (${pourcentageObjectif}%)</div>
+                        </div>
+
+                        ${poidsActuel && objectifPoids ? `
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 5px;">Progression poids</div>
+                            <div style="font-size: 2em; font-weight: bold;">${progression}%</div>
+                            <div style="font-size: 0.85em; opacity: 0.9;">${poidsActuel} kg → ${objectifPoids} kg</div>
+                        </div>
+                        ` : ''}
+
+                        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 5px;">Repas enregistrés</div>
+                            <div style="font-size: 2em; font-weight: bold;">${repasAujourdhui.length}</div>
+                            <div style="font-size: 0.85em; opacity: 0.9;">aujourd'hui</div>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 5px;">Pesées enregistrées</div>
+                            <div style="font-size: 2em; font-weight: bold;">${pesees.length}</div>
+                            <div style="font-size: 0.85em; opacity: 0.9;">depuis le début</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function suggererCollations() {
+            const container = document.getElementById('suggestionsCollations');
+            const objectifCal = userData.calories || 2000;
+            
+            const aujourdhui = new Date().toDateString();
+            const repasAujourdhui = repasSauvegardes.filter(r => new Date(r.date).toDateString() === aujourdhui);
+            const caloriesJour = repasAujourdhui.reduce((total, r) => total + r.totaux.calories, 0);
+            const caloriesRestantes = objectifCal - caloriesJour;
+
+            if (caloriesRestantes <= 0) {
+                container.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); padding: 20px; border-radius: 15px;">
+                        <h3 style="color: #c62828; margin-bottom: 15px;">🚫 Objectif calorique atteint</h3>
+                        <p style="color: #c62828; font-size: 1.05em; line-height: 1.6;">
+                            Vous avez consommé <strong>${Math.round(caloriesJour)} kcal</strong> aujourd'hui, soit ${Math.round(caloriesJour - objectifCal)} kcal de plus que votre objectif.<br><br>
+                            💡 <strong>Conseil :</strong> Privilégiez une activité physique légère et buvez beaucoup d'eau. Demain est un nouveau jour !
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Définir les collations avec leurs valeurs
+            const collations = [
+                { nom: "1 pomme moyenne", calories: 95, proteines: 0.5, glucides: 25, lipides: 0.3, emoji: "🍎" },
+                { nom: "1 banane", calories: 105, proteines: 1.3, glucides: 27, lipides: 0.4, emoji: "🍌" },
+                { nom: "Yaourt nature 0% (125g)", calories: 55, proteines: 9.4, glucides: 5, lipides: 0.3, emoji: "🥛" },
+                { nom: "Poignée d'amandes (20g)", calories: 116, proteines: 4.2, glucides: 4.4, lipides: 10, emoji: "🥜" },
+                { nom: "2 carrés chocolat noir 70%", calories: 109, proteines: 1.2, glucides: 12, lipides: 6.4, emoji: "🍫" },
+                { nom: "Barre protéinée", calories: 150, proteines: 10, glucides: 15, lipides: 5, emoji: "🍫" },
+                { nom: "Fromage blanc 0% (100g)", calories: 44, proteines: 7.5, glucides: 4, lipides: 0.2, emoji: "🥛" },
+                { nom: "1 orange", calories: 62, proteines: 1.2, glucides: 15, lipides: 0.2, emoji: "🍊" },
+                { nom: "Carotte + houmous (100g)", calories: 120, proteines: 4, glucides: 15, lipides: 5, emoji: "🥕" },
+                { nom: "Smoothie vert maison", calories: 100, proteines: 2, glucides: 20, lipides: 1, emoji: "🥤" },
+                { nom: "10 noix", calories: 131, proteines: 3, glucides: 2.8, lipides: 13, emoji: "🌰" },
+                { nom: "Œuf dur", calories: 78, proteines: 6.5, glucides: 0.6, lipides: 5.5, emoji: "🥚" }
+            ];
+
+            // Filtrer les collations selon les calories restantes
+            let collationsAdaptees = [];
+            
+            if (caloriesRestantes < 100) {
+                collationsAdaptees = collations.filter(c => c.calories <= 80);
+            } else if (caloriesRestantes < 200) {
+                collationsAdaptees = collations.filter(c => c.calories <= 150);
+            } else if (caloriesRestantes < 300) {
+                collationsAdaptees = collations.filter(c => c.calories <= 200);
+            } else {
+                collationsAdaptees = collations.filter(c => c.calories <= 300);
+            }
+
+            // Sélectionner 3 collations aléatoires
+            const suggestions = [];
+            const collationsCopie = [...collationsAdaptees];
+            for (let i = 0; i < Math.min(3, collationsCopie.length); i++) {
+                const index = Math.floor(Math.random() * collationsCopie.length);
+                suggestions.push(collationsCopie[index]);
+                collationsCopie.splice(index, 1);
+            }
+
+            let messageMotivation = '';
+            if (caloriesRestantes < 100) {
+                messageMotivation = "Vous êtes presque à votre objectif ! Une petite collation légère suffit.";
+            } else if (caloriesRestantes < 200) {
+                messageMotivation = "Vous gérez parfaitement votre apport calorique ! Voici quelques idées de collations.";
+            } else if (caloriesRestantes < 400) {
+                messageMotivation = "Excellent équilibre ! Vous pouvez vous permettre une bonne collation.";
+            } else {
+                messageMotivation = "Il vous reste de la marge ! Profitez-en pour faire un bon encas équilibré.";
+            }
+
+            container.innerHTML = `
+                <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 15px;">
+                    <h3 style="color: #333; margin-bottom: 10px;">🍎 Suggestions de collations personnalisées</h3>
+                    <p style="color: #555; font-size: 1.05em; margin-bottom: 5px;">
+                        <strong>Il vous reste ${Math.round(caloriesRestantes)} kcal</strong> pour aujourd'hui
+                    </p>
+                    <p style="color: #667eea; font-size: 0.95em; margin-bottom: 20px;">
+                        ${messageMotivation}
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        ${suggestions.map(collation => `
+                            <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                                <div style="font-size: 2em; margin-bottom: 8px;">${collation.emoji}</div>
+                                <div style="font-weight: bold; color: #333; margin-bottom: 8px; font-size: 1.05em;">
+                                    ${collation.nom}
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.85em; color: #666;">
+                                    <div>🔥 ${collation.calories} kcal</div>
+                                    <div>💪 ${collation.proteines}g prot</div>
+                                    <div>🍞 ${collation.glucides}g gluc</div>
+                                    <div>🧈 ${collation.lipides}g lip</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    ${caloriesRestantes > 500 ? `
+                        <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <p style="color: #ff6b6b; font-weight: bold; margin-bottom: 5px;">⚠️ Attention</p>
+                            <p style="color: #555; font-size: 0.9em;">
+                                Vous avez encore beaucoup de calories disponibles. Pensez à bien manger vos repas principaux pour éviter les fringales en soirée !
+                            </p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function genererConseilsPersonnalises() {
+            const container = document.getElementById('conseilsPersonnalises');
+            const aujourdhui = new Date().toDateString();
+            const repasAujourdhui = repasSauvegardes.filter(r => new Date(r.date).toDateString() === aujourdhui);
+            
+            let conseils = [];
+
+            // Conseil basé sur le nombre de repas
+            if (repasAujourdhui.length === 0) {
+                conseils.push({
+                    titre: "📝 Commencez à enregistrer vos repas",
+                    texte: "N'oubliez pas d'enregistrer ce que vous mangez pour un meilleur suivi ! Utilisez le Calculateur ou le Scanner.",
+                    type: "action"
+                });
+            } else if (repasAujourdhui.length === 1) {
+                conseils.push({
+                    titre: "🍽️ Fractionnez vos repas",
+                    texte: "Vous n'avez enregistré qu'un seul repas aujourd'hui. Pensez à fractionner en 3-4 repas pour mieux réguler votre métabolisme.",
+                    type: "nutrition"
+                });
+            } else if (repasAujourdhui.length >= 5) {
+                conseils.push({
+                    titre: "⚠️ Attention au grignotage",
+                    texte: "Vous avez enregistré beaucoup de repas aujourd'hui. Assurez-vous de ne pas grignoter entre les repas principaux.",
+                    type: "alerte"
+                });
+            }
+
+            // Conseil basé sur l'hydratation
+            const joursSemaine = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+            const jour = joursSemaine[new Date().getDay()];
+            
+            conseils.push({
+                titre: "💧 Hydratation du " + jour,
+                texte: "Avez-vous bu vos 1.5L d'eau aujourd'hui ? L'hydratation est essentielle pour la perte de poids et le bien-être général.",
+                type: "rappel"
+            });
+
+            // Conseil basé sur le poids
+            if (pesees.length >= 2) {
+                const dernierePesee = pesees[pesees.length - 1];
+                const avantDernierePesee = pesees[pesees.length - 2];
+                const evolution = dernierePesee.poids - avantDernierePesee.poids;
+
+                if (evolution < -0.5) {
+                    conseils.push({
+                        titre: "🎉 Excellente progression !",
+                        texte: `Vous avez perdu ${Math.abs(evolution).toFixed(1)} kg depuis votre dernière pesée ! Continuez comme ça, vous êtes sur la bonne voie.`,
+                        type: "succes"
+                    });
+                } else if (evolution > 0.5) {
+                    conseils.push({
+                        titre: "💪 Restez motivé !",
+                        texte: `Petite prise de poids détectée (+${evolution.toFixed(1)} kg). C'est normal, le poids fluctue ! Concentrez-vous sur vos habitudes à long terme.`,
+                        type: "motivation"
+                    });
+                }
+            } else if (pesees.length === 0) {
+                conseils.push({
+                    titre: "⚖️ Première pesée",
+                    texte: "Pensez à vous peser régulièrement (1 fois par semaine idéalement) pour suivre votre progression !",
+                    type: "action"
+                });
+            }
+
+            // Conseil activité physique
+            conseils.push({
+                titre: "🏃‍♀️ Activité du jour",
+                texte: "Avez-vous fait vos 30 minutes d'activité aujourd'hui ? Une simple marche rapide suffit !",
+                type: "rappel"
+            });
+
+            // Sélectionner 3 conseils maximum
+            const conseilsAffiches = conseils.slice(0, 3);
+
+            const couleurs = {
+                action: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                nutrition: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+                alerte: 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)',
+                rappel: 'linear-gradient(135deg, #00bcd4 0%, #03a9f4 100%)',
+                succes: 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)',
+                motivation: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+            };
+
+            container.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💡 Vos conseils personnalisés du jour</h3>
+                    
+                    <div style="display: grid; gap: 15px;">
+                        ${conseilsAffiches.map(conseil => `
+                            <div style="background: ${couleurs[conseil.type]}; color: white; padding: 15px; border-radius: 10px;">
+                                <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">${conseil.titre}</div>
+                                <div style="font-size: 0.95em; line-height: 1.5; opacity: 0.95;">${conseil.texte}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function genererMotivationAdaptee() {
+            const container = document.getElementById('motivationAdaptee');
+            
+            // Calculer la progression
+            let pourcentageProgression = 0;
+            let message = '';
+            let emoji = '🌟';
+            
+            if (pesees.length >= 2 && userData.objectif) {
+                const poidsDepart = pesees[0].poids;
+                const poidsActuel = pesees[pesees.length - 1].poids;
+                const objectif = userData.objectif;
+                const totalAPerdre = poidsDepart - objectif;
+                const dejaPerdu = poidsDepart - poidsActuel;
+                pourcentageProgression = (dejaPerdu / totalAPerdre * 100);
+
+                if (pourcentageProgression >= 100) {
+                    emoji = '🏆';
+                    message = "INCROYABLE ! Vous avez atteint votre objectif ! Vous êtes une vraie source d'inspiration. Maintenant, maintenez ces excellentes habitudes !";
+                } else if (pourcentageProgression >= 75) {
+                    emoji = '🔥';
+                    message = "FANTASTIQUE ! Vous avez parcouru 75% du chemin ! La ligne d'arrivée est en vue, ne lâchez rien maintenant !";
+                } else if (pourcentageProgression >= 50) {
+                    emoji = '💪';
+                    message = "BRAVO ! Vous avez dépassé la moitié du chemin ! Vous êtes plus proche de votre objectif que de votre point de départ. Continuez !";
+                } else if (pourcentageProgression >= 25) {
+                    emoji = '⭐';
+                    message = "EXCELLENT ! Un quart du chemin déjà parcouru ! Chaque kilo perdu est une victoire. Vous prouvez que vous pouvez le faire !";
+                } else if (pourcentageProgression > 0) {
+                    emoji = '🚀';
+                    message = "C'EST PARTI ! Vous avez commencé votre transformation ! Les premiers kilos sont toujours les plus difficiles, et vous l'avez fait !";
+                } else if (pourcentageProgression < 0) {
+                    emoji = '💭';
+                    message = "Petit contre-temps, mais ce n'est rien ! Le chemin vers la réussite n'est jamais linéaire. Concentrez-vous sur aujourd'hui, pas sur hier.";
+                }
+            } else {
+                emoji = '🌱';
+                message = "Bienvenue dans votre aventure santé ! Chaque grand voyage commence par un premier pas. Vous avez fait le plus dur : vous avez décidé de changer !";
+            }
+
+            const aujourdhui = new Date().toDateString();
+            const repasAujourdhui = repasSauvegardes.filter(r => new Date(r.date).toDateString() === aujourdhui);
+            const caloriesJour = repasAujourdhui.reduce((total, r) => total + r.totaux.calories, 0);
+            const objectifCal = userData.calories || 2000;
+
+            let badgeCalories = '';
+            if (caloriesJour > 0 && caloriesJour <= objectifCal * 1.1) {
+                badgeCalories = `
+                    <div style="background: rgba(76, 175, 80, 0.2); border: 2px solid #4caf50; color: #2e7d32; padding: 12px; border-radius: 10px; text-align: center; margin-top: 15px;">
+                        <div style="font-size: 1.8em; margin-bottom: 5px;">✅</div>
+                        <div style="font-weight: bold;">Objectif calorique respecté aujourd'hui !</div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 25px; border-radius: 15px; text-align: center;">
+                    <div style="font-size: 4em; margin-bottom: 15px;">${emoji}</div>
+                    <h3 style="color: #333; font-size: 1.5em; margin-bottom: 15px;">Message de motivation personnalisé</h3>
+                    <p style="color: #555; font-size: 1.15em; line-height: 1.7; font-weight: 500;">
+                        ${message}
+                    </p>
+                    ${pourcentageProgression > 0 ? `
+                        <div style="background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                            <div style="font-size: 3em; font-weight: bold; color: #667eea;">${Math.round(pourcentageProgression)}%</div>
+                            <div style="color: #666; font-size: 1.1em;">de progression vers votre objectif</div>
+                        </div>
+                    ` : ''}
+                    ${badgeCalories}
+                </div>
+            `;
+        }
+
+        function analyserSemaine() {
+            const container = document.getElementById('analyseSemaine');
+            
+            // Calculer la date d'il y a 7 jours
+            const ilYa7Jours = new Date();
+            ilYa7Jours.setDate(ilYa7Jours.getDate() - 7);
+
+            // Filtrer les repas de la semaine
+            const repasSemaine = repasSauvegardes.filter(r => new Date(r.date) >= ilYa7Jours);
+            
+            if (repasSemaine.length === 0) {
+                container.innerHTML = `
+                    <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">📊</div>
+                        <h3 style="color: #667eea; margin-bottom: 10px;">Analyse de la semaine</h3>
+                        <p style="color: #999;">Pas encore de données cette semaine. Commencez à enregistrer vos repas !</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Calculer les moyennes
+            const totalCal = repasSemaine.reduce((total, r) => total + r.totaux.calories, 0);
+            const moyenneCal = Math.round(totalCal / 7);
+            const moyenneProt = Math.round(repasSemaine.reduce((total, r) => total + r.totaux.proteines, 0) / repasSemaine.length);
+            const moyenneGluc = Math.round(repasSemaine.reduce((total, r) => total + r.totaux.glucides, 0) / repasSemaine.length);
+            const moyenneLip = Math.round(repasSemaine.reduce((total, r) => total + r.totaux.lipides, 0) / repasSemaine.length);
+
+            const objectifCal = userData.calories || 2000;
+            const ecartObjectif = moyenneCal - objectifCal;
+
+            let commentaire = '';
+            if (Math.abs(ecartObjectif) <= 100) {
+                commentaire = "🎯 Parfait ! Vous respectez votre objectif calorique.";
+            } else if (ecartObjectif < 0) {
+                commentaire = `✅ Vous êtes ${Math.abs(ecartObjectif)} kcal en dessous de votre objectif. Bon équilibre !`;
+            } else {
+                commentaire = `⚠️ Vous dépassez votre objectif de ${ecartObjectif} kcal/jour en moyenne.`;
+            }
+
+            container.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📊 Analyse des 7 derniers jours</h3>
+                    
+                    <div style="background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; text-align: center;">
+                            <div>
+                                <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${moyenneCal}</div>
+                                <div style="font-size: 0.85em; color: #666;">kcal/jour</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.8em; font-weight: bold; color: #f5576c;">${moyenneProt}g</div>
+                                <div style="font-size: 0.85em; color: #666;">protéines</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.8em; font-weight: bold; color: #00f2fe;">${moyenneGluc}g</div>
+                                <div style="font-size: 0.85em; color: #666;">glucides</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.8em; font-weight: bold; color: #38f9d7;">${moyenneLip}g</div>
+                                <div style="font-size: 0.85em; color: #666;">lipides</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea;">
+                        <p style="color: #333; font-size: 1.05em; font-weight: 500;">${commentaire}</p>
+                        <p style="color: #666; font-size: 0.9em; margin-top: 8px;">
+                            Vous avez enregistré ${repasSemaine.length} repas cette semaine, soit une moyenne de ${(repasSemaine.length / 7).toFixed(1)} repas par jour.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function genererActionsRecommandees() {
+            const container = document.getElementById('actionsRecommandees');
+            
+            const actions = [];
+
+            // Actions basées sur les données
+            const aujourdhui = new Date().toDateString();
+            const repasAujourdhui = repasSauvegardes.filter(r => new Date(r.date).toDateString() === aujourdhui);
+
+            if (repasAujourdhui.length === 0) {
+                actions.push({
+                    titre: "Enregistrez votre premier repas",
+                    description: "Commencez à suivre votre alimentation dès maintenant",
+                    action: "Aller au Calculateur",
+                    onclick: "showTab('calculateur'); document.querySelector('.tab[onclick*=\"calculateur\"]').classList.add('active');",
+                    icon: "🧮"
+                });
+            }
+
+            if (pesees.length === 0) {
+                actions.push({
+                    titre: "Pesez-vous pour la première fois",
+                    description: "Établissez votre point de départ pour suivre votre progression",
+                    action: "Aller au Suivi du Poids",
+                    onclick: "showTab('suivi'); document.querySelector('.tab[onclick*=\"suivi\"]').classList.add('active');",
+                    icon: "📈"
+                });
+            } else {
+                const dernierePesee = new Date(pesees[pesees.length - 1].date);
+                const joursDepuisPesee = Math.floor((new Date() - dernierePesee) / (1000 * 60 * 60 * 24));
+                
+                if (joursDepuisPesee >= 7) {
+                    actions.push({
+                        titre: "Pesez-vous cette semaine",
+                        description: `Cela fait ${joursDepuisPesee} jours depuis votre dernière pesée`,
+                        action: "Enregistrer mon poids",
+                        onclick: "showTab('suivi'); document.querySelector('.tab[onclick*=\"suivi\"]').classList.add('active');",
+                        icon: "⚖️"
+                    });
+                }
+            }
+
+            if (produitsPerso.length === 0) {
+                actions.push({
+                    titre: "Créez votre base personnelle",
+                    description: "Ajoutez vos produits favoris pour un scan ultra-rapide",
+                    action: "Créer ma base",
+                    onclick: "showTab('baseperso'); document.querySelector('.tab[onclick*=\"baseperso\"]').classList.add('active');",
+                    icon: "📝"
+                });
+            }
+
+            actions.push({
+                titre: "Consultez les menus types",
+                description: "Découvrez des idées de repas équilibrés",
+                action: "Voir les menus",
+                onclick: "showTab('menus'); document.querySelector('.tab[onclick*=\"menus\"]').classList.add('active');",
+                icon: "🍽️"
+            });
+
+            // Limiter à 3 actions
+            const actionsAffichees = actions.slice(0, 3);
+
+            container.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🎯 Actions recommandées</h3>
+                    
+                    <div style="display: grid; gap: 12px;">
+                        ${actionsAffichees.map(action => `
+                            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: transform 0.2s;" onclick="${action.onclick}" onmouseover="this.style.transform='translateX(5px)'" onmouseout="this.style.transform='translateX(0)'">
+                                <div style="font-size: 2.5em; flex-shrink: 0;">${action.icon}</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; color: #333; margin-bottom: 5px; font-size: 1.05em;">${action.titre}</div>
+                                    <div style="color: #666; font-size: 0.9em;">${action.description}</div>
+                                </div>
+                                <button class="btn" style="margin: 0; padding: 10px 20px; width: auto; font-size: 0.9em;">
+                                    ${action.action} →
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========== FIN FONCTIONS COACH IA ==========
+
+        // ========== FONCTIONS FRIGO & RECETTES ==========
+
+        function demarrerScannerFrigo() {
+            const container = document.getElementById('scannerFrigoContainer');
+            const startBtn = document.getElementById('startScanFrigoBtn');
+            const stopBtn = document.getElementById('stopScanFrigoBtn');
+
+            container.style.display = 'block';
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+
+            dernierCodeDetecteFrigo = null;
+
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#interactiveFrigo'),
+                    constraints: {
+                        width: { min: 640, ideal: 1280 },
+                        height: { min: 480, ideal: 720 },
+                        facingMode: "environment"
+                    }
+                },
+                locator: {
+                    patchSize: "medium",
+                    halfSample: true
+                },
+                numOfWorkers: navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 4) : 2,
+                frequency: 10,
+                decoder: {
+                    readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"]
+                },
+                locate: true
+            }, function(err) {
+                if (err) {
+                    console.error("Erreur Scanner Frigo:", err);
+                    alert("Erreur d'accès à la caméra. Utilisez la saisie manuelle.");
+                    arreterScannerFrigo();
+                    return;
+                }
+                
+                scannerFrigoActif = true;
+                Quagga.start();
+            });
+
+            Quagga.onDetected(function(result) {
+                if (!result || !result.codeResult || !result.codeResult.code) return;
+                
+                const code = result.codeResult.code;
+                
+                if (!/^\d{8,13}$/.test(code)) return;
+                if (code === dernierCodeDetecteFrigo) return;
+
+                dernierCodeDetecteFrigo = code;
+
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+
+                arreterScannerFrigo();
+                
+                timeoutDetectionFrigo = setTimeout(() => {
+                    document.getElementById('codebarreFrigo').value = code;
+                    ajouterProduitFrigo();
+                }, 200);
+            });
+        }
+
+        function arreterScannerFrigo() {
+            const container = document.getElementById('scannerFrigoContainer');
+            const startBtn = document.getElementById('startScanFrigoBtn');
+            const stopBtn = document.getElementById('stopScanFrigoBtn');
+
+            if (scannerFrigoActif) {
+                try {
+                    Quagga.stop();
+                } catch (e) {
+                    console.error("Erreur arrêt scanner frigo:", e);
+                }
+                scannerFrigoActif = false;
+            }
+
+            container.style.display = 'none';
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+
+            dernierCodeDetecteFrigo = null;
+            if (timeoutDetectionFrigo) {
+                clearTimeout(timeoutDetectionFrigo);
+                timeoutDetectionFrigo = null;
+            }
+        }
+
+        async function ajouterProduitFrigo() {
+            const codebarre = document.getElementById('codebarreFrigo').value.trim();
+
+            if (!codebarre) {
+                alert('⚠️ Veuillez saisir un code-barres');
+                return;
+            }
+
+            if (!/^\d{8,13}$/.test(codebarre)) {
+                alert('⚠️ Le code-barres doit contenir entre 8 et 13 chiffres');
+                return;
+            }
+
+            // Vérifier si déjà dans le frigo
+            if (produitsFrigo.find(p => p.barcode === codebarre)) {
+                alert('ℹ️ Ce produit est déjà dans votre frigo');
+                document.getElementById('codebarreFrigo').value = '';
+                return;
+            }
+
+            document.getElementById('loadingFrigo').style.display = 'block';
+
+            // Chercher d'abord dans la base perso
+            let produit = rechercherDansBasePerso(codebarre);
+            
+            if (produit) {
+                ajouterAuFrigo({
+                    barcode: codebarre,
+                    nom: produit.nom,
+                    marque: produit.marque,
+                    image: produit.image,
+                    calories: produit.calories,
+                    proteines: produit.proteines,
+                    glucides: produit.glucides,
+                    lipides: produit.lipides,
+                    source: 'personnel'
+                });
+                document.getElementById('loadingFrigo').style.display = 'none';
+                return;
+            }
+
+            // Sinon chercher dans OpenFoodFacts
+            try {
+                const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${codebarre}.json`);
+                const data = await response.json();
+
+                document.getElementById('loadingFrigo').style.display = 'none';
+
+                if (data.status === 1 && data.product) {
+                    ajouterAuFrigo({
+                        barcode: codebarre,
+                        nom: data.product.product_name || 'Produit sans nom',
+                        marque: data.product.brands || 'Marque inconnue',
+                        image: data.product.image_url || data.product.image_front_url || '',
+                        calories: data.product.nutriments?.['energy-kcal_100g'] || data.product.nutriments?.['energy-kcal'] || 0,
+                        proteines: data.product.nutriments?.proteins_100g || data.product.nutriments?.proteins || 0,
+                        glucides: data.product.nutriments?.carbohydrates_100g || data.product.nutriments?.carbohydrates || 0,
+                        lipides: data.product.nutriments?.fat_100g || data.product.nutriments?.fat || 0,
+                        source: 'openfoodfacts'
+                    });
+                } else {
+                    alert('❌ Produit non trouvé. Vous pouvez l\'ajouter dans "Ma Base Perso" puis le scanner à nouveau.');
+                }
+            } catch (error) {
+                document.getElementById('loadingFrigo').style.display = 'none';
+                alert('❌ Erreur de connexion. Vérifiez votre internet.');
+            }
+        }
+
+        function ajouterAuFrigo(produit) {
+            produitsFrigo.unshift({
+                ...produit,
+                dateAjout: new Date().toISOString()
+            });
+            localStorage.setItem('produitsFrigo', JSON.stringify(produitsFrigo));
+            afficherProduitsFrigo();
+            document.getElementById('codebarreFrigo').value = '';
+            
+            // Animation de succès
+            const btn = document.querySelector('button[onclick="ajouterProduitFrigo()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Ajouté !';
+            btn.style.background = 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 1500);
+        }
+
+        function afficherProduitsFrigo() {
+            const liste = document.getElementById('listeProduitsFrigo');
+            const compteur = document.getElementById('compteurFrigo');
+
+            compteur.textContent = produitsFrigo.length;
+
+            if (produitsFrigo.length === 0) {
+                liste.innerHTML = `
+                    <div style="text-align: center; padding: 40px; background: white; border-radius: 10px;">
+                        <div style="font-size: 4em; margin-bottom: 15px;">🧊</div>
+                        <p style="color: #999; font-size: 1.1em;">Votre frigo est vide</p>
+                        <p style="color: #666; font-size: 0.95em; margin-top: 10px;">Scannez vos produits pour commencer !</p>
+                    </div>
+                `;
+                return;
+            }
+
+            liste.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+                    ${produitsFrigo.map((produit, index) => `
+                        <div style="background: white; border-radius: 10px; padding: 12px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <button onclick="retirerDuFrigo(${index})" style="position: absolute; top: 5px; right: 5px; background: #ff4757; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0;">×</button>
+                            
+                            ${produit.image ? `
+                                <img src="${produit.image}" style="width: 100%; height: 100px; object-fit: contain; border-radius: 8px; margin-bottom: 8px;">
+                            ` : `
+                                <div style="width: 100%; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5em; margin-bottom: 8px;">📦</div>
+                            `}
+                            
+                            <div style="font-weight: bold; font-size: 0.9em; color: #333; margin-bottom: 3px; line-height: 1.2; height: 32px; overflow: hidden;">
+                                ${produit.nom}
+                            </div>
+                            <div style="font-size: 0.8em; color: #667eea; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${produit.marque}
+                            </div>
+                            <div style="background: #f8f9fa; padding: 6px; border-radius: 5px; font-size: 0.75em; color: #666; text-align: center;">
+                                ${Math.round(produit.calories)} kcal/100g
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function retirerDuFrigo(index) {
+            if (confirm('Retirer ce produit du frigo ?')) {
+                produitsFrigo.splice(index, 1);
+                localStorage.setItem('produitsFrigo', JSON.stringify(produitsFrigo));
+                afficherProduitsFrigo();
+            }
+        }
+
+        function viderFrigo() {
+            if (produitsFrigo.length === 0) return;
+            
+            if (confirm(`Voulez-vous vraiment vider votre frigo (${produitsFrigo.length} produits) ?`)) {
+                produitsFrigo = [];
+                localStorage.setItem('produitsFrigo', JSON.stringify(produitsFrigo));
+                afficherProduitsFrigo();
+            }
+        }
+
+        function genererRecettes() {
+            if (produitsFrigo.length === 0) {
+                alert('⚠️ Votre frigo est vide ! Ajoutez des produits d\'abord.');
+                return;
+            }
+
+            const type = document.getElementById('typeRecette').value;
+            const difficulte = document.getElementById('difficulteRecette').value;
+
+            // Base de recettes avec ingrédients requis
+            const basesRecettes = [
+                {
+                    nom: "Poulet Rôti au Citron",
+                    type: "dejeuner",
+                    difficulte: "moyen",
+                    temps: 35,
+                    ingredients: ["poulet", "citron", "huile"],
+                    portions: 4,
+                    emoji: "🍗",
+                    instructions: [
+                        "Préchauffer le four à 200°C",
+                        "Assaisonner le poulet avec sel, poivre et jus de citron",
+                        "Arroser d'huile d'olive",
+                        "Enfourner 30-35 minutes",
+                        "Servir chaud avec des légumes"
+                    ]
+                },
+                {
+                    nom: "Omelette aux Légumes",
+                    type: "dejeuner",
+                    difficulte: "facile",
+                    temps: 15,
+                    ingredients: ["œuf", "tomate", "oignon"],
+                    portions: 2,
+                    emoji: "🍳",
+                    instructions: [
+                        "Battre 3 œufs dans un bol",
+                        "Couper les légumes en petits dés",
+                        "Faire revenir les légumes dans une poêle",
+                        "Verser les œufs et cuire 5-7 minutes",
+                        "Plier l'omelette et servir"
+                    ]
+                },
+                {
+                    nom: "Salade César Protéinée",
+                    type: "dejeuner",
+                    difficulte: "facile",
+                    temps: 10,
+                    ingredients: ["salade", "poulet", "fromage"],
+                    portions: 2,
+                    emoji: "🥗",
+                    instructions: [
+                        "Laver et couper la salade",
+                        "Émincer le poulet grillé",
+                        "Râper le fromage",
+                        "Mélanger avec une vinaigrette légère",
+                        "Servir frais"
+                    ]
+                },
+                {
+                    nom: "Yaourt Bowl Énergétique",
+                    type: "petit-dejeuner",
+                    difficulte: "facile",
+                    temps: 5,
+                    ingredients: ["yaourt", "banane", "miel"],
+                    portions: 1,
+                    emoji: "🥣",
+                    instructions: [
+                        "Verser le yaourt dans un bol",
+                        "Trancher la banane",
+                        "Ajouter une cuillère de miel",
+                        "Mélanger délicatement",
+                        "Déguster immédiatement"
+                    ]
+                },
+                {
+                    nom: "Smoothie Vert Détox",
+                    type: "collation",
+                    difficulte: "facile",
+                    temps: 5,
+                    ingredients: ["épinard", "banane", "lait"],
+                    portions: 1,
+                    emoji: "🥤",
+                    instructions: [
+                        "Mettre tous les ingrédients dans un blender",
+                        "Mixer jusqu'à obtenir une texture lisse",
+                        "Ajouter des glaçons si désiré",
+                        "Servir immédiatement"
+                    ]
+                },
+                {
+                    nom: "Saumon Grillé aux Herbes",
+                    type: "diner",
+                    difficulte: "moyen",
+                    temps: 20,
+                    ingredients: ["saumon", "citron", "huile"],
+                    portions: 2,
+                    emoji: "🐟",
+                    instructions: [
+                        "Badigeonner le saumon d'huile d'olive",
+                        "Assaisonner avec herbes, sel et poivre",
+                        "Griller 6-8 minutes de chaque côté",
+                        "Arroser de jus de citron",
+                        "Servir avec des légumes vapeur"
+                    ]
+                },
+                {
+                    nom: "Riz Sauté aux Légumes",
+                    type: "dejeuner",
+                    difficulte: "facile",
+                    temps: 20,
+                    ingredients: ["riz", "carotte", "oignon"],
+                    portions: 3,
+                    emoji: "🍚",
+                    instructions: [
+                        "Cuire le riz selon les instructions",
+                        "Couper les légumes en petits morceaux",
+                        "Faire sauter les légumes dans un wok",
+                        "Ajouter le riz cuit et mélanger",
+                        "Assaisonner de sauce soja"
+                    ]
+                },
+                {
+                    nom: "Tarte aux Pommes Light",
+                    type: "dessert",
+                    difficulte: "moyen",
+                    temps: 45,
+                    ingredients: ["pomme", "farine", "œuf"],
+                    portions: 6,
+                    emoji: "🥧",
+                    instructions: [
+                        "Préparer la pâte avec farine, œuf et un peu d'eau",
+                        "Étaler dans un moule",
+                        "Disposer les pommes tranchées",
+                        "Saupoudrer de cannelle",
+                        "Cuire 40 minutes à 180°C"
+                    ]
+                }
+            ];
+
+            // Filtrer selon le type et la difficulté
+            let recettesPossibles = basesRecettes.filter(recette => {
+                if (type && recette.type !== type) return false;
+                if (difficulte && recette.difficulte !== difficulte) return false;
+                
+                // Vérifier si on a au moins 60% des ingrédients
+                const ingredientsDisponibles = recette.ingredients.filter(ing => 
+                    produitsFrigo.some(p => p.nom.toLowerCase().includes(ing.toLowerCase()))
+                );
+                
+                return ingredientsDisponibles.length >= Math.ceil(recette.ingredients.length * 0.6);
+            });
+
+            if (recettesPossibles.length === 0) {
+                document.getElementById('recettesGenerees').innerHTML = `
+                    <div style="background: white; border-radius: 15px; padding: 30px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <div style="font-size: 3em; margin-bottom: 15px;">😕</div>
+                        <h3 style="color: #ff6b6b; margin-bottom: 10px;">Aucune recette possible</h3>
+                        <p style="color: #666; font-size: 1.05em;">
+                            Nous n'avons pas trouvé de recettes avec vos produits actuels et vos filtres.
+                        </p>
+                        <p style="color: #999; margin-top: 10px;">
+                            💡 Essayez de changer les filtres ou d'ajouter plus de produits à votre frigo !
+                        </p>
+                    </div>
+                `;
+                document.getElementById('recettesGenerees').style.display = 'block';
+                return;
+            }
+
+            // Sélectionner 3 recettes aléatoires
+            const recettesSelectionnees = [];
+            const recettesCopie = [...recettesPossibles];
+            for (let i = 0; i < Math.min(3, recettesCopie.length); i++) {
+                const index = Math.floor(Math.random() * recettesCopie.length);
+                recettesSelectionnees.push(recettesCopie[index]);
+                recettesCopie.splice(index, 1);
+            }
+
+            // Générer les recettes avec calcul des calories
+            const recettesHTML = recettesSelectionnees.map(recette => {
+                // Calculer les calories basées sur les produits du frigo
+                let caloriesEstimees = 0;
+                let protEstimees = 0;
+                let glucEstimees = 0;
+                let lipEstimees = 0;
+
+                recette.ingredients.forEach(ing => {
+                    const produit = produitsFrigo.find(p => p.nom.toLowerCase().includes(ing.toLowerCase()));
+                    if (produit) {
+                        // Estimer 100g par ingrédient
+                        caloriesEstimees += produit.calories;
+                        protEstimees += produit.proteines;
+                        glucEstimees += produit.glucides;
+                        lipEstimees += produit.lipides;
+                    } else {
+                        // Valeurs par défaut si produit pas trouvé
+                        caloriesEstimees += 50;
+                        protEstimees += 2;
+                        glucEstimees += 8;
+                        lipEstimees += 1;
+                    }
+                });
+
+                const caloriesParPortion = Math.round(caloriesEstimees / recette.portions);
+                const protParPortion = Math.round((protEstimees / recette.portions) * 10) / 10;
+                const glucParPortion = Math.round((glucEstimees / recette.portions) * 10) / 10;
+                const lipParPortion = Math.round((lipEstimees / recette.portions) * 10) / 10;
+
+                return `
+                    <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 2.5em; margin-bottom: 10px;">${recette.emoji}</div>
+                                <h3 style="color: #ff6b6b; font-size: 1.5em; margin-bottom: 5px;">${recette.nom}</h3>
+                                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                                    <span style="background: #e3f2fd; color: #1976d2; padding: 5px 12px; border-radius: 15px; font-size: 0.85em;">
+                                        ⏱️ ${recette.temps} min
+                                    </span>
+                                    <span style="background: #fff3e0; color: #f57c00; padding: 5px 12px; border-radius: 15px; font-size: 0.85em;">
+                                        👨‍🍳 ${recette.difficulte.charAt(0).toUpperCase() + recette.difficulte.slice(1)}
+                                    </span>
+                                    <span style="background: #f3e5f5; color: #7b1fa2; padding: 5px 12px; border-radius: 15px; font-size: 0.85em;">
+                                        🍽️ ${recette.portions} portion(s)
+                                    </span>
+                                </div>
+                            </div>
+                            <button onclick="ajouterRecetteFavorite('${recette.nom.replace(/'/g, "\\'")}', ${caloriesParPortion}, ${protParPortion}, ${glucParPortion}, ${lipParPortion})" style="background: linear-gradient(135deg, #feca57 0%, #ff6b6b 100%); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; white-space: nowrap;">
+                                ⭐ Favori
+                            </button>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 10px; font-size: 1.1em;">📊 Valeurs nutritionnelles par portion</h4>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${caloriesParPortion}</div>
+                                    <div style="font-size: 0.8em; opacity: 0.9;">kcal</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${protParPortion}g</div>
+                                    <div style="font-size: 0.8em; opacity: 0.9;">protéines</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${glucParPortion}g</div>
+                                    <div style="font-size: 0.8em; opacity: 0.9;">glucides</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 1.5em; font-weight: bold;">${lipParPortion}g</div>
+                                    <div style="font-size: 0.8em; opacity: 0.9;">lipides</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #333; margin-bottom: 10px;">📝 Ingrédients nécessaires</h4>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                ${recette.ingredients.map(ing => {
+                                    const disponible = produitsFrigo.some(p => p.nom.toLowerCase().includes(ing.toLowerCase()));
+                                    return `
+                                        <div style="padding: 6px 0; display: flex; align-items: center;">
+                                            <span style="margin-right: 8px; font-size: 1.2em;">${disponible ? '✅' : '❌'}</span>
+                                            <span style="color: ${disponible ? '#4caf50' : '#ff4757'}; font-weight: ${disponible ? 'bold' : 'normal'};">
+                                                ${ing.charAt(0).toUpperCase() + ing.slice(1)}
+                                            </span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 style="color: #333; margin-bottom: 10px;">👨‍🍳 Instructions</h4>
+                            <ol style="line-height: 2; color: #555; padding-left: 20px;">
+                                ${recette.instructions.map(inst => `<li>${inst}</li>`).join('')}
+                            </ol>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('recettesGenerees').innerHTML = `
+                <div>
+                    <h3 style="color: #ff6b6b; margin-bottom: 20px; font-size: 1.5em;">
+                        ✨ ${recettesSelectionnees.length} recette(s) générée(s) pour vous !
+                    </h3>
+                    ${recettesHTML}
+                </div>
+            `;
+
+            document.getElementById('recettesGenerees').style.display = 'block';
+            document.getElementById('recettesGenerees').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function ajouterRecetteFavorite(nom, calories, proteines, glucides, lipides) {
+            const recette = {
+                id: Date.now(),
+                nom: nom,
+                calories: calories,
+                proteines: proteines,
+                glucides: glucides,
+                lipides: lipides,
+                dateAjout: new Date().toISOString()
+            };
+
+            // Vérifier si déjà en favoris
+            if (recettesFavorites.find(r => r.nom === nom)) {
+                alert('ℹ️ Cette recette est déjà dans vos favoris !');
+                return;
+            }
+
+            recettesFavorites.unshift(recette);
+            localStorage.setItem('recettesFavorites', JSON.stringify(recettesFavorites));
+            afficherRecettesFavorites();
+            
+            // Notification
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✅ Ajouté !';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function afficherRecettesFavorites() {
+            const container = document.getElementById('recettesFavorites');
+
+            if (recettesFavorites.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px; background: #f8f9fa; border-radius: 10px;">
+                        <div style="font-size: 2.5em; margin-bottom: 10px;">⭐</div>
+                        <p style="color: #999;">Aucune recette favorite pour le moment</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = recettesFavorites.map((recette, index) => {
+                const date = new Date(recette.dateAjout).toLocaleDateString('fr-FR');
+                return `
+                    <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; color: #333; font-size: 1.1em; margin-bottom: 5px;">
+                                ${recette.nom}
+                            </div>
+                            <div style="color: #666; font-size: 0.85em; margin-bottom: 8px;">
+                                Ajouté le ${date}
+                            </div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <span style="background: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 12px; font-size: 0.8em;">
+                                    ${recette.calories} kcal
+                                </span>
+                                <span style="background: #ffebee; color: #c62828; padding: 4px 10px; border-radius: 12px; font-size: 0.8em;">
+                                    ${recette.proteines}g prot
+                                </span>
+                                <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 12px; font-size: 0.8em;">
+                                    ${recette.glucides}g gluc
+                                </span>
+                                <span style="background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 12px; font-size: 0.8em;">
+                                    ${recette.lipides}g lip
+                                </span>
+                            </div>
+                        </div>
+                        <button onclick="retirerRecetteFavorite(${index})" style="background: #ff4757; color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9em;">
+                            🗑️ Retirer
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function retirerRecetteFavorite(index) {
+            if (confirm('Retirer cette recette de vos favoris ?')) {
+                recettesFavorites.splice(index, 1);
+                localStorage.setItem('recettesFavorites', JSON.stringify(recettesFavorites));
+                afficherRecettesFavorites();
+            }
+        }
+
+        // ========== FIN FONCTIONS FRIGO & RECETTES ==========
+
+        // ========== FONCTIONS DE CÉLÉBRATION ==========
+
+        function verifierObjectifAtteint() {
+            if (!userData.objectif || pesees.length === 0) return;
+
+            const poidsActuel = pesees[pesees.length - 1].poids;
+            const objectif = userData.objectif;
+
+            // Vérifier si objectif atteint (avec marge de 0.5kg)
+            if (poidsActuel <= objectif + 0.5 && !objectifAtteintAffiche) {
+                setTimeout(() => {
+                    lancerCelebrationComplete();
+                    objectifAtteintAffiche = true;
+                    localStorage.setItem('objectifAtteintAffiche', 'true');
+                }, 500);
+            }
+        }
+
+        function lancerCelebrationComplete() {
+            // Afficher l'overlay
+            const overlay = document.getElementById('celebrationOverlay');
+            const content = document.getElementById('celebrationContent');
+
+            content.innerHTML = `
+                <div style="font-size: 5em; margin-bottom: 20px; animation: bounce 1s infinite;">🏆</div>
+                <h1 style="color: #667eea; font-size: 2.5em; margin-bottom: 15px;">OBJECTIF ATTEINT !</h1>
+                <p style="color: #333; font-size: 1.3em; margin-bottom: 20px;">
+                    <strong>${userData.nom || 'Champion'}</strong>, vous avez réussi !
+                </p>
+                <p style="color: #666; font-size: 1.1em; line-height: 1.6; margin-bottom: 30px;">
+                    Vous avez atteint votre objectif de <strong>${userData.objectif} kg</strong> !<br>
+                    C'est une victoire incroyable ! 🎉
+                </p>
+                <button onclick="fermerCelebration()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border: none; border-radius: 25px; font-size: 1.2em; cursor: pointer; font-weight: bold;">
+                    🎊 Merci !
+                </button>
+            `;
+
+            overlay.style.display = 'flex';
+
+            // Lancer les animations
+            lancerFeuxArtifice();
+            lancerConfettis();
+            jouerApplaudissements();
+        }
+
+        function lancerFeuxArtifice() {
+            const colors = ['#ff006e', '#fb5607', '#ffbe0b', '#8338ec', '#3a86ff', '#06ffa5'];
+            const container = document.body;
+
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    // Position de départ aléatoire
+                    const startX = Math.random() * window.innerWidth;
+                    const startY = window.innerHeight;
+
+                    // Position d'arrivée aléatoire
+                    const endX = (Math.random() - 0.5) * 300;
+                    const endY = -200 - Math.random() * 300;
+
+                    // Créer plusieurs particules pour chaque feu
+                    for (let j = 0; j < 8; j++) {
+                        const firework = document.createElement('div');
+                        firework.className = 'firework';
+                        firework.style.left = startX + 'px';
+                        firework.style.top = startY + 'px';
+                        firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        const angle = (j / 8) * Math.PI * 2;
+                        const distance = 50 + Math.random() * 50;
+                        const particleX = endX + Math.cos(angle) * distance;
+                        const particleY = endY + Math.sin(angle) * distance;
+                        
+                        firework.style.setProperty('--x', particleX + 'px');
+                        firework.style.setProperty('--y', particleY + 'px');
+                        
+                        container.appendChild(firework);
+
+                        setTimeout(() => {
+                            firework.remove();
+                        }, 1500);
+                    }
+                }, i * 200);
+            }
+        }
+
+        function lancerConfettis() {
+            const colors = ['#ff006e', '#fb5607', '#ffbe0b', '#8338ec', '#3a86ff', '#06ffa5'];
+            const shapes = ['●', '■', '▲', '★'];
+            const container = document.body;
+
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-20px';
+                    confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+                    confetti.style.fontSize = (10 + Math.random() * 20) + 'px';
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+
+                    container.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 30);
+            }
+        }
+
+        function jouerApplaudissements() {
+            // Créer un contexte audio
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Son d'applaudissements (simulation avec plusieurs notes)
+                const notes = [
+                    { freq: 150, time: 0 },
+                    { freq: 180, time: 0.1 },
+                    { freq: 150, time: 0.2 },
+                    { freq: 200, time: 0.3 },
+                    { freq: 150, time: 0.4 },
+                    { freq: 180, time: 0.5 },
+                    { freq: 220, time: 0.6 },
+                    { freq: 150, time: 0.7 },
+                    { freq: 180, time: 0.8 },
+                    { freq: 200, time: 0.9 }
+                ];
+
+                notes.forEach(note => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = note.freq;
+                        oscillator.type = 'sine';
+                        gainNode.gain.value = 0.1;
+                        
+                        oscillator.start();
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
+                        oscillator.stop(audioContext.currentTime + 0.08);
+                    }, note.time * 1000);
+                });
+
+                // Son de célébration (notes joyeuses)
+                const celebrationNotes = [261.63, 329.63, 392.00, 523.25];
+                celebrationNotes.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = freq;
+                        oscillator.type = 'sine';
+                        gainNode.gain.value = 0.2;
+                        
+                        oscillator.start();
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }, 1000 + (index * 100));
+                });
+
+            } catch (e) {
+                console.log("Audio non supporté");
+            }
+        }
+
+        function fermerCelebration() {
+            document.getElementById('celebrationOverlay').style.display = 'none';
+        }
+
+        // Fonction de test pour la célébration (accessible via console)
+        window.testerCelebration = function() {
+            objectifAtteintAffiche = false;
+            localStorage.setItem('objectifAtteintAffiche', 'false');
+            lancerCelebrationComplete();
+        };
+
+        // ========== FIN FONCTIONS DE CÉLÉBRATION ==========
+
+        // ========== FONCTIONS DE CORRECTION ==========
+
+        function ouvrirModalCorrection() {
+            document.getElementById('correctionModal').style.display = 'flex';
+            document.getElementById('compteurCorrections').textContent = corrections.length;
+        }
+
+        function fermerModalCorrection() {
+            document.getElementById('correctionModal').style.display = 'none';
+            // Réinitialiser le formulaire
+            document.getElementById('typeErreur').value = '';
+            document.getElementById('lieuErreur').value = '';
+            document.getElementById('descriptionErreur').value = '';
+            document.getElementById('correctionSuggeree').value = '';
+        }
+
+        function envoyerCorrection() {
+            const type = document.getElementById('typeErreur').value;
+            const lieu = document.getElementById('lieuErreur').value.trim();
+            const description = document.getElementById('descriptionErreur').value.trim();
+            const suggestion = document.getElementById('correctionSuggeree').value.trim();
+
+            if (!type) {
+                alert('⚠️ Veuillez sélectionner le type d\'erreur');
+                return;
+            }
+
+            if (!description) {
+                alert('⚠️ Veuillez décrire l\'erreur');
+                return;
+            }
+
+            const correction = {
+                id: Date.now(),
+                type: type,
+                lieu: lieu,
+                description: description,
+                suggestion: suggestion,
+                date: new Date().toISOString(),
+                statut: 'envoyé'
+            };
+
+            corrections.push(correction);
+            localStorage.setItem('corrections', JSON.stringify(corrections));
+
+            // Animation de succès
+            document.querySelector('.correction-content').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 4em; margin-bottom: 20px;">✅</div>
+                    <h2 style="color: #4caf50; margin-bottom: 15px;">Merci pour votre retour !</h2>
+                    <p style="color: #666; font-size: 1.1em; line-height: 1.6; margin-bottom: 25px;">
+                        Votre signalement a été enregistré localement.<br>
+                        Il nous aidera à améliorer l'application !
+                    </p>
+                    <button onclick="fermerModalCorrection(); location.reload();" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; border: none; border-radius: 25px; font-size: 1.1em; cursor: pointer; font-weight: bold;">
+                        Fermer
+                    </button>
+                </div>
+            `;
+
+            setTimeout(() => {
+                fermerModalCorrection();
+                location.reload();
+            }, 3000);
+        }
+
+        // ========== FIN FONCTIONS DE CORRECTION ==========
 
         // ========== FONCTIONS SCANNER - VERSION AMÉLIORÉE ==========
 
@@ -2131,7 +4243,30 @@
         }
 
         async function rechercherProduitAPI(barcode) {
-            addDebugLog(`🌐 Appel API OpenFoodFacts pour: ${barcode}`);
+            addDebugLog(`🌐 Recherche du code-barres: ${barcode}`);
+            
+            // D'abord chercher dans la base personnelle
+            const produitPerso = rechercherDansBasePerso(barcode);
+            
+            if (produitPerso) {
+                addDebugLog(`✅ Produit trouvé dans la base personnelle: ${produitPerso.nom}`);
+                document.getElementById('loadingScanner').style.display = 'none';
+                afficherProduit({
+                    product_name: produitPerso.nom,
+                    brands: produitPerso.marque,
+                    quantity: produitPerso.quantite,
+                    image_url: produitPerso.image,
+                    nutriments: {
+                        'energy-kcal_100g': produitPerso.calories,
+                        proteins_100g: produitPerso.proteines,
+                        carbohydrates_100g: produitPerso.glucides,
+                        fat_100g: produitPerso.lipides
+                    }
+                }, barcode);
+                return;
+            }
+            
+            addDebugLog(`🔍 Produit non trouvé dans la base perso, recherche sur OpenFoodFacts...`);
             
             document.getElementById('loadingScanner').style.display = 'block';
             document.getElementById('resultatScanner').style.display = 'none';
@@ -2149,11 +4284,22 @@
                 document.getElementById('loadingScanner').style.display = 'none';
 
                 if (data.status === 1 && data.product) {
-                    addDebugLog(`✅ Produit trouvé: ${data.product.product_name || 'Sans nom'}`);
+                    addDebugLog(`✅ Produit trouvé sur OpenFoodFacts: ${data.product.product_name || 'Sans nom'}`);
                     afficherProduit(data.product, barcode);
                 } else {
-                    addDebugLog(`❌ Produit non trouvé dans la base de données`);
+                    addDebugLog(`❌ Produit non trouvé sur OpenFoodFacts`);
                     document.getElementById('erreurScanner').style.display = 'block';
+                    document.getElementById('erreurScanner').innerHTML = `
+                        <h4 style="margin-bottom: 10px;">❌ Produit non trouvé</h4>
+                        <p style="margin-bottom: 15px;">Ce code-barres (${barcode}) n'a pas été trouvé dans OpenFoodFacts ni dans votre base personnelle.</p>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">💡 Conseil :</p>
+                            <p style="color: #1565c0;">Vous pouvez ajouter ce produit manuellement dans l'onglet <strong>"Ma Base Perso"</strong> pour le retrouver facilement la prochaine fois !</p>
+                            <button class="btn" onclick="allerVersBasePerso('${barcode}')" style="margin-top: 15px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                                📝 Ajouter à ma base perso
+                            </button>
+                        </div>
+                    `;
                     document.getElementById('erreurScanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             } catch (error) {
@@ -2166,6 +4312,19 @@
                     <p>Impossible de se connecter à la base de données. Vérifiez votre connexion internet et réessayez.</p>
                     <p style="margin-top: 10px; font-size: 0.9em; color: #999;">Détails: ${error.message}</p>
                 `;
+            }
+        }
+
+        function allerVersBasePerso(barcode = '') {
+            showTab('baseperso');
+            document.querySelector('.tab[onclick*="baseperso"]').classList.add('active');
+            
+            if (barcode) {
+                setTimeout(() => {
+                    document.getElementById('codebarreProduitPerso').value = barcode;
+                    document.getElementById('nomProduitPerso').focus();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
             }
         }
 
@@ -2322,1293 +4481,6 @@
                 } catch (e) {
                     // Ignorer
                 }
-            }
-        });
-    </script>
-</body>
-</html>
-           n            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .menu-card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .menu-card li {
-            padding: 5px 0;
-            color: #555;
-        }
-
-        .menu-card li:before {
-            content: "✓ ";
-            color: #4caf50;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8em;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0% { 
-                transform: scale(1);
-                box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
-            }
-            50% { 
-                transform: scale(1.05);
-                box-shadow: 0 12px 35px rgba(255, 0, 110, 0.6);
-            }
-            100% { 
-                transform: scale(1);
-                box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div style="background: linear-gradient(135deg, #ff006e 0%, #ff6ec7 100%); padding: 15px 30px; border-radius: 25px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4); animation: pulse 2s infinite; display: inline-block;">
-                <h3 style="color: white; font-size: 1.8em; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); letter-spacing: 2px; margin: 0;">
-                    🐱 CATJER LA CHATTE QUI RUGIT EN CUISINE 🐱
-                </h3>
-            </div>
-            <h1>💪 Mon Coach Minceur</h1>
-            <p>Votre programme personnalisé pour atteindre vos objectifs</p>
-            
-            <a href="https://t.me/+votre_lien_telegram" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0088cc 0%, #00b4ff 100%); color: white; padding: 15px 35px; border-radius: 30px; text-decoration: none; font-size: 1.1em; font-weight: bold; margin-top: 20px; box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4); transition: all 0.3s; animation: pulse 2s infinite;">
-                📱 Rejoins notre communauté Telegram
-            </a>
-        </div>
-
-        <div class="card">
-            <div class="tabs">
-                <button class="tab active" onclick="showTab('profil')">📊 Mon Profil</button>
-                <button class="tab" onclick="showTab('suivi')">📈 Suivi du Poids</button>
-                <button class="tab" onclick="showTab('scanner')">📷 Scanner Produit</button>
-                <button class="tab" onclick="showTab('conseils')">🥗 Conseils Nutrition</button>
-                <button class="tab" onclick="showTab('motivation')">💪 Motivation</button>
-                <button class="tab" onclick="showTab('menus')">🍽️ Menus Types</button>
-                <button class="tab" onclick="showTab('calories')">📖 Base Calories</button>
-            </div>
-
-            <!-- Onglet Profil -->
-            <div id="profil" class="tab-content active">
-                <h2>Créez votre profil personnalisé</h2>
-                
-                <div class="form-group">
-                    <label>Nom / Prénom</label>
-                    <input type="text" id="nom" placeholder="Entrez votre nom">
-                </div>
-
-                <div class="form-group">
-                    <label>Sexe</label>
-                    <select id="sexe">
-                        <option value="femme">Femme</option>
-                        <option value="homme">Homme</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Âge (années)</label>
-                    <input type="number" id="age" placeholder="25" min="10" max="100">
-                </div>
-
-                <div class="form-group">
-                    <label>Taille (cm)</label>
-                    <input type="number" id="taille" placeholder="170" min="100" max="250">
-                </div>
-
-                <div class="form-group">
-                    <label>Poids actuel (kg)</label>
-                    <input type="number" id="poids" placeholder="70" step="0.1" min="30" max="300">
-                </div>
-
-                <div class="form-group">
-                    <label>Poids objectif (kg)</label>
-                    <input type="number" id="objectif" placeholder="65" step="0.1" min="30" max="300">
-                </div>
-
-                <div class="form-group">
-                    <label>Niveau d'activité</label>
-                    <select id="activite">
-                        <option value="1.2">Sédentaire (peu ou pas d'exercice)</option>
-                        <option value="1.375">Légèrement actif (exercice 1-3 jours/semaine)</option>
-                        <option value="1.55">Modérément actif (exercice 3-5 jours/semaine)</option>
-                        <option value="1.725">Très actif (exercice 6-7 jours/semaine)</option>
-                        <option value="1.9">Extrêmement actif (exercice intense quotidien)</option>
-                    </select>
-                </div>
-
-                <button class="btn" onclick="calculerProfil()">Calculer mon programme</button>
-
-                <div id="resultatProfil" class="result-box">
-                    <h3>Votre bilan personnalisé</h3>
-                    <div class="stats">
-                        <div class="stat-card">
-                            <div class="value" id="imcValue">-</div>
-                            <div class="label">IMC</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="value" id="poidsIdealValue">-</div>
-                            <div class="label">Poids idéal (kg)</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="value" id="aPerdrValue">-</div>
-                            <div class="label">À perdre (kg)</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="value" id="caloriesValue">-</div>
-                            <div class="label">Calories/jour</div>
-                        </div>
-                    </div>
-                    <div id="imcCategorie" style="margin-top: 15px; font-size: 1.1em;"></div>
-                    <div id="dureeProgramme" style="margin-top: 10px;"></div>
-                </div>
-            </div>
-
-            <!-- Onglet Suivi -->
-            <div id="suivi" class="tab-content">
-                <h2>Suivez votre progression</h2>
-                
-                <div class="weight-entry">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>Date</label>
-                        <input type="date" id="datePesee">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>Poids (kg)</label>
-                        <input type="number" id="poidsPesee" step="0.1" placeholder="70.5">
-                    </div>
-                    <button class="btn" onclick="ajouterPesee()" style="margin-top: 0;">Ajouter</button>
-                </div>
-
-                <div id="progressionActuelle"></div>
-
-                <canvas id="graphiquePoids" width="400" height="200"></canvas>
-
-                <div class="weight-history">
-                    <h3 style="margin-bottom: 15px;">Historique des pesées</h3>
-                    <div id="listePesees"></div>
-                </div>
-            </div>
-
-            <!-- Onglet Scanner -->
-            <div id="scanner" class="tab-content">
-                <h2>Scanner un produit alimentaire</h2>
-                
-                <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <p style="text-align: center; color: #333; font-size: 1.1em; margin-bottom: 15px;">
-                        📱 Trouvez les informations nutritionnelles de vos produits
-                    </p>
-                    <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; margin-top: 10px;">
-                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">💡 Deux méthodes disponibles :</p>
-                        <ul style="color: #555; font-size: 0.9em; line-height: 1.8; margin-left: 20px;">
-                            <li><strong>Saisie manuelle</strong> (recommandée) - Rapide et fiable ✅</li>
-                            <li><strong>Scanner caméra</strong> - Nécessite l'autorisation caméra</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 30px; padding: 25px; background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); border-radius: 10px; border: 3px solid #667eea;">
-                    <h3 style="margin-bottom: 15px; color: #667eea; text-align: center;">⌨️ Méthode 1 : Saisie manuelle (recommandée)</h3>
-                    <p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 0.95em;">
-                        ✨ <strong>Plus rapide et fiable</strong> - Fonctionne à tous les coups !
-                    </p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <input type="text" id="manualBarcode" placeholder="Saisissez les 13 chiffres du code-barres" style="flex: 1; padding: 15px; border: 3px solid #667eea; border-radius: 12px; font-size: 18px; min-width: 250px; font-weight: 500;">
-                        <button class="btn" onclick="rechercherCodeBarre()" style="width: auto; margin: 0; padding: 15px 35px; font-size: 18px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">🔍 Rechercher</button>
-                    </div>
-                    <p style="margin-top: 12px; color: #666; font-size: 0.9em; text-align: center;">
-                        💡 Le code-barres se trouve au dos du produit (13 chiffres)<br>
-                        Exemple : 3017620422003
-                    </p>
-                </div>
-
-                <div style="margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border: 2px dashed #999;">
-                    <h3 style="margin-bottom: 15px; color: #666; text-align: center;">📷 Méthode 2 : Scanner avec la caméra</h3>
-                    <p style="text-align: center; color: #999; margin-bottom: 15px; font-size: 0.9em;">
-                        Nécessite l'autorisation de la caméra
-                    </p>
-
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div id="scannerContainer" style="max-width: 500px; margin: 0 auto; position: relative;">
-                        <video id="video" width="100%" style="max-width: 500px; border-radius: 10px; display: none; background: #000;"></video>
-                        <div id="scanPlaceholder" style="background: #f0f0f0; padding: 60px 20px; border-radius: 10px;">
-                            <div style="font-size: 4em; margin-bottom: 15px;">📷</div>
-                            <p style="color: #666; font-size: 1.1em;">Cliquez sur le bouton ci-dessous pour activer votre caméra</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <button class="btn" id="startScanBtn" onclick="demarrerScanner()">📷 Démarrer le scanner</button>
-                    <button class="btn" id="stopScanBtn" onclick="arreterScanner()" style="display: none; background: #f44336;">⏹️ Arrêter le scanner</button>
-                </div>
-                </div>
-
-                <div id="loadingScanner" style="display: none; text-align: center; padding: 40px;">
-                    <div style="font-size: 3em; animation: spin 1s linear infinite;">⌛</div>
-                    <p style="color: #667eea; font-size: 1.2em; margin-top: 10px;">Recherche en cours...</p>
-                </div>
-
-                <div id="resultatScanner" style="display: none;">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">📦 Informations du produit</h3>
-                    
-                    <div style="background: white; border: 2px solid #667eea; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-                        <div style="display: flex; gap: 20px; align-items: start; flex-wrap: wrap;">
-                            <img id="productImage" src="" alt="Produit" style="width: 150px; height: 150px; object-fit: contain; border-radius: 8px; background: #f8f9fa;">
-                            <div style="flex: 1; min-width: 200px;">
-                                <h4 id="productName" style="color: #333; margin-bottom: 10px; font-size: 1.3em;"></h4>
-                                <p id="productBrand" style="color: #667eea; font-weight: 600; margin-bottom: 5px;"></p>
-                                <p id="productQuantity" style="color: #666; margin-bottom: 10px;"></p>
-                                <p id="productBarcode" style="color: #999; font-size: 0.9em;"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="stats">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <div class="value" id="productCalories">-</div>
-                            <div class="label">Calories (kcal/100g)</div>
-                        </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                            <div class="value" id="productProteines">-</div>
-                            <div class="label">Protéines (g/100g)</div>
-                        </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                            <div class="value" id="productGlucides">-</div>
-                            <div class="label">Glucides (g/100g)</div>
-                        </div>
-                        <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                            <div class="value" id="productLipides">-</div>
-                            <div class="label">Lipides (g/100g)</div>
-                        </div>
-                    </div>
-
-                    <div id="nutriscoreContainer" style="margin-top: 20px; text-align: center; display: none;">
-                        <h4 style="margin-bottom: 10px;">Score nutritionnel</h4>
-                        <img id="nutriscoreImage" src="" alt="Nutri-Score" style="max-width: 200px;">
-                    </div>
-
-                    <button class="btn" onclick="sauvegarderProduit()" style="margin-top: 20px;">💾 Sauvegarder ce produit</button>
-                </div>
-
-                <div id="erreurScanner" style="display: none; background: #ffebee; color: #c62828; padding: 20px; border-radius: 10px; margin-top: 20px;">
-                    <h4 style="margin-bottom: 10px;">❌ Produit non trouvé</h4>
-                    <p>Ce code-barres n'a pas été trouvé dans notre base de données. Essayez avec un autre produit ou vérifiez le code saisi.</p>
-                </div>
-
-                <div id="erreurPermission" style="display: none; background: #fff3cd; border: 2px solid #ffc107; color: #856404; padding: 25px; border-radius: 10px; margin-top: 20px;">
-                    <h4 style="margin-bottom: 15px; font-size: 1.2em;">🚫 Accès caméra refusé</h4>
-                    <p style="margin-bottom: 15px; line-height: 1.6;">Le navigateur a bloqué l'accès à la caméra. Voici comment le résoudre :</p>
-                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <h5 style="color: #667eea; margin-bottom: 10px;">📱 Sur Android (Chrome/Firefox) :</h5>
-                        <ol style="line-height: 2; margin-left: 20px;">
-                            <li>Appuyez sur les <strong>3 points</strong> en haut à droite du navigateur</li>
-                            <li>Allez dans <strong>Paramètres du site</strong> ou <strong>Informations sur le site</strong></li>
-                            <li>Trouvez <strong>Autorisations</strong></li>
-                            <li>Activez <strong>Appareil photo</strong></li>
-                            <li><strong>Rechargez la page</strong> et réessayez</li>
-                        </ol>
-                    </div>
-                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
-                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">💡 Solution alternative :</p>
-                        <p>Utilisez la saisie manuelle du code-barres ci-dessous - c'est plus rapide et tout aussi efficace !</p>
-                    </div>
-                </div>
-
-                <div id="historiqueProduits" style="margin-top: 40px;">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">📚 Mes produits scannés</h3>
-                    <div id="listeProduits"></div>
-                </div>
-            </div>
-
-            <!-- Onglet Conseils -->
-            <div id="conseils" class="tab-content">
-                <h2>Conseils Nutrition & Bien-être</h2>
-                
-                <div class="conseil-card">
-                    <h4>🥗 Règle n°1 : L'équilibre alimentaire</h4>
-                    <p>Privilégiez une alimentation variée et équilibrée. Chaque repas devrait contenir des protéines, des glucides complexes, des légumes et de bonnes graisses. Ne sautez jamais de repas !</p>
-                </div>
-
-                <div class="conseil-card">
-                    <h4>💧 Règle n°2 : L'hydratation</h4>
-                    <p>Buvez au moins 1,5 à 2 litres d'eau par jour. L'eau aide à éliminer les toxines, favorise la digestion et peut réduire la sensation de faim. Commencez votre journée avec un grand verre d'eau.</p>
-                </div>
-
-                <div class="conseil-card">
-                    <h4>⏰ Règle n°3 : Les horaires réguliers</h4>
-                    <p>Mangez à heures fixes pour réguler votre métabolisme. Idéalement : petit-déjeuner avant 9h, déjeuner entre 12h et 13h, dîner avant 20h. Évitez de grignoter entre les repas.</p>
-                </div>
-
-                <div class="conseil-card">
-                    <h4>🥦 Règle n°4 : Légumes à volonté</h4>
-                    <p>Les légumes sont vos meilleurs alliés ! Riches en fibres, vitamines et minéraux, ils vous rassasient sans apporter beaucoup de calories. Visez 5 portions de fruits et légumes par jour.</p>
-                </div>
-
-                <div class="conseil-card">
-                    <h4>🏃‍♀️ Règle n°5 : L'activité physique</h4>
-                    <p>Bougez au moins 30 minutes par jour ! Marche, vélo, natation, danse... Choisissez une activité qui vous plaît. L'exercice booste votre métabolisme et améliore votre bien-être.</p>
-                </div>
-
-                <div class="conseil-card">
-                    <h4>😴 Règle n°6 : Le sommeil</h4>
-                    <p>Dormez 7 à 8 heures par nuit. Le manque de sommeil perturbe les hormones de la faim et augmente les envies de sucre. Un bon sommeil est essentiel pour perdre du poids durablement.</p>
-                </div>
-
-                <div class="conseil-card">
-                    <h4>🍫 Règle n°7 : Les plaisirs autorisés</h4>
-                    <p>Autorisez-vous un petit plaisir de temps en temps pour éviter les frustrations. L'important est la régularité, pas la perfection. Un carré de chocolat noir 70% peut être votre allié !</p>
-                </div>
-
-                <div class="conseil-card">
-                    <h4>📱 Règle n°8 : La pleine conscience</h4>
-                    <p>Mangez lentement, en pleine conscience, sans écran. Prenez le temps de savourer chaque bouchée. Cela favorise la satiété et améliore votre rapport à la nourriture.</p>
-                </div>
-            </div>
-
-            <!-- Onglet Motivation -->
-            <div id="motivation" class="tab-content">
-                <h2>Votre dose de motivation quotidienne</h2>
-                
-                <div class="motivation-box">
-                    <div class="quote" id="citationJour"></div>
-                    <div class="author" id="auteurCitation"></div>
-                </div>
-
-                <div style="margin-top: 30px;">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">🎯 Vos objectifs de la semaine</h3>
-                    
-                    <div class="conseil-card">
-                        <h4>Lundi : Démarrage en douceur</h4>
-                        <p>Commencez la semaine du bon pied ! Buvez un grand verre d'eau au réveil et prenez un petit-déjeuner complet. Fixez-vous 3 objectifs pour la semaine.</p>
-                    </div>
-
-                    <div class="conseil-card">
-                        <h4>Mardi : Jour des protéines</h4>
-                        <p>Assurez-vous d'avoir des protéines à chaque repas aujourd'hui. Elles vous aideront à vous sentir rassasié plus longtemps et à maintenir votre masse musculaire.</p>
-                    </div>
-
-                    <div class="conseil-card">
-                        <h4>Mercredi : Challenge activité</h4>
-                        <p>Aujourd'hui, faites 10 000 pas ! Prenez les escaliers, descendez un arrêt avant en transport, faites une promenade après le déjeuner. Bougez !</p>
-                    </div>
-
-                    <div class="conseil-card">
-                        <h4>Jeudi : Jour végétarien</h4>
-                        <p>Testez un repas 100% végétarien aujourd'hui. Découvrez de nouvelles recettes à base de légumineuses, tofu ou légumes. Votre corps et la planète vous remercieront !</p>
-                    </div>
-
-                    <div class="conseil-card">
-                        <h4>Vendredi : Préparation weekend</h4>
-                        <p>Préparez vos repas du weekend pour éviter les tentations. Faites vos courses avec une liste et ne partez jamais le ventre vide au supermarché.</p>
-                    </div>
-
-                    <div class="conseil-card">
-                        <h4>Weekend : Équilibre et plaisir</h4>
-                        <p>Le weekend, c'est le moment de vous faire plaisir intelligemment. Sortez, bougez, profitez mais gardez vos bonnes habitudes. L'équilibre est la clé !</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Onglet Base Calories -->
-            <div id="calories" class="tab-content">
-                <h2>Base de données nutritionnelle complète</h2>
-                
-                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 15px; margin: 20px 0;">
-                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.8em;">🍎 Découvrez les calories de tous les aliments</h3>
-                    <p style="color: #555; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6;">
-                        Accédez à une base de données complète de plus de 150 aliments avec leurs informations nutritionnelles détaillées : calories, protéines, glucides et lipides pour 100g.
-                    </p>
-                    <a href="https://base-calorie.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s;">
-                        🔍 Ouvrir la base de données
-                    </a>
-                </div>
-
-                <div style="margin-top: 30px;">
-                    <h3 style="color: #667eea; margin-bottom: 15px;">✨ Fonctionnalités de la base de données</h3>
-                    
-                    <div class="menu-grid">
-                        <div class="menu-card">
-                            <h4>🔎 Recherche rapide</h4>
-                            <ul>
-                                <li>Trouvez n'importe quel aliment instantanément</li>
-                                <li>Résultats en temps réel</li>
-                            </ul>
-                        </div>
-
-                        <div class="menu-card">
-                            <h4>🏷️ Filtres par catégorie</h4>
-                            <ul>
-                                <li>Fruits, légumes, viandes, poissons</li>
-                                <li>Céréales, produits laitiers, noix</li>
-                                <li>Plus de 12 catégories disponibles</li>
-                            </ul>
-                        </div>
-
-                        <div class="menu-card">
-                            <h4>📊 Informations complètes</h4>
-                            <ul>
-                                <li>Calories par 100g</li>
-                                <li>Protéines, glucides, lipides</li>
-                                <li>Indicateurs visuels clairs</li>
-                            </ul>
-                        </div>
-
-                        <div class="menu-card">
-                            <h4>📈 Tri intelligent</h4>
-                            <ul>
-                                <li>Triez par calories</li>
-                                <li>Triez par protéines</li>
-                                <li>Comparez facilement les aliments</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
-                    <h4 style="color: #856404; margin-bottom: 10px;">💡 Astuce nutrition</h4>
-                    <p style="color: #856404; line-height: 1.6;">
-                        Utilisez la base de données pour composer vos repas équilibrés. Un repas idéal contient environ 500-600 calories avec un bon équilibre entre protéines (30%), glucides (40%) et lipides (30%). Les aliments à moins de 100 calories pour 100g sont parfaits pour les grosses portions !
-                    </p>
-                </div>
-
-                <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 10px;">
-                    <h4 style="color: #333; margin-bottom: 10px;">🎯 Exemples de portions</h4>
-                    <ul style="color: #555; line-height: 1.8;">
-                        <li><strong>100g de poulet</strong> = environ la taille de la paume de votre main</li>
-                        <li><strong>100g de pâtes cuites</strong> = environ 1 tasse</li>
-                        <li><strong>100g de légumes</strong> = environ 1 grosse poignée</li>
-                        <li><strong>30g de fromage</strong> = environ la taille de 2 dominos</li>
-                        <li><strong>Une portion de fruit</strong> = 1 fruit moyen (150-200g)</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Onglet Menus -->
-            <div id="menus" class="tab-content">
-                <h2>Exemples de menus équilibrés</h2>
-                
-                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                    <h3 style="color: white; margin-bottom: 15px; font-size: 1.8em;">📅 Planificateur de Repas + Suivi Calories</h3>
-                    <p style="color: white; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6; opacity: 0.95;">
-                        🔥 Application complète pour planifier vos repas de la semaine et suivre vos calories quotidiennes automatiquement ! Avec 20 recettes françaises et macros détaillées.
-                    </p>
-                    <a href="https://planificateur-de-repas-calories.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4); transition: all 0.3s;">
-                        📊 Planifier mes repas et calories
-                    </a>
-                </div>
-                
-                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-radius: 15px; margin-bottom: 30px;">
-                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.8em;">🍽️ Découvrez nos recettes complètes</h3>
-                    <p style="color: #555; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6;">
-                        Accédez à plus de 30 recettes équilibrées avec viandes, charcuteries et légumes. Chaque recette contient les instructions détaillées, temps de préparation et informations nutritionnelles.
-                    </p>
-                    <a href="https://recette-mon-cadeau.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s; margin-right: 15px;">
-                        👨‍🍳 Voir toutes les recettes
-                    </a>
-                </div>
-
-                <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 15px; margin-bottom: 30px;">
-                    <h3 style="color: #333; margin-bottom: 15px; font-size: 1.8em;">📖 Créez votre carnet personnel</h3>
-                    <p style="color: #555; font-size: 1.1em; margin-bottom: 25px; line-height: 1.6;">
-                        Créez et sauvegardez vos propres recettes avec photos, ingrédients, instructions et informations nutritionnelles. Exportez et partagez vos créations !
-                    </p>
-                    <a href="https://mon-carnet-recette.vercel.app/" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-size: 1.2em; font-weight: bold; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s;">
-                        📝 Mon carnet de recettes
-                    </a>
-                </div>
-
-                <h3 style="color: #667eea; margin-bottom: 15px;">📋 Exemples de menus quotidiens</h3>
-                
-                <div class="menu-grid">
-                    <div class="menu-card">
-                        <h4>Petit-déjeuner 1</h4>
-                        <ul>
-                            <li>Porridge d'avoine au lait</li>
-                            <li>Fruits rouges frais</li>
-                            <li>1 cuillère de miel</li>
-                            <li>Thé vert ou café sans sucre</li>
-                        </ul>
-                    </div>
-
-                    <div class="menu-card">
-                        <h4>Petit-déjeuner 2</h4>
-                        <ul>
-                            <li>2 tranches de pain complet</li>
-                            <li>1 avocat écrasé</li>
-                            <li>1 œuf poché</li>
-                            <li>Jus d'orange frais</li>
-                        </ul>
-                    </div>
-
-                    <div class="menu-card">
-                        <h4>Déjeuner 1</h4>
-                        <ul>
-                            <li>Salade verte mixte</li>
-                            <li>Poulet grillé (150g)</li>
-                            <li>Quinoa aux légumes</li>
-                            <li>1 yaourt nature</li>
-                        </ul>
-                    </div>
-
-                    <div class="menu-card">
-                        <h4>Déjeuner 2</h4>
-                        <ul>
-                            <li>Saumon au four (120g)</li>
-                            <li>Brocolis vapeur</li>
-                            <li>Riz basmati complet</li>
-                            <li>Compote sans sucre ajouté</li>
-                        </ul>
-                    </div>
-
-                    <div class="menu-card">
-                        <h4>Dîner 1</h4>
-                        <ul>
-                            <li>Soupe de légumes maison</li>
-                            <li>Omelette aux champignons</li>
-                            <li>Salade verte</li>
-                            <li>Fruit de saison</li>
-                        </ul>
-                    </div>
-
-                    <div class="menu-card">
-                        <h4>Dîner 2</h4>
-                        <ul>
-                            <li>Poisson blanc vapeur</li>
-                            <li>Haricots verts</li>
-                            <li>Patate douce rôtie</li>
-                            <li>Fromage blanc 0%</li>
-                        </ul>
-                    </div>
-
-                    <div class="menu-card">
-                        <h4>Collation 1</h4>
-                        <ul>
-                            <li>1 pomme</li>
-                            <li>Poignée d'amandes (15-20)</li>
-                            <li>Thé vert</li>
-                        </ul>
-                    </div>
-
-                    <div class="menu-card">
-                        <h4>Collation 2</h4>
-                        <ul>
-                            <li>Yaourt grec nature</li>
-                            <li>Fruits rouges</li>
-                            <li>1 cuillère de graines de chia</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
-                    <h4 style="color: #856404; margin-bottom: 10px;">💡 Astuce du chef</h4>
-                    <p style="color: #856404;">Préparez vos repas à l'avance le dimanche pour toute la semaine. Utilisez des contenants hermétiques et variez les menus pour ne pas vous lasser. La préparation est la clé du succès !</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Citations motivantes
-        const citations = [
-            { texte: "Le succès, c'est la somme de petits efforts répétés jour après jour.", auteur: "Robert Collier" },
-            { texte: "Votre corps peut tout faire, c'est votre esprit qu'il faut convaincre.", auteur: "Anonyme" },
-            { texte: "La motivation vous fait démarrer, l'habitude vous fait continuer.", auteur: "Jim Ryun" },
-            { texte: "Prenez soin de votre corps, c'est le seul endroit où vous êtes obligé de vivre.", auteur: "Jim Rohn" },
-            { texte: "Le secret pour avancer est de commencer.", auteur: "Mark Twain" },
-            { texte: "Ne vous comparez qu'à la personne que vous étiez hier.", auteur: "Jordan Peterson" },
-            { texte: "Vous n'avez pas à être extrême, juste constant.", auteur: "Anonyme" },
-            { texte: "Chaque expert a été un jour un débutant.", auteur: "Robin Sharma" }
-        ];
-
-        // Données utilisateur
-        let userData = JSON.parse(localStorage.getItem('userData')) || {};
-        let pesees = JSON.parse(localStorage.getItem('pesees')) || [];
-        let produitsSauvegardes = JSON.parse(localStorage.getItem('produits')) || [];
-        let scannerActif = false;
-        let dernierProduit = null;
-
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            chargerProfil();
-            afficherCitationAleatoire();
-            afficherPesees();
-            afficherHistoriqueProduits();
-            document.getElementById('datePesee').valueAsDate = new Date();
-            
-            // Ajouter event listener pour la touche Entrée sur le champ code-barres
-            document.getElementById('manualBarcode').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    rechercherCodeBarre();
-                }
-            });
-        });
-
-        function showTab(tabName) {
-            // Arrêter le scanner si on quitte l'onglet scanner
-            if (scannerActif && tabName !== 'scanner') {
-                arreterScanner();
-            }
-
-            // Cacher tous les contenus
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Afficher le contenu sélectionné
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-
-            // Redessiner le graphique si onglet suivi
-            if (tabName === 'suivi') {
-                dessinerGraphique();
-            }
-        }
-
-        function calculerProfil() {
-            const nom = document.getElementById('nom').value;
-            const sexe = document.getElementById('sexe').value;
-            const age = parseFloat(document.getElementById('age').value);
-            const taille = parseFloat(document.getElementById('taille').value);
-            const poids = parseFloat(document.getElementById('poids').value);
-            const objectif = parseFloat(document.getElementById('objectif').value);
-            const activite = parseFloat(document.getElementById('activite').value);
-
-            if (!nom || !age || !taille || !poids || !objectif) {
-                alert('Veuillez remplir tous les champs');
-                return;
-            }
-
-            // Calcul IMC
-            const imc = (poids / ((taille / 100) ** 2)).toFixed(1);
-            
-            // Calcul poids idéal (formule de Lorentz)
-            let poidsIdeal;
-            if (sexe === 'homme') {
-                poidsIdeal = (taille - 100 - ((taille - 150) / 4)).toFixed(1);
-            } else {
-                poidsIdeal = (taille - 100 - ((taille - 150) / 2.5)).toFixed(1);
-            }
-
-            // Poids à perdre
-            const aPerdre = Math.max(0, poids - objectif).toFixed(1);
-
-            // Calcul calories (formule de Harris-Benedict)
-            let bmr;
-            if (sexe === 'homme') {
-                bmr = 88.362 + (13.397 * poids) + (4.799 * taille) - (5.677 * age);
-            } else {
-                bmr = 447.593 + (9.247 * poids) + (3.098 * taille) - (4.330 * age);
-            }
-            const calories = Math.round((bmr * activite) - 500); // Déficit de 500 cal pour perdre du poids
-
-            // Catégorie IMC
-            let categorieIMC;
-            if (imc < 18.5) {
-                categorieIMC = "Insuffisance pondérale";
-            } else if (imc < 25) {
-                categorieIMC = "Poids normal - Félicitations ! 🎉";
-            } else if (imc < 30) {
-                categorieIMC = "Surpoids - Vous êtes sur la bonne voie ! 💪";
-            } else {
-                categorieIMC = "Obésité - Courage, chaque pas compte ! 🌟";
-            }
-
-            // Durée estimée (0.5kg par semaine)
-            const semaines = Math.ceil(aPerdre / 0.5);
-            const mois = (semaines / 4.33).toFixed(1);
-
-            // Affichage
-            document.getElementById('imcValue').textContent = imc;
-            document.getElementById('poidsIdealValue').textContent = poidsIdeal;
-            document.getElementById('aPerdrValue').textContent = aPerdre;
-            document.getElementById('caloriesValue').textContent = calories;
-            document.getElementById('imcCategorie').innerHTML = `<strong>Catégorie :</strong> ${categorieIMC}`;
-            document.getElementById('dureeProgramme').innerHTML = `<strong>Durée estimée :</strong> ${semaines} semaines (environ ${mois} mois) pour atteindre votre objectif de manière saine.`;
-
-            document.getElementById('resultatProfil').classList.add('show');
-
-            // Sauvegarder
-            userData = { nom, sexe, age, taille, poids, objectif, activite, imc, poidsIdeal, calories };
-            localStorage.setItem('userData', JSON.stringify(userData));
-        }
-
-        function chargerProfil() {
-            if (Object.keys(userData).length > 0) {
-                document.getElementById('nom').value = userData.nom || '';
-                document.getElementById('sexe').value = userData.sexe || 'femme';
-                document.getElementById('age').value = userData.age || '';
-                document.getElementById('taille').value = userData.taille || '';
-                document.getElementById('poids').value = userData.poids || '';
-                document.getElementById('objectif').value = userData.objectif || '';
-                document.getElementById('activite').value = userData.activite || '1.2';
-            }
-        }
-
-        function ajouterPesee() {
-            const date = document.getElementById('datePesee').value;
-            const poids = parseFloat(document.getElementById('poidsPesee').value);
-
-            if (!date || !poids) {
-                alert('Veuillez remplir la date et le poids');
-                return;
-            }
-
-            // Vérifier si la date existe déjà
-            const index = pesees.findIndex(p => p.date === date);
-            if (index !== -1) {
-                if (confirm('Une pesée existe déjà pour cette date. Voulez-vous la remplacer ?')) {
-                    pesees[index] = { date, poids };
-                } else {
-                    return;
-                }
-            } else {
-                pesees.push({ date, poids });
-            }
-
-            // Trier par date
-            pesees.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            localStorage.setItem('pesees', JSON.stringify(pesees));
-            afficherPesees();
-            dessinerGraphique();
-
-            // Réinitialiser
-            document.getElementById('poidsPesee').value = '';
-            document.getElementById('datePesee').valueAsDate = new Date();
-        }
-
-        function afficherPesees() {
-            const liste = document.getElementById('listePesees');
-            liste.innerHTML = '';
-
-            if (pesees.length === 0) {
-                liste.innerHTML = '<p style="text-align: center; color: #999;">Aucune pesée enregistrée</p>';
-                return;
-            }
-
-            // Afficher progression
-            afficherProgression();
-
-            // Afficher la liste inversée (plus récent en premier)
-            [...pesees].reverse().forEach((pesee, index) => {
-                const realIndex = pesees.length - 1 - index;
-                const div = document.createElement('div');
-                div.className = 'weight-item';
-                
-                const dateFormatee = new Date(pesee.date + 'T00:00:00').toLocaleDateString('fr-FR', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
-
-                div.innerHTML = `
-                    <span class="date">${dateFormatee}</span>
-                    <span class="weight">${pesee.poids} kg</span>
-                    <button class="delete" onclick="supprimerPesee(${realIndex})">Supprimer</button>
-                `;
-                liste.appendChild(div);
-            });
-        }
-
-        function afficherProgression() {
-            const progressionDiv = document.getElementById('progressionActuelle');
-            
-            if (pesees.length === 0 || !userData.objectif) {
-                progressionDiv.innerHTML = '';
-                return;
-            }
-
-            const poidsActuel = pesees[pesees.length - 1].poids;
-            const poidsDepart = pesees[0].poids;
-            const objectif = userData.objectif;
-
-            const totalAPerdre = poidsDepart - objectif;
-            const dejaPerdu = poidsDepart - poidsActuel;
-            const resteAPerdre = poidsActuel - objectif;
-
-            const pourcentage = Math.min(100, Math.max(0, (dejaPerdu / totalAPerdre) * 100));
-
-            progressionDiv.innerHTML = `
-                <div style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); padding: 20px; border-radius: 10px; margin-top: 20px;">
-                    <h3 style="color: white; margin-bottom: 10px;">📊 Votre progression</h3>
-                    <div style="display: flex; justify-content: space-between; color: white; margin-bottom: 10px;">
-                        <span>Départ: ${poidsDepart} kg</span>
-                        <span>Actuel: ${poidsActuel} kg</span>
-                        <span>Objectif: ${objectif} kg</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${pourcentage}%">${pourcentage.toFixed(1)}%</div>
-                    </div>
-                    <div style="color: white; margin-top: 10px; text-align: center;">
-                        <strong>Perdu: ${dejaPerdu.toFixed(1)} kg</strong> sur ${totalAPerdre.toFixed(1)} kg
-                        ${resteAPerdre > 0 ? ` - Encore ${resteAPerdre.toFixed(1)} kg à perdre !` : ' - Objectif atteint ! 🎉'}
-                    </div>
-                </div>
-            `;
-        }
-
-        function supprimerPesee(index) {
-            if (confirm('Voulez-vous vraiment supprimer cette pesée ?')) {
-                pesees.splice(index, 1);
-                localStorage.setItem('pesees', JSON.stringify(pesees));
-                afficherPesees();
-                dessinerGraphique();
-            }
-        }
-
-        function dessinerGraphique() {
-            const canvas = document.getElementById('graphiquePoids');
-            const ctx = canvas.getContext('2d');
-
-            // Ajuster la taille du canvas
-            canvas.width = canvas.offsetWidth;
-            canvas.height = 300;
-
-            const width = canvas.width;
-            const height = canvas.height;
-
-            // Effacer
-            ctx.clearRect(0, 0, width, height);
-
-            if (pesees.length === 0) {
-                ctx.fillStyle = '#999';
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Aucune donnée à afficher', width / 2, height / 2);
-                return;
-            }
-
-            const padding = 50;
-            const graphWidth = width - 2 * padding;
-            const graphHeight = height - 2 * padding;
-
-            // Trouver min et max
-            const poids = pesees.map(p => p.poids);
-            const minPoids = Math.min(...poids, userData.objectif || Infinity) - 2;
-            const maxPoids = Math.max(...poids) + 2;
-            const rangePoids = maxPoids - minPoids;
-
-            // Dessiner les axes
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(padding, padding);
-            ctx.lineTo(padding, height - padding);
-            ctx.lineTo(width - padding, height - padding);
-            ctx.stroke();
-
-            // Dessiner la ligne objectif
-            if (userData.objectif) {
-                const yObjectif = height - padding - ((userData.objectif - minPoids) / rangePoids) * graphHeight;
-                ctx.strokeStyle = '#ff4757';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                ctx.beginPath();
-                ctx.moveTo(padding, yObjectif);
-                ctx.lineTo(width - padding, yObjectif);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                ctx.fillStyle = '#ff4757';
-                ctx.font = 'bold 12px Arial';
-                ctx.fillText(`Objectif: ${userData.objectif} kg`, width - padding + 5, yObjectif + 5);
-            }
-
-            // Dessiner les points et la ligne
-            ctx.strokeStyle = '#667eea';
-            ctx.fillStyle = '#667eea';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-
-            pesees.forEach((pesee, index) => {
-                const x = padding + (index / (pesees.length - 1 || 1)) * graphWidth;
-                const y = height - padding - ((pesee.poids - minPoids) / rangePoids) * graphHeight;
-
-                if (index === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-
-                // Dessiner les points
-                ctx.fillRect(x - 4, y - 4, 8, 8);
-
-                // Afficher le poids
-                ctx.fillStyle = '#333';
-                ctx.font = '11px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`${pesee.poids}`, x, y - 10);
-
-                // Afficher la date (tous les N points)
-                if (pesees.length <= 10 || index % Math.ceil(pesees.length / 10) === 0 || index === pesees.length - 1) {
-                    const dateFormatee = new Date(pesee.date + 'T00:00:00').toLocaleDateString('fr-FR', {
-                        day: '2-digit',
-                        month: '2-digit'
-                    });
-                    ctx.save();
-                    ctx.translate(x, height - padding + 15);
-                    ctx.rotate(-Math.PI / 4);
-                    ctx.fillText(dateFormatee, 0, 0);
-                    ctx.restore();
-                }
-
-                ctx.fillStyle = '#667eea';
-            });
-
-            ctx.stroke();
-
-            // Graduations Y
-            ctx.fillStyle = '#666';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'right';
-            for (let i = 0; i <= 5; i++) {
-                const poids = minPoids + (rangePoids * i / 5);
-                const y = height - padding - (i * graphHeight / 5);
-                ctx.fillText(poids.toFixed(1) + ' kg', padding - 10, y + 4);
-            }
-        }
-
-        function afficherCitationAleatoire() {
-            const citation = citations[Math.floor(Math.random() * citations.length)];
-            document.getElementById('citationJour').textContent = `"${citation.texte}"`;
-            document.getElementById('auteurCitation').textContent = `- ${citation.auteur}`;
-        }
-
-        // ========== FONCTIONS SCANNER ==========
-
-        function demarrerScanner() {
-            const scannerContainer = document.getElementById('scannerContainer');
-            const placeholder = document.getElementById('scanPlaceholder');
-            const startBtn = document.getElementById('startScanBtn');
-            const stopBtn = document.getElementById('stopScanBtn');
-
-            // Cacher le résultat précédent
-            document.getElementById('resultatScanner').style.display = 'none';
-            document.getElementById('erreurScanner').style.display = 'none';
-            document.getElementById('erreurPermission').style.display = 'none';
-
-            placeholder.style.display = 'none';
-            startBtn.style.display = 'none';
-            stopBtn.style.display = 'inline-block';
-
-            // IMPORTANT: D'abord demander l'autorisation de la caméra
-            navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: { ideal: 'environment' },
-                    width: { min: 640, ideal: 1280, max: 1920 },
-                    height: { min: 480, ideal: 720, max: 1080 }
-                },
-                audio: false
-            })
-            .then(function(stream) {
-                console.log("Accès caméra autorisé");
-                scannerActif = true;
-
-                // Arrêter le stream immédiatement, Quagga va le gérer
-                stream.getTracks().forEach(track => track.stop());
-
-                // Maintenant initialiser Quagga
-                Quagga.init({
-                    inputStream: {
-                        name: "Live",
-                        type: "LiveStream",
-                        target: scannerContainer,
-                        constraints: {
-                            width: { min: 640, ideal: 1280 },
-                            height: { min: 480, ideal: 720 },
-                            facingMode: "environment"
-                        },
-                        area: { // Zone de scan optimisée
-                            top: "20%",
-                            right: "10%",
-                            left: "10%",
-                            bottom: "20%"
-                        }
-                    },
-                    locator: {
-                        patchSize: "medium",
-                        halfSample: true
-                    },
-                    numOfWorkers: navigator.hardwareConcurrency || 2,
-                    decoder: {
-                        readers: [
-                            "ean_reader",
-                            "ean_8_reader",
-                            "upc_reader",
-                            "upc_e_reader",
-                            "code_128_reader"
-                        ]
-                    },
-                    locate: true,
-                    frequency: 10
-                }, function(err) {
-                    if (err) {
-                        console.error("Erreur Quagga:", err);
-                        alert("Erreur lors de l'initialisation du scanner. Veuillez utiliser la saisie manuelle.");
-                        arreterScanner();
-                        return;
-                    }
-                    
-                    console.log("Quagga initialisé avec succès");
-                    Quagga.start();
-                    
-                    // Ajouter un guide visuel
-                    const canvas = Quagga.canvas.dom.overlay;
-                    if (canvas) {
-                        canvas.style.border = '3px solid #4caf50';
-                        canvas.style.borderRadius = '10px';
-                    }
-                });
-
-                // Détection des codes-barres
-                Quagga.onDetected(function(result) {
-                    if (result && result.codeResult && result.codeResult.code) {
-                        const code = result.codeResult.code;
-                        console.log("Code détecté:", code, "Type:", result.codeResult.format);
-                        
-                        // Vérifier que c'est un code valide
-                        if (/^\d{8,13}$/.test(code)) {
-                            console.log("Code valide, recherche du produit...");
-                            
-                            // Vibration
-                            if (navigator.vibrate) {
-                                navigator.vibrate([200, 100, 200]);
-                            }
-
-                            // Arrêter le scanner
-                            arreterScanner();
-                            
-                            // Rechercher le produit
-                            setTimeout(() => {
-                                rechercherProduitAPI(code);
-                            }, 100);
-                        } else {
-                            console.log("Code invalide:", code);
-                        }
-                    }
-                });
-
-            })
-            .catch(function(err) {
-                console.error("Erreur accès caméra:", err);
-                arreterScanner();
-                
-                // Afficher le message d'erreur détaillé
-                document.getElementById('erreurPermission').style.display = 'block';
-                document.getElementById('erreurPermission').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
-        }
-
-        function arreterScanner() {
-            const placeholder = document.getElementById('scanPlaceholder');
-            const startBtn = document.getElementById('startScanBtn');
-            const stopBtn = document.getElementById('stopScanBtn');
-
-            if (scannerActif) {
-                try {
-                    Quagga.stop();
-                    console.log("Scanner arrêté");
-                } catch (e) {
-                    console.error("Erreur arrêt scanner:", e);
-                }
-                scannerActif = false;
-            }
-
-            placeholder.style.display = 'block';
-            startBtn.style.display = 'inline-block';
-            stopBtn.style.display = 'none';
-        }
-
-        function rechercherCodeBarre() {
-            const code = document.getElementById('manualBarcode').value.trim();
-            
-            if (!code) {
-                alert('Veuillez saisir un code-barres');
-                return;
-            }
-
-            if (!/^\d{8,13}$/.test(code)) {
-                alert('Le code-barres doit contenir entre 8 et 13 chiffres');
-                return;
-            }
-
-            rechercherProduitAPI(code);
-        }
-
-        async function rechercherProduitAPI(barcode) {
-            document.getElementById('loadingScanner').style.display = 'block';
-            document.getElementById('resultatScanner').style.display = 'none';
-            document.getElementById('erreurScanner').style.display = 'none';
-
-            try {
-                // Utiliser l'API OpenFoodFacts
-                const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`);
-                const data = await response.json();
-
-                document.getElementById('loadingScanner').style.display = 'none';
-
-                if (data.status === 1 && data.product) {
-                    afficherProduit(data.product, barcode);
-                } else {
-                    document.getElementById('erreurScanner').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Erreur API:', error);
-                document.getElementById('loadingScanner').style.display = 'none';
-                document.getElementById('erreurScanner').style.display = 'block';
-            }
-        }
-
-        function afficherProduit(product, barcode) {
-            dernierProduit = {
-                barcode: barcode,
-                nom: product.product_name || 'Nom non disponible',
-                marque: product.brands || 'Marque inconnue',
-                quantite: product.quantity || '',
-                image: product.image_url || product.image_front_url || '',
-                calories: product.nutriments?.['energy-kcal_100g'] || product.nutriments?.['energy-kcal'] || 0,
-                proteines: product.nutriments?.proteins_100g || product.nutriments?.proteins || 0,
-                glucides: product.nutriments?.carbohydrates_100g || product.nutriments?.carbohydrates || 0,
-                lipides: product.nutriments?.fat_100g || product.nutriments?.fat || 0,
-                nutriscore: product.nutriscore_grade || null,
-                date: new Date().toISOString()
-            };
-
-            document.getElementById('productName').textContent = dernierProduit.nom;
-            document.getElementById('productBrand').textContent = dernierProduit.marque;
-            document.getElementById('productQuantity').textContent = dernierProduit.quantite;
-            document.getElementById('productBarcode').textContent = `Code-barres: ${barcode}`;
-
-            // Image
-            const imgElement = document.getElementById('productImage');
-            if (dernierProduit.image) {
-                imgElement.src = dernierProduit.image;
-                imgElement.style.display = 'block';
-            } else {
-                imgElement.style.display = 'none';
-            }
-
-            // Valeurs nutritionnelles
-            document.getElementById('productCalories').textContent = Math.round(dernierProduit.calories);
-            document.getElementById('productProteines').textContent = dernierProduit.proteines.toFixed(1);
-            document.getElementById('productGlucides').textContent = dernierProduit.glucides.toFixed(1);
-            document.getElementById('productLipides').textContent = dernierProduit.lipides.toFixed(1);
-
-            // Nutri-Score
-            const nutriscoreContainer = document.getElementById('nutriscoreContainer');
-            if (dernierProduit.nutriscore) {
-                nutriscoreContainer.style.display = 'block';
-                const nutriscoreImg = document.getElementById('nutriscoreImage');
-                nutriscoreImg.src = `https://static.openfoodfacts.org/images/misc/nutriscore-${dernierProduit.nutriscore}.svg`;
-            } else {
-                nutriscoreContainer.style.display = 'none';
-            }
-
-            document.getElementById('resultatScanner').style.display = 'block';
-            
-            // Scroll vers le résultat
-            document.getElementById('resultatScanner').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        function sauvegarderProduit() {
-            if (!dernierProduit) return;
-
-            // Vérifier si le produit existe déjà
-            const index = produitsSauvegardes.findIndex(p => p.barcode === dernierProduit.barcode);
-            
-            if (index !== -1) {
-                if (confirm('Ce produit est déjà dans vos favoris. Voulez-vous mettre à jour la date ?')) {
-                    produitsSauvegardes[index] = dernierProduit;
-                } else {
-                    return;
-                }
-            } else {
-                produitsSauvegardes.unshift(dernierProduit);
-            }
-
-            localStorage.setItem('produits', JSON.stringify(produitsSauvegardes));
-            afficherHistoriqueProduits();
-            
-            alert('✅ Produit sauvegardé avec succès !');
-        }
-
-        function afficherHistoriqueProduits() {
-            const liste = document.getElementById('listeProduits');
-            
-            if (produitsSauvegardes.length === 0) {
-                liste.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Aucun produit sauvegardé</p>';
-                return;
-            }
-
-            liste.innerHTML = produitsSauvegardes.map((produit, index) => `
-                <div class="weight-item" style="flex-direction: column; align-items: stretch;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: bold; color: #333; font-size: 1.1em;">${produit.nom}</div>
-                            <div style="color: #667eea; font-size: 0.9em;">${produit.marque}</div>
-                            <div style="color: #999; font-size: 0.85em; margin-top: 3px;">
-                                ${new Date(produit.date).toLocaleDateString('fr-FR')}
-                            </div>
-                        </div>
-                        <button class="delete" onclick="supprimerProduit(${index})">Supprimer</button>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px;">
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #667eea;">${Math.round(produit.calories)}</div>
-                            <div style="font-size: 0.8em; color: #666;">kcal</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #f5576c;">${produit.proteines.toFixed(1)}g</div>
-                            <div style="font-size: 0.8em; color: #666;">protéines</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #00f2fe;">${produit.glucides.toFixed(1)}g</div>
-                            <div style="font-size: 0.8em; color: #666;">glucides</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-weight: bold; color: #38f9d7;">${produit.lipides.toFixed(1)}g</div>
-                            <div style="font-size: 0.8em; color: #666;">lipides</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function supprimerProduit(index) {
-            if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
-                produitsSauvegardes.splice(index, 1);
-                localStorage.setItem('produits', JSON.stringify(produitsSauvegardes));
-                afficherHistoriqueProduits();
-            }
-        }
-
-        // ========== FIN FONCTIONS SCANNER ==========
-
-        // Redessiner le graphique lors du redimensionnement
-        window.addEventListener('resize', () => {
-            if (document.getElementById('suivi').classList.contains('active')) {
-                dessinerGraphique();
             }
         });
     </script>
