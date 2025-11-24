@@ -1092,7 +1092,14 @@
                         <img id="nutriscoreImage" src="" alt="Nutri-Score" style="max-width: 200px;">
                     </div>
 
-                    <button class="btn" onclick="sauvegarderProduit()" style="margin-top: 20px;">💾 Sauvegarder ce produit</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
+                        <button class="btn" onclick="ajouterProduitScanneAuCalculateur()" style="flex: 1; min-width: 200px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                            🧮 Ajouter au Calculateur
+                        </button>
+                        <button class="btn" onclick="sauvegarderProduit()" style="flex: 1; min-width: 200px;">
+                            💾 Sauvegarder ce produit
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Erreurs -->
@@ -4929,6 +4936,166 @@
         }
 
         // ========== FIN FONCTIONS SCANNER ==========
+
+        // ========== FONCTION DE LIAISON SCANNER -> CALCULATEUR ==========
+
+        function ajouterProduitScanneAuCalculateur() {
+            if (!dernierProduit) {
+                alert('⚠️ Aucun produit scanné');
+                return;
+            }
+
+            // Demander la quantité
+            const quantite = prompt(`💡 Quelle quantité de "${dernierProduit.nom}" voulez-vous ajouter ?\n\nEntrez le poids en grammes :`, '100');
+            
+            if (!quantite || isNaN(quantite) || quantite <= 0) {
+                if (quantite !== null) {
+                    alert('⚠️ Veuillez entrer une quantité valide en grammes');
+                }
+                return;
+            }
+
+            const quantiteNum = parseFloat(quantite);
+
+            // Calculer les valeurs proportionnelles
+            const ratio = quantiteNum / 100;
+            const alimentCalcule = {
+                nom: dernierProduit.nom,
+                quantite: quantiteNum,
+                calories: dernierProduit.calories * ratio,
+                proteines: dernierProduit.proteines * ratio,
+                glucides: dernierProduit.glucides * ratio,
+                lipides: dernierProduit.lipides * ratio
+            };
+
+            // Ajouter au repas actuel
+            repasActuel.push(alimentCalcule);
+            
+            // Afficher dans le calculateur
+            afficherRepasActuel();
+
+            // Afficher une notification de succès
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+                color: white;
+                padding: 25px 40px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 10002;
+                text-align: center;
+                font-size: 1.2em;
+                font-weight: bold;
+                animation: fadeIn 0.3s;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 2.5em; margin-bottom: 10px;">✅</div>
+                <div>Produit ajouté au calculateur !</div>
+                <div style="font-size: 0.85em; margin-top: 8px; opacity: 0.9;">${dernierProduit.nom} (${quantiteNum}g)</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+
+            // Proposer d'aller au calculateur
+            setTimeout(() => {
+                if (confirm('✅ Produit ajouté !\n\n💡 Voulez-vous aller au Calculateur de Calories pour voir votre repas ?')) {
+                    showTab('calculateur');
+                    document.querySelector('.tab[onclick*="calculateur"]').classList.add('active');
+                }
+            }, 2500);
+        }
+
+        // ========== FIN FONCTION DE LIAISON ==========
+
+        // ========== FONCTION DE LIAISON HISTORIQUE -> CALCULATEUR ==========
+
+        function ajouterProduitHistoriqueAuCalculateur(index) {
+            const produit = produitsSauvegardes[index];
+            
+            if (!produit) {
+                alert('⚠️ Produit introuvable');
+                return;
+            }
+
+            // Demander la quantité
+            const quantite = prompt(`💡 Quelle quantité de "${produit.nom}" voulez-vous ajouter ?\n\nEntrez le poids en grammes :`, '100');
+            
+            if (!quantite || isNaN(quantite) || quantite <= 0) {
+                if (quantite !== null) {
+                    alert('⚠️ Veuillez entrer une quantité valide en grammes');
+                }
+                return;
+            }
+
+            const quantiteNum = parseFloat(quantite);
+
+            // Calculer les valeurs proportionnelles
+            const ratio = quantiteNum / 100;
+            const alimentCalcule = {
+                nom: produit.nom,
+                quantite: quantiteNum,
+                calories: produit.calories * ratio,
+                proteines: produit.proteines * ratio,
+                glucides: produit.glucides * ratio,
+                lipides: produit.lipides * ratio
+            };
+
+            // Ajouter au repas actuel
+            repasActuel.push(alimentCalcule);
+            
+            // Afficher dans le calculateur
+            afficherRepasActuel();
+
+            // Notification de succès
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+                color: white;
+                padding: 25px 40px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 10002;
+                text-align: center;
+                font-size: 1.2em;
+                font-weight: bold;
+                animation: fadeIn 0.3s;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 2.5em; margin-bottom: 10px;">✅</div>
+                <div>Produit ajouté au calculateur !</div>
+                <div style="font-size: 0.85em; margin-top: 8px; opacity: 0.9;">${produit.nom} (${quantiteNum}g)</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+
+            // Proposer d'aller au calculateur
+            setTimeout(() => {
+                if (confirm('✅ Produit ajouté !\n\n💡 Voulez-vous aller au Calculateur de Calories pour voir votre repas ?')) {
+                    showTab('calculateur');
+                    document.querySelector('.tab[onclick*="calculateur"]').classList.add('active');
+                }
+            }, 2500);
+        }
+
+        // ========== FIN FONCTION DE LIAISON HISTORIQUE ==========
 
         // Redessiner le graphique lors du redimensionnement
         window.addEventListener('resize', () => {
