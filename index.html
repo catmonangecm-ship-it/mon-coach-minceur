@@ -779,6 +779,12 @@
                         </button>
                     </div>
 
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                        <p style="color: #856404; font-size: 0.9em; margin: 0; line-height: 1.6;">
+                            ⚠️ <strong>Note :</strong> Sur mobile, le scanner caméra peut ne pas fonctionner sur tous les navigateurs. <strong>La saisie manuelle est plus fiable !</strong> Si la caméra ne s'ouvre pas, autorisez l'accès dans les paramètres.
+                        </p>
+                    </div>
+
                     <div style="text-align: center; margin: 20px 0;">
                         <button class="btn" id="startScanFrigoBtn" onclick="demarrerScannerFrigo()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
                             📷 Scanner avec la caméra
@@ -786,6 +792,29 @@
                         <button class="btn" id="stopScanFrigoBtn" onclick="arreterScannerFrigo()" style="display: none; background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
                             ⏹️ Arrêter le scanner
                         </button>
+                    </div>
+
+                    <div id="erreurCameraFrigo" style="display: none; background: #ffebee; border: 2px solid #f44336; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                        <h4 style="color: #c62828; margin-bottom: 10px;">🚫 Accès caméra impossible</h4>
+                        <p style="color: #c62828; margin-bottom: 15px; line-height: 1.6;">
+                            Le navigateur n'a pas pu accéder à la caméra. Voici comment résoudre :
+                        </p>
+                        <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h5 style="color: #667eea; margin-bottom: 10px;">📱 Sur Chrome/Firefox Mobile :</h5>
+                            <ol style="line-height: 1.8; margin-left: 20px; color: #555; font-size: 0.95em;">
+                                <li>Cliquez sur le <strong>🔒 cadenas</strong> ou <strong>ⓘ</strong> dans la barre d'adresse</li>
+                                <li>Trouvez <strong>"Caméra"</strong> ou <strong>"Appareil photo"</strong></li>
+                                <li>Sélectionnez <strong>"Autoriser"</strong></li>
+                                <li><strong>Rechargez la page</strong> (F5) et réessayez</li>
+                            </ol>
+                        </div>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                            <p style="color: #1565c0; font-weight: bold; margin-bottom: 8px;">💡 Solution alternative (recommandée) :</p>
+                            <p style="color: #1565c0; margin: 0; line-height: 1.6;">
+                                Utilisez la <strong>saisie manuelle</strong> du code-barres ci-dessus ⬆️<br>
+                                C'est rapide, fiable et fonctionne à 100% sur mobile !
+                            </p>
+                        </div>
                     </div>
 
                     <div id="scannerFrigoContainer" style="max-width: 640px; margin: 20px auto; position: relative; background: #000; border-radius: 10px; overflow: hidden; display: none;">
@@ -3108,66 +3137,108 @@
             const container = document.getElementById('scannerFrigoContainer');
             const startBtn = document.getElementById('startScanFrigoBtn');
             const stopBtn = document.getElementById('stopScanFrigoBtn');
+            const erreurDiv = document.getElementById('erreurCameraFrigo');
 
-            container.style.display = 'block';
+            // Cacher les erreurs précédentes
+            if (erreurDiv) erreurDiv.style.display = 'none';
+
             startBtn.style.display = 'none';
             stopBtn.style.display = 'inline-block';
 
             dernierCodeDetecteFrigo = null;
 
-            Quagga.init({
-                inputStream: {
-                    name: "Live",
-                    type: "LiveStream",
-                    target: document.querySelector('#interactiveFrigo'),
-                    constraints: {
-                        width: { min: 640, ideal: 1280 },
-                        height: { min: 480, ideal: 720 },
-                        facingMode: "environment"
+            // D'abord demander l'accès à la caméra explicitement
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: "environment",
+                    width: { min: 640, ideal: 1280 },
+                    height: { min: 480, ideal: 720 }
+                },
+                audio: false
+            })
+            .then(function(stream) {
+                console.log("Accès caméra frigo autorisé");
+                
+                // Arrêter le stream, Quagga va le gérer
+                stream.getTracks().forEach(track => track.stop());
+
+                container.style.display = 'block';
+
+                // Initialiser Quagga
+                Quagga.init({
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        target: document.querySelector('#interactiveFrigo'),
+                        constraints: {
+                            width: { min: 640, ideal: 1280 },
+                            height: { min: 480, ideal: 720 },
+                            facingMode: "environment"
+                        }
+                    },
+                    locator: {
+                        patchSize: "medium",
+                        halfSample: true
+                    },
+                    numOfWorkers: navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 4) : 2,
+                    frequency: 10,
+                    decoder: {
+                        readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"]
+                    },
+                    locate: true
+                }, function(err) {
+                    if (err) {
+                        console.error("Erreur Quagga Frigo:", err);
+                        arreterScannerFrigo();
+                        
+                        if (erreurDiv) {
+                            erreurDiv.style.display = 'block';
+                            erreurDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else {
+                            alert("Erreur du scanner. Utilisez la saisie manuelle du code-barres.");
+                        }
+                        return;
                     }
-                },
-                locator: {
-                    patchSize: "medium",
-                    halfSample: true
-                },
-                numOfWorkers: navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 4) : 2,
-                frequency: 10,
-                decoder: {
-                    readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"]
-                },
-                locate: true
-            }, function(err) {
-                if (err) {
-                    console.error("Erreur Scanner Frigo:", err);
-                    alert("Erreur d'accès à la caméra. Utilisez la saisie manuelle.");
+                    
+                    scannerFrigoActif = true;
+                    Quagga.start();
+                    console.log("Scanner frigo démarré");
+                });
+
+                Quagga.onDetected(function(result) {
+                    if (!result || !result.codeResult || !result.codeResult.code) return;
+                    
+                    const code = result.codeResult.code;
+                    
+                    if (!/^\d{8,13}$/.test(code)) return;
+                    if (code === dernierCodeDetecteFrigo) return;
+
+                    dernierCodeDetecteFrigo = code;
+                    console.log("Code frigo détecté:", code);
+
+                    if (navigator.vibrate) {
+                        navigator.vibrate([200, 100, 200]);
+                    }
+
                     arreterScannerFrigo();
-                    return;
-                }
-                
-                scannerFrigoActif = true;
-                Quagga.start();
-            });
-
-            Quagga.onDetected(function(result) {
-                if (!result || !result.codeResult || !result.codeResult.code) return;
-                
-                const code = result.codeResult.code;
-                
-                if (!/^\d{8,13}$/.test(code)) return;
-                if (code === dernierCodeDetecteFrigo) return;
-
-                dernierCodeDetecteFrigo = code;
-
-                if (navigator.vibrate) {
-                    navigator.vibrate([200, 100, 200]);
-                }
-
+                    
+                    timeoutDetectionFrigo = setTimeout(() => {
+                        document.getElementById('codebarreFrigo').value = code;
+                        ajouterProduitFrigo();
+                    }, 200);
+                });
+            })
+            .catch(function(err) {
+                console.error("Erreur accès caméra frigo:", err);
                 arreterScannerFrigo();
                 
-                timeoutDetectionFrigo = setTimeout(() => {
-                    document.getElementById('codebarreFrigo').value = code;
-                    ajouterProduitFrigo();
-                }, 200);
+                // Afficher le message d'erreur détaillé
+                if (erreurDiv) {
+                    erreurDiv.style.display = 'block';
+                    erreurDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    alert("❌ Impossible d'accéder à la caméra.\n\n💡 Utilisez la saisie manuelle du code-barres ci-dessus, c'est plus fiable sur mobile !");
+                }
             });
         }
 
