@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Coach Minceur - Le Secret du Poids</title>
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -1044,11 +1049,12 @@
                         📱 Trouvez les informations nutritionnelles de vos produits
                     </p>
                     <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px;">
-                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">🗄️ 3 Bases de données disponibles :</p>
+                        <p style="color: #1565c0; font-weight: bold; margin-bottom: 10px;">🗄️ 4 Bases de données disponibles :</p>
                         <ol style="color: #555; font-size: 0.9em; line-height: 1.8; margin-left: 20px;">
-                            <li><strong>Base locale</strong> - ${baseProduitsCourants.length} produits français courants (Nutella, Coca-Cola, etc.) ⚡</li>
+                            <li><strong>Base locale</strong> - ${baseProduitsCourants.length} produits français courants ⚡</li>
                             <li><strong>Votre base perso</strong> - Vos produits personnalisés (<span id="compteurProduitsScannerPerso">0</span>) 📝</li>
-                            <li><strong>OpenFoodFacts</strong> - Base mondiale collaborative (2 millions+ produits) 🌍</li>
+                            <li><strong>Base communautaire</strong> - Partagée par tous les utilisateurs (<span id="compteurBaseScannerCommunautaire">${baseCommunautaire.length.toLocaleString()}</span>) 🌍</li>
+                            <li><strong>OpenFoodFacts</strong> - Base mondiale collaborative (2 millions+ produits) 🌐</li>
                         </ol>
                         <p style="color: #666; font-size: 0.85em; margin-top: 10px; text-align: center;">
                             💡 La recherche se fait automatiquement dans cet ordre jusqu'à trouver votre produit
@@ -1224,18 +1230,67 @@
 
                 <!-- Scanner pour le frigo -->
                 <div style="background: white; border: 3px solid #4caf50; border-radius: 10px; padding: 25px; margin-bottom: 20px;">
-                    <h3 style="color: #4caf50; margin-bottom: 20px;">📷 Scanner un produit pour le frigo</h3>
+                    <h3 style="color: #4caf50; margin-bottom: 20px;">📷 Scanner vos produits pour le frigo</h3>
                     
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                        <input type="text" id="scanFrigoManual" placeholder="Saisissez le code-barres" style="flex: 1; padding: 12px; border: 2px solid #4caf50; border-radius: 8px; min-width: 200px;" inputmode="numeric">
-                        <button class="btn" onclick="scannerPourFrigo()" style="margin: 0; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
-                            🔍 Scanner
-                        </button>
+                    <!-- Méthode 1 : Scanner caméra -->
+                    <div style="background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h4 style="color: #667eea; margin-bottom: 15px; text-align: center;">📸 Méthode 1 : Scanner avec la caméra</h4>
+                        <p style="text-align: center; color: #666; margin-bottom: 15px;">
+                            Activez la caméra pour scanner automatiquement les codes-barres de vos produits
+                        </p>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px;">
+                            <button id="startScanBtnFrigo" class="btn" onclick="demarrerScannerFrigo()" style="margin: 0; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                                📷 Activer le scanner
+                            </button>
+                            <button id="stopScanBtnFrigo" class="btn" onclick="arreterScannerFrigo()" style="margin: 0; display: none; background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);">
+                                ⏹️ Arrêter le scanner
+                            </button>
+                        </div>
+
+                        <!-- Zone de scan -->
+                        <div id="scanPlaceholderFrigo" style="background: #f0f0f0; height: 300px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 1.2em; text-align: center; padding: 20px;">
+                            👆 Cliquez sur "Activer le scanner" pour commencer
+                        </div>
+                        <div id="interactiveFrigo" style="display: none; position: relative; width: 100%; max-width: 640px; height: 480px; margin: 0 auto; border-radius: 10px; overflow: hidden;"></div>
+
+                        <!-- Messages -->
+                        <div id="loadingScannerFrigo" style="display: none; text-align: center; padding: 15px; background: #e3f2fd; border-radius: 8px; margin-top: 15px;">
+                            <p style="color: #1565c0; margin: 0;">🔍 Recherche du produit en cours...</p>
+                        </div>
+
+                        <div id="erreurPermissionFrigo" style="display: none; background: #fff3cd; border: 2px solid #ffc107; color: #856404; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                            <h4 style="margin-bottom: 10px;">🚫 Accès caméra refusé</h4>
+                            <p style="margin: 0; font-size: 0.9em;">
+                                Veuillez autoriser l'accès à la caméra dans les paramètres de votre navigateur, puis réessayez.
+                                Sur Android : Paramètres → Applications → Navigateur → Permissions → Caméra → Autoriser
+                            </p>
+                        </div>
+
+                        <div id="produitScanneFrigo" style="display: none; background: #e8f5e9; border: 2px solid #4caf50; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="font-size: 2em;">✅</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; color: #2e7d32; font-size: 1.1em;" id="nomProduitScanneFrigo"></div>
+                                    <div style="color: #666; font-size: 0.9em; margin-top: 5px;" id="infoProduitScanneFrigo"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <p style="color: #666; font-size: 0.9em; text-align: center;">
-                        💡 Ou ajoutez manuellement depuis vos produits scannés ci-dessous
-                    </p>
+                    <!-- Méthode 2 : Saisie manuelle -->
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                        <h4 style="color: #667eea; margin-bottom: 10px; text-align: center;">⌨️ Méthode 2 : Saisie manuelle</h4>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <input type="text" id="scanFrigoManual" placeholder="Saisissez le code-barres (13 chiffres)" style="flex: 1; padding: 12px; border: 2px solid #4caf50; border-radius: 8px; min-width: 200px;" inputmode="numeric">
+                            <button class="btn" onclick="scannerPourFrigoManuel()" style="margin: 0; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                                🔍 Rechercher
+                            </button>
+                        </div>
+                        <p style="color: #666; font-size: 0.85em; text-align: center; margin-top: 10px;">
+                            💡 Le code-barres se trouve au dos du produit
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Mon Frigo -->
@@ -1604,6 +1659,46 @@
     </div>
 
     <script>
+        // ==============================================
+        // CONFIGURATION FIREBASE
+        // ==============================================
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVsE39uVXpYQy_aehNS8f_bo94U-NWI28",
+            authDomain: "moncoachminceurcatjer.firebaseapp.com",
+            projectId: "moncoachminceurcatjer",
+            storageBucket: "moncoachminceurcatjer.firebasestorage.app",
+            messagingSenderId: "441403074242",
+            appId: "1:441403074242:web:b38009005e7fa4e012bd5b",
+            measurementId: "G-M2JY1PDKQW"
+        };
+
+        // Initialiser Firebase
+        let db = null;
+        let firebaseInitialized = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            firebaseInitialized = true;
+            console.log('✅ Firebase initialisé avec succès !');
+            console.log('🌍 Base collaborative activée !');
+        } catch (error) {
+            console.log('⚠️ Erreur Firebase:', error);
+            firebaseInitialized = false;
+        }
+
+        // ==============================================
+        // VARIABLES POUR LA BASE COLLABORATIVE
+        // ==============================================
+        
+        let baseCommunautaire = [];
+        let statsGlobales = {
+            totalProduits: 0,
+            produitsAujourdhui: 0,
+            derniereSync: null
+        };
+
         // ==============================================
         // BASE DE DONNÉES PRODUITS LOCAUX
         // ==============================================
@@ -1975,6 +2070,21 @@
                         glucides: p.glucides,
                         lipides: p.lipides,
                         source: 'perso'
+                    });
+                }
+            });
+            
+            // Ajouter la base communautaire
+            baseCommunautaire.forEach(p => {
+                if (!baseTotale.find(a => a.nom === p.nom)) {
+                    baseTotale.push({
+                        nom: p.nom,
+                        categorie: "Base communautaire",
+                        calories: p.calories,
+                        proteines: p.proteines,
+                        glucides: p.glucides,
+                        lipides: p.lipides,
+                        source: 'communaute'
                     });
                 }
             });
@@ -3383,7 +3493,31 @@
                 return;
             }
 
-            // PRIORITÉ 3 : Chercher sur OpenFoodFacts
+            // PRIORITÉ 3 : Chercher dans la base communautaire
+            const produitCommunautaire = rechercherDansBaseCommunautaire(codebarre);
+            
+            if (produitCommunautaire) {
+                console.log('✅ Produit trouvé dans la base communautaire');
+                afficherProduit({
+                    product_name: produitCommunautaire.nom,
+                    brands: produitCommunautaire.marque,
+                    quantity: '',
+                    code: codebarre,
+                    nutriments: {
+                        'energy-kcal_100g': produitCommunautaire.calories,
+                        proteins_100g: produitCommunautaire.proteines,
+                        carbohydrates_100g: produitCommunautaire.glucides,
+                        fat_100g: produitCommunautaire.lipides
+                    },
+                    image_url: '',
+                    source: 'communaute'
+                });
+                document.getElementById('loadingScanner').style.display = 'none';
+                afficherNotification('🌍 Produit trouvé dans la base communautaire !', 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)');
+                return;
+            }
+
+            // PRIORITÉ 4 : Chercher sur OpenFoodFacts
             console.log('🌐 Recherche sur OpenFoodFacts...');
             try {
                 const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codebarre}.json`);
@@ -3693,6 +3827,12 @@
 
             compteur.textContent = produitsPerso.length;
             if (compteurScanner) compteurScanner.textContent = produitsPerso.length;
+            
+            // Mettre à jour le compteur base communautaire
+            const compteurCommunautaire = document.getElementById('compteurBaseCommunautaire');
+            if (compteurCommunautaire) {
+                compteurCommunautaire.textContent = baseCommunautaire.length.toLocaleString();
+            }
 
             if (produitsPerso.length === 0) {
                 liste.innerHTML = `
@@ -3712,7 +3852,12 @@
                             <div style="color: #667eea; font-size: 0.9em;">${produit.marque}</div>
                             <div style="color: #999; font-size: 0.85em; margin-top: 5px;">Code: ${produit.barcode}</div>
                         </div>
-                        <button class="delete" onclick="supprimerProduitPerso(${index})">Supprimer</button>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" onclick="partagerProduitCommunaute(produitsPerso[${index}])" style="margin: 0; padding: 8px 15px; font-size: 0.85em; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);">
+                                🌍 Partager
+                            </button>
+                            <button class="delete" onclick="supprimerProduitPerso(${index})">Supprimer</button>
+                        </div>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px;">
                         <div style="text-align: center;">
@@ -3763,6 +3908,207 @@
         // ==============================================
         // FONCTIONS FRIGO & SUGGESTIONS RECETTES
         // ==============================================
+
+        let scannerFrigoActif = false;
+        let dernierCodeFrigo = null;
+        let timeoutFrigo = null;
+
+        function demarrerScannerFrigo() {
+            document.getElementById('scanPlaceholderFrigo').style.display = 'none';
+            document.getElementById('interactiveFrigo').style.display = 'block';
+            document.getElementById('startScanBtnFrigo').style.display = 'none';
+            document.getElementById('stopScanBtnFrigo').style.display = 'inline-block';
+            document.getElementById('erreurPermissionFrigo').style.display = 'none';
+            document.getElementById('produitScanneFrigo').style.display = 'none';
+
+            scannerFrigoActif = true;
+            dernierCodeFrigo = null;
+
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#interactiveFrigo'),
+                    constraints: {
+                        width: 640,
+                        height: 480,
+                        facingMode: "environment"
+                    }
+                },
+                decoder: {
+                    readers: [
+                        "ean_reader",
+                        "ean_8_reader",
+                        "code_128_reader",
+                        "code_39_reader",
+                        "upc_reader",
+                        "upc_e_reader"
+                    ]
+                },
+                locate: true,
+                locator: {
+                    patchSize: "medium",
+                    halfSample: true
+                }
+            }, function(err) {
+                if (err) {
+                    console.error('Erreur Quagga Frigo:', err);
+                    document.getElementById('erreurPermissionFrigo').style.display = 'block';
+                    document.getElementById('interactiveFrigo').style.display = 'none';
+                    document.getElementById('scanPlaceholderFrigo').style.display = 'flex';
+                    document.getElementById('startScanBtnFrigo').style.display = 'inline-block';
+                    document.getElementById('stopScanBtnFrigo').style.display = 'none';
+                    scannerFrigoActif = false;
+                    return;
+                }
+                console.log("Scanner frigo initialisé");
+                Quagga.start();
+            });
+
+            Quagga.onDetected(function(result) {
+                if (!scannerFrigoActif) return;
+
+                const code = result.codeResult.code;
+                
+                if (dernierCodeFrigo === code) {
+                    return;
+                }
+
+                if (timeoutFrigo) {
+                    clearTimeout(timeoutFrigo);
+                }
+
+                timeoutFrigo = setTimeout(function() {
+                    dernierCodeFrigo = code;
+                    console.log("Code-barres frigo détecté:", code);
+                    
+                    const beep = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE=');
+                    beep.play().catch(e => console.log('Beep non joué'));
+
+                    arreterScannerFrigo();
+                    scannerPourFrigoAuto(code);
+                }, 500);
+            });
+        }
+
+        function arreterScannerFrigo() {
+            if (scannerFrigoActif) {
+                Quagga.stop();
+                scannerFrigoActif = false;
+            }
+            
+            document.getElementById('interactiveFrigo').style.display = 'none';
+            document.getElementById('scanPlaceholderFrigo').style.display = 'flex';
+            document.getElementById('startScanBtnFrigo').style.display = 'inline-block';
+            document.getElementById('stopScanBtnFrigo').style.display = 'none';
+        }
+
+        async function scannerPourFrigoAuto(codebarre) {
+            document.getElementById('loadingScannerFrigo').style.display = 'block';
+            document.getElementById('produitScanneFrigo').style.display = 'none';
+
+            // Chercher le produit
+            let produit = null;
+
+            // 1. Base locale
+            produit = baseProduitsCourants.find(p => p.barcode === codebarre);
+            if (produit) {
+                afficherProduitScanneFrigo(produit);
+                ajouterAuFrigo({
+                    barcode: codebarre,
+                    nom: produit.nom,
+                    marque: produit.marque,
+                    calories: produit.calories,
+                    proteines: produit.proteines,
+                    glucides: produit.glucides,
+                    lipides: produit.lipides
+                });
+                document.getElementById('loadingScannerFrigo').style.display = 'none';
+                return;
+            }
+
+            // 2. Base perso
+            produit = produitsPerso.find(p => p.barcode === codebarre);
+            if (produit) {
+                afficherProduitScanneFrigo(produit);
+                ajouterAuFrigo(produit);
+                document.getElementById('loadingScannerFrigo').style.display = 'none';
+                return;
+            }
+
+            // 3. Produits scannés
+            produit = produitsSauvegardes.find(p => p.barcode === codebarre);
+            if (produit) {
+                afficherProduitScanneFrigo(produit);
+                ajouterAuFrigo(produit);
+                document.getElementById('loadingScannerFrigo').style.display = 'none';
+                return;
+            }
+
+            // 4. Base communautaire
+            produit = rechercherDansBaseCommunautaire(codebarre);
+            if (produit) {
+                afficherProduitScanneFrigo(produit);
+                ajouterAuFrigo(produit);
+                document.getElementById('loadingScannerFrigo').style.display = 'none';
+                afficherNotification('🌍 Produit trouvé dans la base communautaire !', 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)');
+                return;
+            }
+
+            // 5. OpenFoodFacts
+            try {
+                const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${codebarre}.json`);
+                const data = await response.json();
+
+                if (data.status === 1 && data.product) {
+                    const nutriments = data.product.nutriments || {};
+                    const produitTrouve = {
+                        barcode: codebarre,
+                        nom: data.product.product_name || 'Produit inconnu',
+                        marque: data.product.brands || '',
+                        calories: nutriments['energy-kcal_100g'] || nutriments['energy-kcal'] || 0,
+                        proteines: nutriments.proteins_100g || nutriments.proteins || 0,
+                        glucides: nutriments.carbohydrates_100g || nutriments.carbohydrates || 0,
+                        lipides: nutriments.fat_100g || nutriments.fat || 0
+                    };
+                    afficherProduitScanneFrigo(produitTrouve);
+                    ajouterAuFrigo(produitTrouve);
+                } else {
+                    afficherNotification('❌ Produit non trouvé. Ajoutez-le dans "📝 Ma Base Perso"', 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)');
+                }
+            } catch (error) {
+                afficherNotification('❌ Erreur de connexion', 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)');
+            }
+
+            document.getElementById('loadingScannerFrigo').style.display = 'none';
+        }
+
+        async function scannerPourFrigoManuel() {
+            const codebarre = document.getElementById('scanFrigoManual').value.trim();
+            
+            if (!codebarre) {
+                alert('⚠️ Veuillez saisir un code-barres');
+                return;
+            }
+
+            if (!/^\d{8,13}$/.test(codebarre)) {
+                alert('⚠️ Le code-barres doit contenir entre 8 et 13 chiffres');
+                return;
+            }
+
+            scannerPourFrigoAuto(codebarre);
+            document.getElementById('scanFrigoManual').value = '';
+        }
+
+        function afficherProduitScanneFrigo(produit) {
+            document.getElementById('produitScanneFrigo').style.display = 'block';
+            document.getElementById('nomProduitScanneFrigo').textContent = produit.nom;
+            document.getElementById('infoProduitScanneFrigo').textContent = `${produit.marque || ''} • ${Math.round(produit.calories)} kcal/100g`;
+
+            setTimeout(() => {
+                document.getElementById('produitScanneFrigo').style.display = 'none';
+            }, 5000);
+        }
 
         async function scannerPourFrigo() {
             const codebarre = document.getElementById('scanFrigoManual').value.trim();
@@ -4095,6 +4441,136 @@
         }
 
         // ==============================================
+        // FONCTIONS BASE COLLABORATIVE
+        // ==============================================
+
+        async function synchroniserBaseCommunautaire() {
+            if (!firebaseInitialized) {
+                afficherNotification('ℹ️ Mode hors ligne - Base locale uniquement', 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)');
+                return;
+            }
+
+            try {
+                console.log('🔄 Synchronisation base communautaire...');
+
+                const snapshot = await db.collection('produitsPartages').get();
+                
+                baseCommunautaire = [];
+                snapshot.forEach(doc => {
+                    baseCommunautaire.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                statsGlobales.totalProduits = baseCommunautaire.length;
+                statsGlobales.derniereSync = new Date().toISOString();
+
+                localStorage.setItem('baseCommunautaire', JSON.stringify(baseCommunautaire));
+                localStorage.setItem('statsGlobales', JSON.stringify(statsGlobales));
+
+                afficherNotification(`✅ ${baseCommunautaire.length} produits synchronisés !`, 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)');
+                afficherSyncIndicator('🌍 Base communautaire à jour !');
+
+                console.log('✅ Synchronisation réussie -', baseCommunautaire.length, 'produits');
+
+            } catch (error) {
+                console.error('❌ Erreur synchronisation:', error);
+                
+                const cached = localStorage.getItem('baseCommunautaire');
+                if (cached) {
+                    baseCommunautaire = JSON.parse(cached);
+                    afficherNotification('📦 Base locale chargée', 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)');
+                }
+            }
+        }
+
+        async function partagerProduitCommunaute(produit) {
+            if (!firebaseInitialized) {
+                alert('❌ Base collaborative non disponible en mode hors ligne');
+                return;
+            }
+
+            const existe = baseCommunautaire.find(p => p.barcode === produit.barcode);
+            if (existe) {
+                afficherNotification('ℹ️ Ce produit est déjà dans la base communautaire', 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)');
+                return;
+            }
+
+            if (!confirm(`Partager "${produit.nom}" avec la communauté ?\n\nCe produit sera visible par tous les utilisateurs de Mon Coach Minceur.`)) {
+                return;
+            }
+
+            try {
+                afficherNotification('📤 Envoi en cours...', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
+
+                await db.collection('produitsPartages').add({
+                    barcode: produit.barcode,
+                    nom: produit.nom,
+                    marque: produit.marque || '',
+                    calories: produit.calories,
+                    proteines: produit.proteines,
+                    glucides: produit.glucides,
+                    lipides: produit.lipides,
+                    dateAjout: firebase.firestore.FieldValue.serverTimestamp(),
+                    contributeur: userData.nom || 'Utilisateur'
+                });
+
+                await synchroniserBaseCommunautaire();
+
+                afficherNotification('🎉 Produit partagé ! Merci de votre contribution !', 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)');
+
+                // Notifier dans Telegram
+                notifierTelegramNouveauProduit(produit);
+
+            } catch (error) {
+                console.error('❌ Erreur partage:', error);
+                afficherNotification('❌ Erreur lors du partage', 'linear-gradient(135deg, #f5576c 0%, #f093fb 100%)');
+            }
+        }
+
+        async function notifierTelegramNouveauProduit(produit) {
+            const BOT_TOKEN = '7937415810:AAGx_VCXf-uFbNDwxNmPAWU6DuZ3cCvSYsQ';
+            const CHAT_ID = '-1002368960734';
+
+            try {
+                const message = `
+🆕 Nouveau produit dans la base !
+
+📦 <b>${produit.nom}</b>
+🏷️ ${produit.marque || 'Sans marque'}
+📊 Code: <code>${produit.barcode}</code>
+
+🔥 ${Math.round(produit.calories)} kcal
+💪 ${produit.proteines}g protéines
+🍞 ${produit.glucides}g glucides
+🧈 ${produit.lipides}g lipides
+
+👤 Ajouté par: ${userData.nom || 'Utilisateur'}
+📅 ${new Date().toLocaleDateString('fr-FR')}
+                `.trim();
+
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                console.log('✅ Notification Telegram envoyée');
+            } catch (error) {
+                console.log('⚠️ Notification Telegram non envoyée');
+            }
+        }
+
+        function rechercherDansBaseCommunautaire(codebarre) {
+            return baseCommunautaire.find(p => p.barcode === codebarre);
+        }
+
+        // ==============================================
         // FONCTION GÉNÉRALE
         // ==============================================
         
@@ -4102,6 +4578,10 @@
             // Arrêter le scanner si actif et on change d'onglet
             if (scannerActif && tabName !== 'scanner') {
                 arreterScanner();
+            }
+            // Arrêter le scanner frigo si actif et on change d'onglet
+            if (scannerFrigoActif && tabName !== 'frigo') {
+                arreterScannerFrigo();
             }
 
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -4185,9 +4665,33 @@
             console.log('🧊 Frigo:', produitsFrigo.length, 'produits');
             console.log('🍳 Recettes disponibles:', baseRecettes.length, 'recettes');
             
+            // Charger la base communautaire depuis le cache
+            const cached = localStorage.getItem('baseCommunautaire');
+            if (cached) {
+                baseCommunautaire = JSON.parse(cached);
+                console.log('📦 Base communautaire chargée:', baseCommunautaire.length, 'produits');
+            }
+
+            const cachedStats = localStorage.getItem('statsGlobales');
+            if (cachedStats) {
+                statsGlobales = JSON.parse(cachedStats);
+            }
+            
             // Initialiser le frigo
             afficherFrigo();
             afficherProduitsDisponiblesFrigo();
+            
+            // Synchroniser la base communautaire en arrière-plan (après 2 secondes)
+            if (firebaseInitialized) {
+                setTimeout(() => {
+                    synchroniserBaseCommunautaire();
+                }, 2000);
+                
+                // Synchroniser toutes les heures
+                setInterval(() => {
+                    synchroniserBaseCommunautaire();
+                }, 60 * 60 * 1000);
+            }
             
             // Message de bienvenue si pas de recettes
             if (repasSauvegardes.length === 0 && localStorage.getItem('premiereLancement') !== 'false') {
@@ -4210,8 +4714,13 @@
 
         // Arrêter le scanner si la page devient invisible
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && scannerActif) {
-                arreterScanner();
+            if (document.hidden) {
+                if (scannerActif) {
+                    arreterScanner();
+                }
+                if (scannerFrigoActif) {
+                    arreterScannerFrigo();
+                }
             }
         });
 
@@ -4219,6 +4728,9 @@
         window.addEventListener('beforeunload', () => {
             if (scannerActif) {
                 arreterScanner();
+            }
+            if (scannerFrigoActif) {
+                arreterScannerFrigo();
             }
         });
     </script>
