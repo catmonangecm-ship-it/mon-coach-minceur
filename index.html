@@ -794,6 +794,12 @@
                 <div id="repasActuel" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
                     <h3 style="margin-bottom: 15px;">🍽️ Votre repas actuel</h3>
                     
+                    <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="text-align: center; font-size: 0.9em; margin: 0;">
+                            💡 <strong>Astuce :</strong> Sauvegardez ce repas pour pouvoir le glisser-déposer directement dans votre planning hebdomadaire !
+                        </p>
+                    </div>
+                    
                     <div id="listeAlimentsRepas" style="margin-bottom: 15px;"></div>
 
                     <div class="stats" style="margin-top: 15px;">
@@ -849,8 +855,24 @@
                         🗓️ Planifiez vos repas de la semaine
                     </p>
                     <p style="text-align: center; color: #555; font-size: 0.95em;">
-                        Glissez-déposez vos recettes sur les jours de la semaine. Toutes vos recettes du Coach Minceur sont disponibles !
+                        <strong>✨ Nouveau :</strong> Créez des recettes complètes dans le Calculateur de Calories, sauvegardez-les, puis glissez-déposez vos recettes complètes dans le planning !
                     </p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">💡 Comment ça marche ?</h3>
+                    <ol style="color: #555; line-height: 2; margin-left: 20px;">
+                        <li>🧮 Allez dans <strong>Calculateur de Calories</strong></li>
+                        <li>➕ Ajoutez plusieurs aliments pour créer votre recette</li>
+                        <li>💾 Cliquez sur <strong>"Sauvegarder ce repas"</strong> et donnez-lui un nom</li>
+                        <li>🍽️ Revenez ici et cliquez sur <strong>"Voir mes recettes"</strong></li>
+                        <li>🎯 Glissez-déposez vos recettes complètes dans le planning !</li>
+                    </ol>
+                    <div style="background: rgba(255,255,255,0.7); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        <p style="color: #667eea; font-weight: bold; text-align: center; margin: 0;">
+                            🎨 Les recettes complètes apparaissent en rose dans le planning, les aliments simples en bleu
+                        </p>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
@@ -1626,7 +1648,12 @@
                                     ${dateFormatee} à ${heureFormatee}
                                 </div>
                             </div>
-                            <button class="delete" onclick="supprimerRepas(${index})">Supprimer</button>
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="ajouterRepasAuPlanning(${index})" style="background: #4caf50; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9em;">
+                                    ➕ Au Planning
+                                </button>
+                                <button class="delete" onclick="supprimerRepas(${index})">Supprimer</button>
+                            </div>
                         </div>
 
                         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
@@ -1663,6 +1690,54 @@
             }).join('');
 
             calculerCaloriesJour();
+        }
+
+        function ajouterRepasAuPlanning(index) {
+            const repas = repasSauvegardes[index];
+            
+            const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+            const moments = ['Petit-déjeuner', 'Déjeuner', 'Dîner'];
+            
+            let choixJour = prompt(`Quel jour de la semaine ?\n${jours.map((j, i) => `${i}: ${j}`).join('\n')}`);
+            if (choixJour === null) return;
+            
+            let jourIndex = parseInt(choixJour);
+            if (isNaN(jourIndex) || jourIndex < 0 || jourIndex >= jours.length) {
+                alert('❌ Choix invalide');
+                return;
+            }
+            
+            let choixMoment = prompt(`Quel moment ?\n${moments.map((m, i) => `${i}: ${m}`).join('\n')}`);
+            if (choixMoment === null) return;
+            
+            let momentIndex = parseInt(choixMoment);
+            if (isNaN(momentIndex) || momentIndex < 0 || momentIndex >= moments.length) {
+                alert('❌ Choix invalide');
+                return;
+            }
+            
+            const jour = jours[jourIndex];
+            const moment = moments[momentIndex];
+            const key = `${jour}-${moment}`;
+            
+            planningHebdo[key] = {
+                nom: repas.nom,
+                calories: repas.totaux.calories,
+                proteines: repas.totaux.proteines,
+                glucides: repas.totaux.glucides,
+                lipides: repas.totaux.lipides,
+                type: 'repas-complet',
+                repasId: repas.id
+            };
+            
+            localStorage.setItem('planningHebdo', JSON.stringify(planningHebdo));
+            afficherNotification(`✅ "${repas.nom}" ajouté au planning !`);
+            afficherSyncIndicator('✅ Planning mis à jour !');
+            
+            // Aller au planning si on veut
+            if (confirm('Voulez-vous voir le planning ?')) {
+                showTab('planning');
+            }
         }
 
         function supprimerRepas(index) {
@@ -1735,9 +1810,17 @@
                                  ondrop="drop(event)">
                                 <div class="meal-slot-title">${moment}</div>
                                 ${repas ? `
-                                    <div class="planned-meal">
-                                        ${repas.nom}<br>
+                                    <div class="planned-meal" style="${repas.type === 'repas-complet' ? 'background: linear-gradient(45deg, #f093fb, #f5576c);' : ''}">
+                                        ${repas.type === 'repas-complet' ? '🍽️ ' : ''}${repas.nom}<br>
                                         <small>${Math.round(repas.calories)} cal</small>
+                                        ${repas.type === 'repas-complet' && repas.aliments ? `
+                                            <details style="margin-top: 5px;">
+                                                <summary style="cursor: pointer; font-size: 0.85em; opacity: 0.9;">Voir ingrédients</summary>
+                                                <div style="margin-top: 5px; font-size: 0.75em; opacity: 0.95;">
+                                                    ${repas.aliments.map(a => `• ${a.nom} (${a.quantite}g)`).join('<br>')}
+                                                </div>
+                                            </details>
+                                        ` : ''}
                                         <button class="delete-btn" onclick="supprimerDuPlanning('${key}')">×</button>
                                     </div>
                                 ` : ''}
@@ -1767,7 +1850,38 @@
             if (container.style.display === 'none') {
                 const baseTotale = obtenirBaseTotale();
                 
-                recipesContainer.innerHTML = baseTotale.map(recette => {
+                let html = '';
+                
+                // Ajouter d'abord les REPAS SAUVEGARDÉS
+                if (repasSauvegardes.length > 0) {
+                    html += '<h4 style="color: #667eea; margin: 20px 0 15px 0; padding: 10px; background: #f0f0f0; border-radius: 8px;">📝 Mes Recettes Sauvegardées</h4>';
+                    
+                    html += repasSauvegardes.map(repas => {
+                        return `
+                            <div class="recipe-card" draggable="true" ondragstart="dragStartRepas(event)" data-repas='${JSON.stringify(repas).replace(/'/g, "&#39;")}'>
+                                <div class="recipe-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🍽️</div>
+                                <div class="recipe-content">
+                                    <div class="recipe-title">${repas.nom}</div>
+                                    <span class="badge" style="background: #f093fb; color: white;">📝 Ma Recette</span>
+                                    <div class="recipe-info">
+                                        <span class="recipe-calories">🔥 ${Math.round(repas.totaux.calories)} cal</span>
+                                    </div>
+                                    <div style="font-size: 0.8em; color: #666; margin-top: 8px;">
+                                        P:${repas.totaux.proteines.toFixed(1)}g | G:${repas.totaux.glucides.toFixed(1)}g | L:${repas.totaux.lipides.toFixed(1)}g
+                                    </div>
+                                    <div style="font-size: 0.75em; color: #999; margin-top: 8px;">
+                                        ${repas.aliments.length} ingrédient(s)
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+                // Puis les ALIMENTS DE BASE
+                html += '<h4 style="color: #667eea; margin: 20px 0 15px 0; padding: 10px; background: #f0f0f0; border-radius: 8px;">🥗 Aliments de Base</h4>';
+                
+                html += baseTotale.map(recette => {
                     let badge = '';
                     if (recette.source === 'scanne') badge = '<span class="badge badge-scanne">📷 Scanné</span>';
                     else if (recette.source === 'frigo') badge = '<span class="badge badge-frigo">🧊 Frigo</span>';
@@ -1785,11 +1899,15 @@
                                 <div style="font-size: 0.8em; color: #666; margin-top: 8px;">
                                     P:${recette.proteines.toFixed(1)}g | G:${recette.glucides.toFixed(1)}g | L:${recette.lipides.toFixed(1)}g
                                 </div>
+                                <div style="font-size: 0.75em; color: #999; margin-top: 5px;">
+                                    (pour 100g)
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('');
                 
+                recipesContainer.innerHTML = html;
                 container.style.display = 'block';
             } else {
                 container.style.display = 'none';
@@ -1797,10 +1915,18 @@
         }
 
         let recetteDragee = null;
+        let repasDrague = null;
 
         function dragStart(event) {
             const recetteJson = event.currentTarget.dataset.recette;
             recetteDragee = JSON.parse(recetteJson);
+            repasDrague = null;
+        }
+
+        function dragStartRepas(event) {
+            const repasJson = event.currentTarget.dataset.repas;
+            repasDrague = JSON.parse(repasJson);
+            recetteDragee = null;
         }
 
         function dragOver(event) {
@@ -1816,19 +1942,36 @@
             event.preventDefault();
             event.currentTarget.classList.remove('drag-over');
             
-            if (!recetteDragee) return;
-            
             const jour = event.currentTarget.dataset.jour;
             const moment = event.currentTarget.dataset.moment;
             const key = `${jour}-${moment}`;
             
-            planningHebdo[key] = {
-                nom: recetteDragee.nom,
-                calories: recetteDragee.calories,
-                proteines: recetteDragee.proteines,
-                glucides: recetteDragee.glucides,
-                lipides: recetteDragee.lipides
-            };
+            // Si c'est un repas complet sauvegardé
+            if (repasDrague) {
+                planningHebdo[key] = {
+                    nom: repasDrague.nom,
+                    calories: repasDrague.totaux.calories,
+                    proteines: repasDrague.totaux.proteines,
+                    glucides: repasDrague.totaux.glucides,
+                    lipides: repasDrague.totaux.lipides,
+                    type: 'repas-complet',
+                    repasId: repasDrague.id,
+                    aliments: repasDrague.aliments
+                };
+            }
+            // Si c'est un aliment/recette simple
+            else if (recetteDragee) {
+                planningHebdo[key] = {
+                    nom: recetteDragee.nom,
+                    calories: recetteDragee.calories,
+                    proteines: recetteDragee.proteines,
+                    glucides: recetteDragee.glucides,
+                    lipides: recetteDragee.lipides,
+                    type: 'aliment-simple'
+                };
+            } else {
+                return;
+            }
             
             localStorage.setItem('planningHebdo', JSON.stringify(planningHebdo));
             afficherPlanning();
@@ -2414,6 +2557,15 @@
 
             console.log('✅ Application chargée avec synchronisation globale');
             console.log('📊 Base totale:', obtenirBaseTotale().length, 'aliments disponibles');
+            console.log('🍽️ Repas sauvegardés:', repasSauvegardes.length);
+            
+            // Notification de bienvenue si c'est la première fois
+            if (repasSauvegardes.length === 0 && localStorage.getItem('premiereLancement') !== 'false') {
+                setTimeout(() => {
+                    afficherNotification('👋 Bienvenue ! Créez vos premières recettes dans le Calculateur', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
+                    localStorage.setItem('premiereLancement', 'false');
+                }, 1000);
+            }
         });
 
         window.addEventListener('resize', () => {
