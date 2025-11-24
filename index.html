@@ -569,6 +569,7 @@
                 <button class="tab" onclick="showTab('frigo')">🍳 Frigo & Recettes</button>
                 <button class="tab" onclick="showTab('baseperso')">📝 Ma Base Perso</button>
                 <button class="tab" onclick="showTab('coachai')">🤖 Coach IA</button>
+                <button class="tab" onclick="showTab('calendrier')">📅 Calendrier Saisonnier</button>
                 <button class="tab" onclick="showTab('conseils')">🥗 Conseils Nutrition</button>
                 <button class="tab" onclick="showTab('motivation')">💪 Motivation</button>
                 <button class="tab" onclick="showTab('menus')">🍽️ Menus Types</button>
@@ -1158,6 +1159,95 @@
                 </button>
             </div>
 
+            <!-- Onglet Calendrier Saisonnier -->
+            <div id="calendrier" class="tab-content">
+                <h2>📅 Calendrier des Fruits & Légumes de Saison</h2>
+                
+                <div style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; text-align: center;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 10px;">🌱 Mangez de Saison !</h3>
+                    <p style="font-size: 1.1em; opacity: 0.95; line-height: 1.6;">
+                        Les fruits et légumes de saison sont plus savoureux, moins chers et meilleurs pour l'environnement !<br>
+                        Découvrez ce que la nature vous offre chaque mois.
+                    </p>
+                </div>
+
+                <!-- Sélection Mois/Saison -->
+                <div style="background: white; border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3 style="color: #56ab2f; margin-bottom: 20px;">📆 Choisissez une période</h3>
+                    
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="btn" onclick="afficherMoisActuel()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); flex: 1; min-width: 150px;">
+                            🗓️ Mois Actuel
+                        </button>
+                        <button class="btn" onclick="afficherSaisonActuelle()" style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); flex: 1; min-width: 150px;">
+                            🍂 Saison Actuelle
+                        </button>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">Ou sélectionnez un mois :</label>
+                        <select id="selectMois" onchange="afficherMois(this.value)" style="width: 100%; padding: 12px; border: 2px solid #56ab2f; border-radius: 8px; font-size: 16px;">
+                            <option value="1">Janvier ❄️</option>
+                            <option value="2">Février ❄️</option>
+                            <option value="3">Mars 🌸</option>
+                            <option value="4">Avril 🌸</option>
+                            <option value="5">Mai 🌸</option>
+                            <option value="6">Juin ☀️</option>
+                            <option value="7">Juillet ☀️</option>
+                            <option value="8">Août ☀️</option>
+                            <option value="9">Septembre 🍂</option>
+                            <option value="10">Octobre 🍂</option>
+                            <option value="11">Novembre 🍂</option>
+                            <option value="12">Décembre ❄️</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">Ou choisissez une saison :</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+                            <button onclick="afficherSaison('printemps')" style="padding: 15px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: #333; transition: transform 0.2s;">
+                                🌸 Printemps
+                            </button>
+                            <button onclick="afficherSaison('ete')" style="padding: 15px; background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); border: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: #333; transition: transform 0.2s;">
+                                ☀️ Été
+                            </button>
+                            <button onclick="afficherSaison('automne')" style="padding: 15px; background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%); border: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: white; transition: transform 0.2s;">
+                                🍂 Automne
+                            </button>
+                            <button onclick="afficherSaison('hiver')" style="padding: 15px; background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); border: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: white; transition: transform 0.2s;">
+                                ❄️ Hiver
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Affichage des résultats -->
+                <div id="resultatCalendrier"></div>
+
+                <!-- Conseils saisonniers -->
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #e1bee7 100%); border-radius: 15px; padding: 25px; margin-top: 25px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💡 Pourquoi manger de saison ?</h3>
+                    <div style="display: grid; gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #4caf50;">
+                            <div style="font-weight: bold; color: #4caf50; margin-bottom: 5px;">🌿 Plus de nutriments</div>
+                            <div style="color: #666; font-size: 0.95em;">Les fruits et légumes cueillis à maturité contiennent plus de vitamines et minéraux</div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #2196f3;">
+                            <div style="font-weight: bold; color: #2196f3; margin-bottom: 5px;">💰 Moins cher</div>
+                            <div style="color: #666; font-size: 0.95em;">En saison, les produits sont abondants donc moins chers au marché</div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #ff9800;">
+                            <div style="font-weight: bold; color: #ff9800; margin-bottom: 5px;">😋 Meilleur goût</div>
+                            <div style="color: #666; font-size: 0.95em;">Les produits de saison mûrissent naturellement et ont plus de saveur</div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid #8bc34a;">
+                            <div style="font-weight: bold; color: #8bc34a; margin-bottom: 5px;">🌍 Écologique</div>
+                            <div style="color: #666; font-size: 0.95em;">Moins de transport, moins de serres chauffées = moins d'émissions de CO2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Onglet Conseils -->
             <div id="conseils" class="tab-content">
                 <h2>Conseils Nutrition & Bien-être</h2>
@@ -1681,6 +1771,9 @@
 
             // Vérifier si objectif déjà atteint au chargement
             verifierObjectifAtteint();
+
+            // Initialiser le calendrier avec le mois actuel
+            afficherMoisActuel();
 
             // Créer le bouton flottant de signalement
             const btnSignalement = document.createElement('button');
@@ -4052,6 +4145,306 @@
         }
 
         // ========== FIN FONCTIONS DE CORRECTION ==========
+
+        // ========== CALENDRIER SAISONNIER ==========
+
+        const calendrierSaisonnier = {
+            fruits: {
+                1: ["Citron", "Clémentine", "Kiwi", "Mandarine", "Orange", "Pamplemousse", "Poire", "Pomme"],
+                2: ["Citron", "Kiwi", "Mandarine", "Orange", "Pamplemousse", "Poire", "Pomme"],
+                3: ["Citron", "Kiwi", "Orange", "Pamplemousse", "Pomme"],
+                4: ["Citron", "Pomme"],
+                5: ["Cerise", "Fraise", "Rhubarbe"],
+                6: ["Abricot", "Cassis", "Cerise", "Fraise", "Framboise", "Groseille", "Melon", "Nectarine", "Pêche", "Prune"],
+                7: ["Abricot", "Brugnon", "Cassis", "Cerise", "Figue", "Fraise", "Framboise", "Groseille", "Melon", "Mirabelle", "Mûre", "Myrtille", "Nectarine", "Pastèque", "Pêche", "Prune"],
+                8: ["Abricot", "Brugnon", "Cassis", "Figue", "Fraise", "Framboise", "Groseille", "Melon", "Mirabelle", "Mûre", "Myrtille", "Nectarine", "Pastèque", "Pêche", "Poire", "Pomme", "Prune", "Raisin"],
+                9: ["Figue", "Framboise", "Melon", "Mirabelle", "Mûre", "Myrtille", "Nectarine", "Pêche", "Poire", "Pomme", "Prune", "Raisin"],
+                10: ["Châtaigne", "Coing", "Figue", "Framboise", "Kaki", "Kiwi", "Poire", "Pomme", "Raisin"],
+                11: ["Châtaigne", "Clémentine", "Kaki", "Kiwi", "Mandarine", "Orange", "Poire", "Pomme"],
+                12: ["Châtaigne", "Clémentine", "Kiwi", "Mandarine", "Orange", "Pamplemousse", "Poire", "Pomme"]
+            },
+            legumes: {
+                1: ["Betterave", "Carotte", "Céleri", "Chou", "Chou de Bruxelles", "Chou-fleur", "Courge", "Endive", "Épinard", "Mâche", "Navet", "Oignon", "Poireau", "Pomme de terre", "Topinambour"],
+                2: ["Betterave", "Carotte", "Céleri", "Chou", "Chou de Bruxelles", "Chou-fleur", "Endive", "Épinard", "Mâche", "Navet", "Oignon", "Poireau", "Pomme de terre"],
+                3: ["Asperge", "Betterave", "Carotte", "Chou-fleur", "Endive", "Épinard", "Navet", "Oignon", "Poireau", "Pomme de terre", "Radis"],
+                4: ["Asperge", "Betterave", "Carotte", "Chou-fleur", "Concombre", "Épinard", "Laitue", "Navet", "Oignon", "Petit pois", "Pomme de terre", "Radis"],
+                5: ["Asperge", "Betterave", "Carotte", "Chou-fleur", "Concombre", "Courgette", "Épinard", "Laitue", "Navet", "Oignon", "Petit pois", "Pomme de terre", "Radis", "Tomate"],
+                6: ["Artichaut", "Asperge", "Aubergine", "Betterave", "Carotte", "Concombre", "Courgette", "Fenouil", "Haricot vert", "Laitue", "Petit pois", "Poivron", "Pomme de terre", "Radis", "Tomate"],
+                7: ["Artichaut", "Aubergine", "Betterave", "Brocoli", "Carotte", "Concombre", "Courgette", "Fenouil", "Haricot vert", "Laitue", "Maïs", "Petit pois", "Poivron", "Pomme de terre", "Radis", "Tomate"],
+                8: ["Artichaut", "Aubergine", "Betterave", "Brocoli", "Carotte", "Concombre", "Courgette", "Fenouil", "Haricot vert", "Laitue", "Maïs", "Poivron", "Pomme de terre", "Radis", "Tomate"],
+                9: ["Artichaut", "Aubergine", "Betterave", "Brocoli", "Carotte", "Céleri", "Chou", "Chou-fleur", "Concombre", "Courgette", "Épinard", "Fenouil", "Haricot vert", "Laitue", "Maïs", "Poireau", "Poivron", "Pomme de terre", "Potiron", "Radis", "Tomate"],
+                10: ["Betterave", "Brocoli", "Carotte", "Céleri", "Chou", "Chou de Bruxelles", "Chou-fleur", "Courge", "Endive", "Épinard", "Fenouil", "Laitue", "Mâche", "Navet", "Oignon", "Poireau", "Pomme de terre", "Potiron", "Radis", "Topinambour"],
+                11: ["Betterave", "Carotte", "Céleri", "Chou", "Chou de Bruxelles", "Chou-fleur", "Courge", "Endive", "Épinard", "Mâche", "Navet", "Oignon", "Poireau", "Pomme de terre", "Potiron", "Topinambour"],
+                12: ["Betterave", "Carotte", "Céleri", "Chou", "Chou de Bruxelles", "Chou-fleur", "Courge", "Endive", "Épinard", "Mâche", "Navet", "Oignon", "Poireau", "Pomme de terre", "Topinambour"]
+            },
+            feculents: {
+                // Disponibles toute l'année
+                touteAnnee: ["Riz blanc", "Riz complet", "Pâtes", "Quinoa", "Boulgour", "Semoule", "Pain", "Pomme de terre", "Patate douce", "Lentilles", "Pois chiches", "Haricots blancs", "Haricots rouges", "Flageolets"],
+                // Féculents saisonniers
+                1: ["Pomme de terre", "Lentilles", "Haricots blancs", "Pois cassés", "Châtaigne"],
+                2: ["Pomme de terre", "Lentilles", "Haricots blancs", "Pois cassés"],
+                3: ["Pomme de terre", "Lentilles", "Pois cassés"],
+                4: ["Pomme de terre nouvelle", "Petit pois frais"],
+                5: ["Pomme de terre nouvelle", "Petit pois frais", "Fève"],
+                6: ["Pomme de terre nouvelle", "Petit pois frais", "Fève", "Maïs doux"],
+                7: ["Pomme de terre", "Petit pois frais", "Maïs doux"],
+                8: ["Pomme de terre", "Maïs doux", "Haricots verts"],
+                9: ["Pomme de terre", "Maïs doux", "Haricots verts", "Lentilles"],
+                10: ["Pomme de terre", "Patate douce", "Châtaigne", "Lentilles", "Haricots"],
+                11: ["Pomme de terre", "Patate douce", "Châtaigne", "Lentilles", "Haricots blancs"],
+                12: ["Pomme de terre", "Châtaigne", "Lentilles", "Haricots blancs", "Pois cassés"]
+            }
+        };
+
+        const nomsDesaisons = {
+            printemps: { nom: "Printemps", emoji: "🌸", couleur: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)", mois: [3, 4, 5] },
+            ete: { nom: "Été", emoji: "☀️", couleur: "linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)", mois: [6, 7, 8] },
+            automne: { nom: "Automne", emoji: "🍂", couleur: "linear-gradient(135deg, #fab1a0 0%, #e17055 100%)", mois: [9, 10, 11] },
+            hiver: { nom: "Hiver", emoji: "❄️", couleur: "linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)", mois: [12, 1, 2] }
+        };
+
+        const nomsMois = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+        function afficherMoisActuel() {
+            const moisActuel = new Date().getMonth() + 1;
+            document.getElementById('selectMois').value = moisActuel;
+            afficherMois(moisActuel);
+        }
+
+        function afficherSaisonActuelle() {
+            const mois = new Date().getMonth() + 1;
+            let saison;
+            
+            if (mois >= 3 && mois <= 5) saison = 'printemps';
+            else if (mois >= 6 && mois <= 8) saison = 'ete';
+            else if (mois >= 9 && mois <= 11) saison = 'automne';
+            else saison = 'hiver';
+            
+            afficherSaison(saison);
+        }
+
+        function afficherMois(mois) {
+            mois = parseInt(mois);
+            const fruits = calendrierSaisonnier.fruits[mois] || [];
+            const legumes = calendrierSaisonnier.legumes[mois] || [];
+            const feculentsSaison = calendrierSaisonnier.feculents[mois] || [];
+            const feculentsAnnee = calendrierSaisonnier.feculents.touteAnnee || [];
+
+            let saisonInfo = '';
+            for (let [key, value] of Object.entries(nomsDesaisons)) {
+                if (value.mois.includes(mois)) {
+                    saisonInfo = value;
+                    break;
+                }
+            }
+
+            const container = document.getElementById('resultatCalendrier');
+            container.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h2 style="color: #56ab2f; font-size: 2em; margin-bottom: 10px;">
+                            ${saisonInfo.emoji} ${nomsMois[mois - 1]}
+                        </h2>
+                        <p style="color: #666; font-size: 1.1em;">Saison : ${saisonInfo.nom}</p>
+                    </div>
+
+                    <!-- Fruits -->
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #ff6b6b; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">🍎</span>
+                            Fruits de saison (${fruits.length})
+                        </h3>
+                        ${fruits.length > 0 ? `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                                ${fruits.map(fruit => `
+                                    <div style="background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%); padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                                        ${fruit}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p style="color: #999; font-style: italic;">Peu de fruits frais ce mois-ci</p>'}
+                    </div>
+
+                    <!-- Légumes -->
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #4caf50; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">🥕</span>
+                            Légumes de saison (${legumes.length})
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                            ${legumes.map(legume => `
+                                <div style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                                    ${legume}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Féculents -->
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #ff9800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">🌾</span>
+                            Féculents du mois (${feculentsSaison.length})
+                        </h3>
+                        ${feculentsSaison.length > 0 ? `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                                ${feculentsSaison.map(feculent => `
+                                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                                        ${feculent}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #ff9800;">
+                            <div style="font-weight: bold; color: #ff9800; margin-bottom: 10px;">
+                                📦 Féculents disponibles toute l'année (${feculentsAnnee.length})
+                            </div>
+                            <div style="color: #666; font-size: 0.9em; line-height: 1.8;">
+                                ${feculentsAnnee.join(' • ')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 4px solid #4caf50; margin-top: 25px;">
+                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 5px;">💡 Astuce du mois</div>
+                        <div style="color: #555; font-size: 0.95em; line-height: 1.6;">
+                            ${getAstuceMois(mois)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function afficherSaison(saison) {
+            const info = nomsDesaisons[saison];
+            const moisSaison = info.mois;
+
+            // Combiner les fruits, légumes et féculents de tous les mois de la saison
+            const fruitsSet = new Set();
+            const legumesSet = new Set();
+            const feculentsSet = new Set();
+
+            moisSaison.forEach(mois => {
+                (calendrierSaisonnier.fruits[mois] || []).forEach(f => fruitsSet.add(f));
+                (calendrierSaisonnier.legumes[mois] || []).forEach(l => legumesSet.add(l));
+                (calendrierSaisonnier.feculents[mois] || []).forEach(f => feculentsSet.add(f));
+            });
+
+            const fruits = Array.from(fruitsSet).sort();
+            const legumes = Array.from(legumesSet).sort();
+            const feculents = Array.from(feculentsSet).sort();
+            const feculentsAnnee = calendrierSaisonnier.feculents.touteAnnee;
+
+            const container = document.getElementById('resultatCalendrier');
+            container.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <div style="background: ${info.couleur}; color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px;">
+                        <h2 style="font-size: 2.5em; margin-bottom: 10px;">${info.emoji} ${info.nom}</h2>
+                        <p style="font-size: 1.1em; opacity: 0.95;">
+                            ${moisSaison.map(m => nomsMois[m - 1]).join(', ')}
+                        </p>
+                    </div>
+
+                    <!-- Fruits -->
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #ff6b6b; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">🍎</span>
+                            Fruits de ${info.nom.toLowerCase()} (${fruits.length})
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                            ${fruits.map(fruit => `
+                                <div style="background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%); padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                                    ${fruit}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Légumes -->
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #4caf50; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">🥕</span>
+                            Légumes de ${info.nom.toLowerCase()} (${legumes.length})
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;">
+                            ${legumes.map(legume => `
+                                <div style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                                    ${legume}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Féculents -->
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #ff9800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">🌾</span>
+                            Féculents de ${info.nom.toLowerCase()} (${feculents.length})
+                        </h3>
+                        ${feculents.length > 0 ? `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                                ${feculents.map(feculent => `
+                                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: 600; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                                        ${feculent}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #ff9800;">
+                            <div style="font-weight: bold; color: #ff9800; margin-bottom: 10px;">
+                                📦 Féculents disponibles toute l'année (${feculentsAnnee.length})
+                            </div>
+                            <div style="color: #666; font-size: 0.9em; line-height: 1.8;">
+                                ${feculentsAnnee.join(' • ')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; border-left: 4px solid #4caf50; margin-top: 25px;">
+                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 5px;">💡 Astuce de ${info.nom.toLowerCase()}</div>
+                        <div style="color: #555; font-size: 0.95em; line-height: 1.6;">
+                            ${getAstuceSaison(saison)}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function getAstuceMois(mois) {
+            const astuces = {
+                1: "En hiver, privilégiez les agrumes riches en vitamine C pour booster votre système immunitaire !",
+                2: "C'est le moment idéal pour les soupes de légumes d'hiver bien chaudes et réconfortantes.",
+                3: "Le printemps arrive ! Profitez des premières asperges, délicieuses vapeur avec un filet de citron.",
+                4: "Les radis et les petits pois frais sont excellents en salade pour des repas légers et printaniers.",
+                5: "C'est la pleine saison des fraises ! Privilégiez-les locales et bio pour plus de saveur.",
+                6: "L'été approche : abricots, cerises et melons sont parfaits pour des desserts frais et peu caloriques.",
+                7: "Profitez de l'abondance estivale : tomates, courgettes et aubergines pour des ratatouilles savoureuses.",
+                8: "Les pêches et nectarines sont à leur apogée ! Excellentes nature ou en smoothies rafraîchissants.",
+                9: "L'automne débute : c'est la saison du raisin et des figues, riches en fibres et antioxydants.",
+                10: "Les courges et potirons arrivent ! Parfaits pour des soupes onctueuses et des purées réconfortantes.",
+                11: "Les champignons de saison sont délicieux poêlés avec des herbes fraîches.",
+                12: "En décembre, les endives et mâche sont idéales pour des salades croquantes et vitaminées."
+            };
+            return astuces[mois] || "Mangez varié et de saison pour une santé optimale !";
+        }
+
+        function getAstuceSaison(saison) {
+            const astuces = {
+                printemps: "Le printemps est la saison du renouveau ! Profitez des légumes verts frais pour détoxifier votre organisme après l'hiver. Les asperges sont diurétiques et les petits pois riches en protéines végétales.",
+                ete: "L'été offre une explosion de couleurs et de saveurs ! Les fruits rouges sont riches en antioxydants, et les légumes du soleil (tomates, courgettes, aubergines) se cuisinent facilement en plats légers.",
+                automne: "L'automne apporte les courges et les champignons ! C'est aussi la saison des fruits à coque comme les châtaignes, riches en fibres. Parfait pour préparer son corps à l'hiver.",
+                hiver: "L'hiver est la saison des légumes racines et des agrumes ! Les poireaux, choux et carottes se marient parfaitement en soupes chaudes. Les agrumes boostent votre immunité."
+            };
+            return astuces[saison] || "Mangez de saison pour une alimentation saine et économique !";
+        }
+
+        // ========== FIN CALENDRIER SAISONNIER ==========
 
         // ========== FONCTIONS SCANNER - VERSION AMÉLIORÉE ==========
 
