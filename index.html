@@ -448,6 +448,17 @@
             50% { transform: translateY(-20px); }
         }
 
+        @keyframes slideInRight {
+            0% {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         .firework {
             position: fixed;
             width: 10px;
@@ -558,6 +569,28 @@
             <a href="https://t.me/+votre_lien_telegram" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0088cc 0%, #00b4ff 100%); color: white; padding: 15px 35px; border-radius: 30px; text-decoration: none; font-size: 1.1em; font-weight: bold; margin-top: 20px; box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4); transition: all 0.3s; animation: pulse 2s infinite;">
                 📱 Rejoins notre communauté Telegram
             </a>
+
+            <!-- Navigation Rapide Intelligente -->
+            <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 15px; padding: 15px; margin-top: 25px;">
+                <div style="color: white; font-weight: 600; margin-bottom: 12px; font-size: 1.1em;">⚡ Actions Rapides</div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <button onclick="actionRapide('scanner')" style="background: rgba(255,255,255,0.95); color: #667eea; border: none; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.2)'">
+                        📷 Scanner un Produit
+                    </button>
+                    <button onclick="actionRapide('calculateur')" style="background: rgba(255,255,255,0.95); color: #4caf50; border: none; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.2)'">
+                        🧮 Calculer mes Calories
+                    </button>
+                    <button onclick="actionRapide('frigo')" style="background: rgba(255,255,255,0.95); color: #ff6b6b; border: none; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.2)'">
+                        🍳 Générer une Recette
+                    </button>
+                    <button onclick="actionRapide('coach')" style="background: rgba(255,255,255,0.95); color: #f5576c; border: none; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.2)'">
+                        🤖 Mes Suggestions
+                    </button>
+                    <button onclick="actionRapide('progression')" style="background: rgba(255,255,255,0.95); color: #764ba2; border: none; padding: 10px 18px; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.2);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.2)'">
+                        📈 Ma Progression
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="card">
@@ -1782,6 +1815,9 @@
             // Initialiser le calendrier avec le mois actuel
             afficherMoisActuel();
 
+            // Vérifier et afficher des suggestions contextuelles
+            verifierEtAfficherSuggestion();
+
             // Créer le bouton flottant de signalement
             const btnSignalement = document.createElement('button');
             btnSignalement.innerHTML = '🔧';
@@ -2191,12 +2227,20 @@
             }
 
             suggestions.innerHTML = resultats.map(aliment => `
-                <div onclick="selectionnerAliment('${aliment.nom}')" style="padding: 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
-                    <div style="font-weight: bold; color: #333; margin-bottom: 3px;">${aliment.nom}</div>
-                    <div style="font-size: 0.85em; color: #666;">
-                        ${aliment.calories} kcal • ${aliment.proteines}g prot • ${aliment.glucides}g gluc • ${aliment.lipides}g lip
-                        <span style="color: #667eea; margin-left: 8px;">(100g)</span>
+                <div style="padding: 12px; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                    <div onclick="selectionnerAliment('${aliment.nom}')" style="flex: 1; cursor: pointer;">
+                        <div style="font-weight: bold; color: #333; margin-bottom: 3px;">${aliment.nom}</div>
+                        <div style="font-size: 0.85em; color: #666;">
+                            ${aliment.calories} kcal • ${aliment.proteines}g prot • ${aliment.glucides}g gluc • ${aliment.lipides}g lip
+                            <span style="color: #667eea; margin-left: 8px;">(100g)</span>
+                        </div>
                     </div>
+                    <button onclick="ajouterAlimentRapide('${aliment.nom}'); event.stopPropagation();" 
+                            style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85em; white-space: nowrap; transition: transform 0.2s;"
+                            onmouseover="this.style.transform='scale(1.05)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                        ➕ 100g
+                    </button>
                 </div>
             `).join('');
 
@@ -2354,13 +2398,15 @@
             repasActuel = [];
             afficherRepasActuel();
 
+            // Synchroniser les données
+            synchroniserDonnees();
+
             alert('✅ Repas sauvegardé avec succès !');
             
             // Afficher une notification de suggestion
             setTimeout(() => {
                 if (confirm('💡 Voulez-vous voir les suggestions de collations adaptées à vos calories ?')) {
-                    showTab('coachai');
-                    document.querySelector('.tab[onclick*="coachai"]').classList.add('active');
+                    actionRapide('coach');
                 }
             }, 500);
         }
@@ -2692,12 +2738,16 @@
                         </div>
 
                         ${produit.notes ? `
-                            <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 3px solid #ffc107;">
+                            <div style="background: #fff3cd; padding: 10px; border-radius: 6px; border-left: 3px solid #ffc107; margin-bottom: 10px;">
                                 <div style="font-size: 0.85em; color: #856404; line-height: 1.4;">
                                     💭 ${produit.notes}
                                 </div>
                             </div>
                         ` : ''}
+
+                        <button onclick="ajouterProduitPersoAuCalculateur(${index})" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95em;">
+                            🧮 Ajouter au Calculateur
+                        </button>
                     </div>
                 `;
             }).join('');
@@ -3474,10 +3524,10 @@
             }
 
             liste.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px;">
                     ${produitsFrigo.map((produit, index) => `
                         <div style="background: white; border-radius: 10px; padding: 12px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <button onclick="retirerDuFrigo(${index})" style="position: absolute; top: 5px; right: 5px; background: #ff4757; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0;">×</button>
+                            <button onclick="retirerDuFrigo(${index})" style="position: absolute; top: 5px; right: 5px; background: #ff4757; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; z-index: 1;">×</button>
                             
                             ${produit.image ? `
                                 <img src="${produit.image}" style="width: 100%; height: 100px; object-fit: contain; border-radius: 8px; margin-bottom: 8px;">
@@ -3491,9 +3541,12 @@
                             <div style="font-size: 0.8em; color: #667eea; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 ${produit.marque}
                             </div>
-                            <div style="background: #f8f9fa; padding: 6px; border-radius: 5px; font-size: 0.75em; color: #666; text-align: center;">
+                            <div style="background: #f8f9fa; padding: 6px; border-radius: 5px; font-size: 0.75em; color: #666; text-align: center; margin-bottom: 8px;">
                                 ${Math.round(produit.calories)} kcal/100g
                             </div>
+                            <button onclick="ajouterProduitFrigoAuCalculateur(${index})" style="width: 100%; padding: 8px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.85em;">
+                                🧮 Calculateur
+                            </button>
                         </div>
                     `).join('')}
                 </div>
@@ -5096,6 +5149,354 @@
         }
 
         // ========== FIN FONCTION DE LIAISON HISTORIQUE ==========
+
+        // ========== FONCTIONS DE LIAISON FRIGO -> CALCULATEUR ==========
+
+        function ajouterProduitFrigoAuCalculateur(index) {
+            const produit = produitsFrigo[index];
+            
+            if (!produit) {
+                alert('⚠️ Produit introuvable');
+                return;
+            }
+
+            // Demander la quantité
+            const quantite = prompt(`💡 Quelle quantité de "${produit.nom}" voulez-vous ajouter ?\n\nEntrez le poids en grammes :`, '100');
+            
+            if (!quantite || isNaN(quantite) || quantite <= 0) {
+                if (quantite !== null) {
+                    alert('⚠️ Veuillez entrer une quantité valide en grammes');
+                }
+                return;
+            }
+
+            const quantiteNum = parseFloat(quantite);
+
+            // Calculer les valeurs proportionnelles
+            const ratio = quantiteNum / 100;
+            const alimentCalcule = {
+                nom: produit.nom,
+                quantite: quantiteNum,
+                calories: produit.calories * ratio,
+                proteines: produit.proteines * ratio,
+                glucides: produit.glucides * ratio,
+                lipides: produit.lipides * ratio
+            };
+
+            // Ajouter au repas actuel
+            repasActuel.push(alimentCalcule);
+            
+            // Afficher dans le calculateur
+            afficherRepasActuel();
+
+            // Notification de succès
+            afficherNotificationAjout(produit.nom, quantiteNum);
+
+            // Proposer d'aller au calculateur
+            setTimeout(() => {
+                if (confirm('✅ Produit ajouté !\n\n💡 Voulez-vous aller au Calculateur de Calories pour voir votre repas ?')) {
+                    showTab('calculateur');
+                    document.querySelector('.tab[onclick*="calculateur"]').classList.add('active');
+                }
+            }, 2500);
+        }
+
+        function ajouterProduitPersoAuCalculateur(index) {
+            const produit = produitsPerso[index];
+            
+            if (!produit) {
+                alert('⚠️ Produit introuvable');
+                return;
+            }
+
+            // Demander la quantité
+            const quantite = prompt(`💡 Quelle quantité de "${produit.nom}" voulez-vous ajouter ?\n\nEntrez le poids en grammes :`, '100');
+            
+            if (!quantite || isNaN(quantite) || quantite <= 0) {
+                if (quantite !== null) {
+                    alert('⚠️ Veuillez entrer une quantité valide en grammes');
+                }
+                return;
+            }
+
+            const quantiteNum = parseFloat(quantite);
+
+            // Calculer les valeurs proportionnelles
+            const ratio = quantiteNum / 100;
+            const alimentCalcule = {
+                nom: produit.nom,
+                quantite: quantiteNum,
+                calories: produit.calories * ratio,
+                proteines: produit.proteines * ratio,
+                glucides: produit.glucides * ratio,
+                lipides: produit.lipides * ratio
+            };
+
+            // Ajouter au repas actuel
+            repasActuel.push(alimentCalcule);
+            
+            // Afficher dans le calculateur
+            afficherRepasActuel();
+
+            // Notification de succès
+            afficherNotificationAjout(produit.nom, quantiteNum);
+
+            // Proposer d'aller au calculateur
+            setTimeout(() => {
+                if (confirm('✅ Produit ajouté !\n\n💡 Voulez-vous aller au Calculateur de Calories pour voir votre repas ?')) {
+                    showTab('calculateur');
+                    document.querySelector('.tab[onclick*="calculateur"]').classList.add('active');
+                }
+            }, 2500);
+        }
+
+        // Fonction utilitaire pour afficher la notification
+        function afficherNotificationAjout(nomProduit, quantite) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+                color: white;
+                padding: 25px 40px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 10002;
+                text-align: center;
+                font-size: 1.2em;
+                font-weight: bold;
+                animation: fadeIn 0.3s;
+            `;
+            notification.innerHTML = `
+                <div style="font-size: 2.5em; margin-bottom: 10px;">✅</div>
+                <div>Produit ajouté au calculateur !</div>
+                <div style="font-size: 0.85em; margin-top: 8px; opacity: 0.9;">${nomProduit} (${quantite}g)</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // ========== FIN FONCTIONS DE LIAISON FRIGO/BASE PERSO ==========
+
+        // ========== FONCTION D'AJOUT RAPIDE DEPUIS LA BASE DE DONNÉES ==========
+
+        function ajouterAlimentRapide(nomAliment) {
+            const aliment = baseAliments.find(a => a.nom === nomAliment);
+            
+            if (!aliment) {
+                alert('⚠️ Aliment introuvable');
+                return;
+            }
+
+            // Ajouter directement 100g
+            const alimentCalcule = {
+                nom: aliment.nom,
+                quantite: 100,
+                calories: aliment.calories,
+                proteines: aliment.proteines,
+                glucides: aliment.glucides,
+                lipides: aliment.lipides
+            };
+
+            repasActuel.push(alimentCalcule);
+            afficherRepasActuel();
+            
+            // Fermer les suggestions
+            document.getElementById('suggestionsAliments').style.display = 'none';
+            document.getElementById('searchAliment').value = '';
+
+            // Mini notification discrète
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+                z-index: 10002;
+                font-size: 1em;
+                font-weight: 600;
+                animation: slideInRight 0.3s;
+            `;
+            notification.innerHTML = `✅ ${aliment.nom} ajouté (100g)`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // ========== FIN FONCTION D'AJOUT RAPIDE ==========
+
+        // ========== SYSTÈME DE NAVIGATION INTELLIGENTE ET SYNCHRONISATION ==========
+
+        function actionRapide(action) {
+            switch(action) {
+                case 'scanner':
+                    showTab('scanner');
+                    document.querySelector('.tab[onclick*="scanner"]').classList.add('active');
+                    setTimeout(() => {
+                        alert('💡 Astuce : Après avoir scanné un produit, cliquez sur "🧮 Ajouter au Calculateur" pour construire votre repas !');
+                    }, 500);
+                    break;
+                    
+                case 'calculateur':
+                    showTab('calculateur');
+                    document.querySelector('.tab[onclick*="calculateur"]').classList.add('active');
+                    document.getElementById('searchAliment').focus();
+                    setTimeout(() => {
+                        alert('💡 Astuce : Vous pouvez aussi ajouter des produits depuis le Scanner, le Frigo ou votre Base Perso !');
+                    }, 500);
+                    break;
+                    
+                case 'frigo':
+                    if (produitsFrigo.length === 0) {
+                        if (confirm('Votre frigo est vide ! Voulez-vous scanner des produits maintenant ?')) {
+                            showTab('frigo');
+                            document.querySelector('.tab[onclick*="frigo"]').classList.add('active');
+                        }
+                    } else {
+                        showTab('frigo');
+                        document.querySelector('.tab[onclick*="frigo"]').classList.add('active');
+                        setTimeout(() => {
+                            const genererBtn = document.querySelector('button[onclick="genererRecettes()"]');
+                            if (genererBtn) {
+                                genererBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                genererBtn.style.animation = 'pulse 1s 3';
+                            }
+                        }, 500);
+                    }
+                    break;
+                    
+                case 'coach':
+                    actualiserCoachIA();
+                    showTab('coachai');
+                    document.querySelector('.tab[onclick*="coachai"]').classList.add('active');
+                    break;
+                    
+                case 'progression':
+                    showTab('suivi');
+                    document.querySelector('.tab[onclick*="suivi"]').classList.add('active');
+                    setTimeout(() => {
+                        if (pesees.length < 2) {
+                            alert('💡 Astuce : Enregistrez régulièrement votre poids pour suivre votre progression !');
+                        }
+                    }, 500);
+                    break;
+            }
+        }
+
+        // Fonction de synchronisation globale - appelée après chaque action importante
+        function synchroniserDonnees() {
+            // Actualiser le Coach IA si des données ont changé
+            if (document.getElementById('coachai').classList.contains('active')) {
+                actualiserCoachIA();
+            }
+            
+            // Actualiser le calculateur si actif
+            if (document.getElementById('calculateur').classList.contains('active')) {
+                afficherRepasActuel();
+                calculerCaloriesJour();
+            }
+            
+            // Actualiser le graphique si actif
+            if (document.getElementById('suivi').classList.contains('active')) {
+                dessinerGraphique();
+            }
+        }
+
+        // Système de suggestions contextuelles
+        function afficherSuggestionContextuelle() {
+            const maintenant = new Date().getHours();
+            const aujourdhui = new Date().toDateString();
+            const repasAujourdhui = repasSauvegardes.filter(r => new Date(r.date).toDateString() === aujourdhui);
+            
+            let suggestion = '';
+            
+            // Suggestions selon l'heure
+            if (maintenant >= 6 && maintenant < 10 && repasAujourdhui.length === 0) {
+                suggestion = '☀️ Bon matin ! C\'est l\'heure du petit-déjeuner. Scannez ou ajoutez vos aliments dans le Calculateur !';
+            } else if (maintenant >= 11 && maintenant < 14 && repasAujourdhui.length < 2) {
+                suggestion = '🍽️ C\'est l\'heure du déjeuner ! N\'oubliez pas d\'enregistrer votre repas pour suivre vos calories.';
+            } else if (maintenant >= 15 && maintenant < 17) {
+                const caloriesJour = repasAujourdhui.reduce((total, r) => total + r.totaux.calories, 0);
+                const objectifCal = userData.calories || 2000;
+                if (caloriesJour < objectifCal * 0.7) {
+                    suggestion = '🍎 Besoin d\'une collation ? Le Coach IA peut vous suggérer des options adaptées à vos calories restantes !';
+                }
+            } else if (maintenant >= 18 && maintenant < 21 && repasAujourdhui.length < 3) {
+                suggestion = '🌙 C\'est bientôt l\'heure du dîner ! Consultez votre Frigo & Recettes pour des idées de repas équilibrés.';
+            }
+            
+            // Suggestion si frigo vide mais pas utilisé depuis longtemps
+            if (produitsFrigo.length === 0 && produitsPerso.length === 0) {
+                suggestion = '📦 Créez votre base personnelle ou scannez vos produits pour générer des recettes automatiquement !';
+            }
+            
+            return suggestion;
+        }
+
+        // Afficher une suggestion au chargement si pertinent
+        function verifierEtAfficherSuggestion() {
+            const derniereSuggestion = localStorage.getItem('derniereSuggestion');
+            const aujourdhui = new Date().toDateString();
+            
+            if (derniereSuggestion !== aujourdhui) {
+                const suggestion = afficherSuggestionContextuelle();
+                if (suggestion) {
+                    setTimeout(() => {
+                        const afficher = confirm(suggestion + '\n\nVoulez-vous y accéder maintenant ?');
+                        if (afficher) {
+                            const heure = new Date().getHours();
+                            if (heure >= 6 && heure < 10) actionRapide('calculateur');
+                            else if (heure >= 11 && heure < 14) actionRapide('calculateur');
+                            else if (heure >= 15 && heure < 17) actionRapide('coach');
+                            else if (heure >= 18 && heure < 21) actionRapide('frigo');
+                            else actionRapide('scanner');
+                        }
+                        localStorage.setItem('derniereSuggestion', aujourdhui);
+                    }, 2000);
+                }
+            }
+        }
+
+        // Système de raccourcis clavier
+        document.addEventListener('keydown', function(e) {
+            // Alt + S = Scanner
+            if (e.altKey && e.key === 's') {
+                e.preventDefault();
+                actionRapide('scanner');
+            }
+            // Alt + C = Calculateur
+            else if (e.altKey && e.key === 'c') {
+                e.preventDefault();
+                actionRapide('calculateur');
+            }
+            // Alt + F = Frigo
+            else if (e.altKey && e.key === 'f') {
+                e.preventDefault();
+                actionRapide('frigo');
+            }
+            // Alt + P = Progression
+            else if (e.altKey && e.key === 'p') {
+                e.preventDefault();
+                actionRapide('progression');
+            }
+        });
+
+        // ========== FIN SYSTÈME DE NAVIGATION INTELLIGENTE ==========
 
         // Redessiner le graphique lors du redimensionnement
         window.addEventListener('resize', () => {
